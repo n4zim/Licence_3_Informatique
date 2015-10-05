@@ -15,6 +15,10 @@ int main(int argc, char **argv) {
 		close(0);
 		dup(tube1[0]);
 		close(tube1[0]);
+		
+		close(tube1[1]);
+		close(tube2[1]);
+		close(tube2[0]);
 	}
 	
 	fils2 = fork();
@@ -25,6 +29,10 @@ int main(int argc, char **argv) {
 		close(0);
 		dup(tube1[0]);
 		close(tube1[0]);
+		
+		close(tube1[1]);
+		close(tube2[1]);
+		close(tube2[0]);
 	}
 	
 	// Sortie st. -> Tube 2
