@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Collection;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
@@ -22,8 +23,11 @@ public class Trie {
 	}
 	
 	public String toString() {			
-		return "ROOT : "+root.toString()
-			+"\nLOOKUP : "+nodeTries.toString();
+		String output = "ROOT : "+root.toString()+"\nLOOKUP : ";
+		Iterator it = nodeTries.iterator();
+		while(it.hasNext()) { output += it.next()+" - "; }
+		
+		return output;
 	}
 	
 	@SuppressWarnings("unused")
@@ -50,6 +54,8 @@ public class Trie {
 					+"\tisInDico : "+isInDico
 					+"\tFather : "+father;
 		}
+		
+		public Iterator<Node> iterator() { return nodeTries.iterator(); }
 	}
 	
 	public void addWord(String word) {
