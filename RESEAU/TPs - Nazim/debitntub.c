@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
 
 	if(nbtubes > NB_TUBES) { printf("Le nombre de tubes soit être inférieur ou égal à %d !\n", NB_TUBES); exit(0); }
 
-	s = malloc(bufsize * sizeof *s); // Taille du tableau de char = taille du buffer
+	s = malloc(bufsize * sizeof *s); // Taille du tableau de char
 	if(!s) { perror("MALLOC"); exit(1); }
 
 	// Création de l'ensemble des pipes
