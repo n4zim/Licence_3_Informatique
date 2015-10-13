@@ -12,10 +12,11 @@ import java.util.Set;
 public class Trie {
 
 	private Node root;
-	Collection<Node> nodeTries = new LinkedList<Node>();
+	private Collection<Node> nodeTries = new LinkedList<Node>();
 
 	Trie(String filename) throws FileNotFoundException {
 		root = new Node(null, '.');
+		root.isInDico = true;
 		
 		Iterable<String> dictionary;
 		dictionary = BuildDic(filename);
@@ -24,7 +25,7 @@ public class Trie {
 	
 	public String toString() {			
 		String output = "ROOT : "+root.toString()+"\nLOOKUP : ";
-		Iterator it = nodeTries.iterator();
+		Iterator<Node> it = nodeTries.iterator();
 		while(it.hasNext()) { output += it.next()+" - "; }
 		
 		return output;
@@ -36,12 +37,15 @@ public class Trie {
 		boolean isInDico;
 		Node father;
 		Map<Character,Node> ChildrenTable;
+		Node suffix, acceptingSuffix;
 		
 		Node(Node father, char value) {
 			 this.value = value;
 			 this.father = father;
 			 this.isInDico = false;
 			 ChildrenTable = new Hashtable<Character,Node>();
+			 suffix = null;
+			 acceptingSuffix = null;
 		}
 		
 		public void showAllDico() {
@@ -50,9 +54,10 @@ public class Trie {
 		}
 		
 		public String toString() {
-			return "Value : "+value
+			/*return "Value : "+value
 					+"\tisInDico : "+isInDico
-					+"\tFather : "+father;
+					+"\tFather : "+father;*/
+			return Trie.this.toString(this);
 		}
 		
 		public Iterator<Node> iterator() { return nodeTries.iterator(); }
@@ -83,19 +88,62 @@ public class Trie {
 		
 		Node currentNode;
 		
-		while(nodeQueue.isEmpty()) {
+		while(!nodeQueue.isEmpty()) {
 			currentNode = nodeQueue.remove();
 			
-			for(@SuppressWarnings("rawtypes") Map.Entry mapEntry : currentNode.ChildrenTable.entrySet()) {
+			for(Map.Entry<Character, Node> mapEntry : currentNode.ChildrenTable.entrySet())
 				nodeQueue.add(currentNode.ChildrenTable.get(mapEntry.getKey()));
-			}
+		
+			if(root != currentNode) ((LinkedList<Node>) nodeTries).addLast(currentNode);
 			
-			((LinkedList<Node>) nodeTries).addLast(currentNode);
-			
-			System.out.println(currentNode.value+"-----------\t");
+			//System.out.println(currentNode.value+"-----------\t");
 		}
 	}
+
+	private void checkSuffixes() {
+		lookup();
+		Node nextNode;
+		Iterator<Node> it = nodeTries.iterator();
+		
+		root.suffix = root.acceptingSuffix = root;
+		
+		while(it.hasNext()) {
+			nextNode = it.next();
+			if(root.ChildrenTable.containsValue(nextNode)) nextNode.suffix = root;
+			
+			else if(nextNode.father.suffix.ChildrenTable.containsKey(nextNode.value))
+				nextNode.suffix = nextNode.father.suffix.ChildrenTable.get(nextNode.value);
+				
+			else nextNode.suffix = nextNode.father.suffix;
+			
+			if(nextNode.suffix.isInDico) nextNode.acceptingSuffix = nextNode.suffix;
+				else nextNode.acceptingSuffix = nextNode.suffix.acceptingSuffix;	
+		}
+		
+	}
+
+	private Node charSearch(Node currentNode, char character, int index) {
+		if(currentNode.ChildrenTable.containsKey(character)) {
+			currentNode = currentNode.ChildrenTable.get(character);
+			if(currentNode.isInDico) System.out.println("\"" + currentNode.toString() + "\" a été trouvé à la position " + index);
+		
+		} else currentNode = currentNode.acceptingSuffix;
+
+		return currentNode;
+	}
 	
+	public void wordSearch(String filename) throws FileNotFoundException {
+		int index = 0;
+		Node currentNode = root;
+				
+		Scanner buf = new Scanner(new File(filename));
+		buf.useDelimiter("");
+				
+		while(buf.hasNext()) currentNode = charSearch(currentNode, buf.next().charAt(0), ++index);
+		
+		buf.close();
+	}
+		
 	private static Iterable<String> BuildDic(String filename) throws FileNotFoundException {
 		Scanner scanner = new Scanner(new File(filename));
 		LinkedList<String> dictionary = new LinkedList<>();
@@ -105,12 +153,18 @@ public class Trie {
 		
 		return dictionary;
 	}
+	
+	public String toString(Node node) {
+		if(root != node) return toString(node.father) + ":" + node.value; 
+			else return "ROOT";
+	}
 		
 	public static void main(String[] args) throws FileNotFoundException {
-		Trie trie  = new Trie("1256-0.txt");
+		Trie trie  = new Trie("cyranoDict.txt");
 		//trie.root.showAllDico();
-		trie.lookup();
-		System.out.println(trie.toString());
+		trie.checkSuffixes();
+		//System.out.println(trie.toString());
+		trie.wordSearch("1256-0.txt");
 	}
 	
 }
