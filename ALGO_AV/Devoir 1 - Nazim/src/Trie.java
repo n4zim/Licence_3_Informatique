@@ -100,6 +100,7 @@ public class Trie {
 		Iterator<Node> it = nodeTries.iterator();
 		root.suffix = root.acceptingSuffix = root;
 		
+		// Pour chaque mot cherché dans l'arbre
 		while(it.hasNext()) {
 			nextNode = it.next();
 			if(root.ChildrenTable.containsValue(nextNode)) nextNode.suffix = root;
@@ -111,15 +112,16 @@ public class Trie {
 
 			
 			if(nextNode.suffix.isInDico) nextNode.acceptingSuffix = nextNode.suffix;
-				else nextNode.acceptingSuffix = nextNode.suffix.acceptingSuffix;	
+				else nextNode.acceptingSuffix = nextNode.suffix.acceptingSuffix;
 		}
-		
 	}
 
+	private static int cpt = 0;
+	
 	private Node charSearch(Node currentNode, char character, int index) {
 		if(currentNode.ChildrenTable.containsKey(character)) {
 			currentNode = currentNode.ChildrenTable.get(character);
-			if(currentNode.isInDico) System.out.println(index + "\t\"" + currentNode.toString() + "\"");
+			if(currentNode.isInDico) System.out.println(++cpt + "\t\t" + index + "\t\t\"" + currentNode.toString() + "\"");
 		
 		} else currentNode = currentNode.acceptingSuffix;
 
@@ -134,8 +136,9 @@ public class Trie {
 		buf.useDelimiter("");
 				
 		while(buf.hasNext()) currentNode = charSearch(currentNode, buf.next().charAt(0), ++index);
-		
 		buf.close();
+		
+		System.out.println("\nIl y a dans le texte " + cpt + " correspondances du fichier \"" + filename + "\"");
 	}
 		
 	private static Iterable<String> BuildDic(String filename) throws FileNotFoundException {
