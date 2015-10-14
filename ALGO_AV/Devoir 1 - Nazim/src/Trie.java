@@ -73,7 +73,7 @@ public class Trie {
 				curentNode = curentNode.ChildrenTable.get(currentValue);
 			
 			} else {
-				Node children = new Node(curentNode.ChildrenTable.get(currentValue), currentValue);
+				Node children = new Node(curentNode, currentValue);
 				curentNode.ChildrenTable.put(currentValue, children);
 				curentNode = children;
 			}
@@ -82,11 +82,10 @@ public class Trie {
 		}
 	}
 	
-	public void lookup() {
+	private void checkSuffixes() {
 		Queue<Node> nodeQueue = new LinkedList<Node>();
 		nodeQueue.add(root);
-		
-		Node currentNode;
+		Node currentNode, nextNode;
 		
 		while(!nodeQueue.isEmpty()) {
 			currentNode = nodeQueue.remove();
@@ -95,16 +94,10 @@ public class Trie {
 				nodeQueue.add(currentNode.ChildrenTable.get(mapEntry.getKey()));
 		
 			if(root != currentNode) ((LinkedList<Node>) nodeTries).addLast(currentNode);
-			
 			//System.out.println(currentNode.value+"-----------\t");
 		}
-	}
-
-	private void checkSuffixes() {
-		lookup();
-		Node nextNode;
-		Iterator<Node> it = nodeTries.iterator();
 		
+		Iterator<Node> it = nodeTries.iterator();
 		root.suffix = root.acceptingSuffix = root;
 		
 		while(it.hasNext()) {
@@ -115,6 +108,7 @@ public class Trie {
 				nextNode.suffix = nextNode.father.suffix.ChildrenTable.get(nextNode.value);
 				
 			else nextNode.suffix = nextNode.father.suffix;
+
 			
 			if(nextNode.suffix.isInDico) nextNode.acceptingSuffix = nextNode.suffix;
 				else nextNode.acceptingSuffix = nextNode.suffix.acceptingSuffix;	
@@ -125,7 +119,7 @@ public class Trie {
 	private Node charSearch(Node currentNode, char character, int index) {
 		if(currentNode.ChildrenTable.containsKey(character)) {
 			currentNode = currentNode.ChildrenTable.get(character);
-			if(currentNode.isInDico) System.out.println("\"" + currentNode.toString() + "\" a été trouvé à la position " + index);
+			if(currentNode.isInDico) System.out.println(index + "\t\"" + currentNode.toString() + "\"");
 		
 		} else currentNode = currentNode.acceptingSuffix;
 
