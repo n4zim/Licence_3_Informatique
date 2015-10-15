@@ -11,7 +11,6 @@ public class Vector<T> {
 		size = 0;
 	}
 
-
     private void ensureCapacity(int capacity) {
         if(capacity < array.length)
             return;
