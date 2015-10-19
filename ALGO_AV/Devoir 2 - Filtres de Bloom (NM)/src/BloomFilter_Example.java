@@ -5,7 +5,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.BitSet;
 import java.util.Collection;
 
-public class BloomFilter<E> implements Serializable {
+public class BloomFilter_Example<E> implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	private BitSet bitset;
@@ -30,7 +30,7 @@ public class BloomFilter<E> implements Serializable {
     }
 
 
-    public BloomFilter(double c, int n, int k) {
+    public BloomFilter_Example(double c, int n, int k) {
       this.expectedNumberOfFilterElements = n;
       this.k = k;
       this.bitsPerElement = c;
@@ -39,19 +39,19 @@ public class BloomFilter<E> implements Serializable {
       this.bitset = new BitSet(bitSetSize);
     }
 
-    public BloomFilter(int bitSetSize, int expectedNumberOElements) {
+    public BloomFilter_Example(int bitSetSize, int expectedNumberOElements) {
         this(bitSetSize / (double)expectedNumberOElements,
              expectedNumberOElements,
              (int) Math.round((bitSetSize / (double)expectedNumberOElements) * Math.log(2.0)));
     }
 
-    public BloomFilter(double falsePositiveProbability, int expectedNumberOfElements) {
+    public BloomFilter_Example(double falsePositiveProbability, int expectedNumberOfElements) {
         this(Math.ceil(-(Math.log(falsePositiveProbability) / Math.log(2))) / Math.log(2), // c = k / ln(2)
              expectedNumberOfElements,
              (int)Math.ceil(-(Math.log(falsePositiveProbability) / Math.log(2)))); // k = ceil(-log_2(false prob.))
     }
 
-    public BloomFilter(int bitSetSize, int expectedNumberOfFilterElements, int actualNumberOfFilterElements, BitSet filterData) {
+    public BloomFilter_Example(int bitSetSize, int expectedNumberOfFilterElements, int actualNumberOfFilterElements, BitSet filterData) {
         this(bitSetSize, expectedNumberOfFilterElements);
         this.bitset = filterData;
         this.numberOfAddedElements = actualNumberOfFilterElements;
@@ -102,7 +102,7 @@ public class BloomFilter<E> implements Serializable {
         if (getClass() != obj.getClass()) { return false; }
         
 	@SuppressWarnings("unchecked")
-	final BloomFilter<E> other = (BloomFilter<E>) obj;        
+	final BloomFilter_Example<E> other = (BloomFilter_Example<E>) obj;        
         if (this.expectedNumberOfFilterElements != other.expectedNumberOfFilterElements) { return false; }
         if (this.k != other.k) { return false; }
         if (this.bitSetSize != other.bitSetSize) { return false; }
