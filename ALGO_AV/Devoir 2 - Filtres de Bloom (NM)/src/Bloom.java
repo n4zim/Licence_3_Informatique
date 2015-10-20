@@ -1,5 +1,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Random;
@@ -7,22 +9,36 @@ import java.util.Scanner;
 
 public class Bloom<Key> {
 	
-	private Random gen;
-	private  BitSet bitmap;
-	private int numberOfKeys;
-	private double bitsElements; 
-	private int bitSize; 
-	private int k; // nombre de bits à 1
+	private int k; // k functions of dispersions
+	private int m ; // Bits length
+	private int n; // numberOfKeys
+	private int p = (int) 0.01; // probability
 	
-	public Bloom(int k, double m, int n ){
-		this.numberOfKeys = 0;
-		this.bitsElements = m;
-		this.k = k; 
-		this.bitSize = (int)Math.ceil(m * n);
-		this.bitmap = new BitSet(bitSize);
+	private int prime;     // prime number 
+	private int pairs[][]; // a and b pairs table
+	private Random gen;	  
+	
+	private  BitSet bitmap;
+	
+	public Bloom(int numberOfKeys) {
+		this.n = numberOfKeys;	
+		this.m = (int) Math.ceil((n * Math.log(p)) / Math.log(1.0 / (Math.pow(2.0, Math.log(2.0)))));
+		this.k = (int) Math.round(Math.log(2.0) * m / n); 
+		this.prime = BigInteger.probablePrime(30, gen).intValue(); // prime number generate 
+		this.pairs = new int[k][2];
+		
+		for(int i = 0; i < k; i++){
+			pairs[i][0] = gen.nextInt(prime-2)+1; // a
+			pairs[i][1] = gen.nextInt(prime-1);   // b
+		} // pairs calculate (one for each (k)function of dispersion)
+		
+		this.bitmap = new BitSet(m);
 	}
 	
 	public void add(Key key) {
+		//int keyhash = key.hashCode();
+	    //bitmap.set(Math.abs(keyhash % m), true);
+		
 	}
 	
 	public boolean probablyContains(Key key) {
@@ -31,6 +47,7 @@ public class Bloom<Key> {
 	
 
 	public static void main(String[] args) throws FileNotFoundException {
+	// --------------> Person file reader <-------------- 
 		File nameOfSuspects = new File(args[0]);
 		ArrayList<Person> listOfSuspects = new ArrayList<>();
 		Scanner bufPositive = new Scanner(nameOfSuspects);
@@ -39,8 +56,9 @@ public class Bloom<Key> {
 			listOfSuspects.add(Person.readPerson(bufPositive));
 		}
 		bufPositive.close();
-		int numberOfKeysMain = numberOfKeys;
-		Bloom<Person> filter = new Bloom<Person>(numberOfKeysMain, 1, 2);
+	// --------------------> END <----------------------
+		
+		Bloom<Person> filter = new Bloom<Person>(577);
 	}
 
 }

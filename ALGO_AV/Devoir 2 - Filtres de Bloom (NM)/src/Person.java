@@ -44,9 +44,9 @@ public class Person {
 		return true;
 	} 
 	
-	public void compareTo(){
-		
-	}
+	public void personCompare(/* args */){
+		// TODO
+	} 
 
 	@Override
 	public String toString() { return "Person [nom=" + nom + ", prenom=" + prenom + ", ville=" + ville + "]"; }
@@ -59,5 +59,7 @@ public class Person {
 		Person person = new Person(prenom, nom, ville);
 		return person;
 	}
+	
+	
 	
 }
