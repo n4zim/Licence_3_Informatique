@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -12,7 +13,7 @@ public class Bloom<Key> {
 	private int k; // k functions of dispersions
 	private int m ; // Bits length
 	private int n; // numberOfKeys
-	private int p = (int) 0.01; // probability
+	private float p = (float) 0.01; // probability
 	
 	private int prime;     // prime number 
 	private int pairs[][]; // a and b pairs table
@@ -21,6 +22,8 @@ public class Bloom<Key> {
 	private  BitSet bitmap;
 	
 	public Bloom(int numberOfKeys) {
+		this.gen = new Random();
+		
 		this.n = numberOfKeys;	
 		this.m = (int) Math.ceil((n * Math.log(p)) / Math.log(1.0 / (Math.pow(2.0, Math.log(2.0)))));
 		this.k = (int) Math.round(Math.log(2.0) * m / n); 
@@ -36,18 +39,25 @@ public class Bloom<Key> {
 	}
 	
 	public void add(Key key) {
-		//int keyhash = key.hashCode();
-	    //bitmap.set(Math.abs(keyhash % m), true);
+		int hash = key.hashCode();
 		
+	    for(int i=0; i<k; i++)
+	    	bitmap.set(Math.abs((pairs[i][0]*hash+pairs[i][1])%prime%m));
 	}
 	
 	public boolean probablyContains(Key key) {
-		return false;
+		int hash = key.hashCode();
+		
+		for(int i=0; i<k; i++)
+			if(!bitmap.get(Math.abs((pairs[i][0]*hash+pairs[i][1])%prime%m)))
+				return false;
+		
+		return true;
 	}
 	
 
 	public static void main(String[] args) throws FileNotFoundException {
-	// --------------> Person file reader <-------------- 
+		// --------------> Person file reader <-------------- 
 		File nameOfSuspects = new File(args[0]);
 		ArrayList<Person> listOfSuspects = new ArrayList<>();
 		Scanner bufPositive = new Scanner(nameOfSuspects);
@@ -56,9 +66,34 @@ public class Bloom<Key> {
 			listOfSuspects.add(Person.readPerson(bufPositive));
 		}
 		bufPositive.close();
-	// --------------------> END <----------------------
+		// --------------------> END <----------------------
 		
 		Bloom<Person> filter = new Bloom<Person>(577);
+		Iterator<Person> it = listOfSuspects.iterator();
+		
+		while(it.hasNext())
+			filter.add(it.next());
+		
+		// --------------> Person file reader <-------------- 
+		File name = new File(args[1]);
+		ArrayList<Person> listOfName = new ArrayList<>();
+		Scanner buf = new Scanner(name);
+		buf.useDelimiter("\n");
+		while (buf.hasNext()) {
+			listOfName.add(Person.readPerson(buf));
+		}
+		buf.close();
+		// --------------------> END <----------------------
+		
+		Iterator<Person> iter = listOfName.iterator();
+
+		int compteur = 0;
+		while(iter.hasNext())
+		{
+			if(filter.probablyContains(iter.next()))
+				compteur++;
+		}
+		System.out.println("Nombre : " + compteur);
 	}
 
 }
