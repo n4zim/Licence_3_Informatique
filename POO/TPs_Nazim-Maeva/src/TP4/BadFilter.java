@@ -1,48 +1,31 @@
-package TP4;
+package TDTP4;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class BadFilter
-{
-	
-	public enum Type
-	{
-		ODD, LEQ
-	}
-	
+public class BadFilter {
+
+	public enum Type { ODD, LEQ }
 	private Type type;
 	private int value;
 	
-	public BadFilter(Type type)
-	{
+	public BadFilter(Type type) {
 		this.type = type;
 	}
 	
-	public BadFilter(Type type, int value)
-	{
+	public BadFilter(Type type, int value) {
 		this.type = type;
 		this.value = value;
 	}
 	
-	public List<Integer> apply(List<Integer> list)
-	{
+	public List<Integer> apply(List<Integer> list) {
 		List<Integer> result = new ArrayList<Integer>();
-		switch(type)
-		{
-			case ODD:
-				for(int i : list)
-					if(i%2 == 1)
-						result.add(i);
-				break;
-			case LEQ:
-				for(int i : list)
-					if(i <= value)
-						result.add(i);
-				break;
+		switch(type) {
+			case ODD: for(int i : list) if(i%2==1) result.add(i); break;
+			case LEQ: for(int i : list) if(i<=value) result.add(i); break;
 		}
 		
-		return result;		
+		return result;
 	}
-
+	
 }

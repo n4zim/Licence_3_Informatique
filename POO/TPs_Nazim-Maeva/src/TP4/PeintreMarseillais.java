@@ -1,25 +1,21 @@
-package TP4;
+package TDTP4;
 
 import java.awt.Graphics;
 
-public class PeintreMarseillais
-{
-	
+public class PeintreMarseillais {
+
 	private final Graphics g;
 	
-	public PeintreMarseillais(Graphics g)
-	{
+	public PeintreMarseillais(Graphics g) {
 		this.g = g;
 	}
-
-	public void dessinerRectangle(int x, int y, int width, int height)
-	{
-		g.drawRect(x, y, width, height);
+	
+	public void dessinerRectangle(int x, int y, int w, int h) {
+		g.drawRect(x, y, w, h);
 	}
-
-	public void dessinerCercle(int x, int y, int rayon)
-	{
-		g.drawOval(x-rayon, y-rayon, rayon*2, rayon*2);
+	
+	public void dessinerCercle(int x, int y, int r) {
+		g.drawOval(x-r, y-r, r*2, r*2);
 	}
-
+	
 }

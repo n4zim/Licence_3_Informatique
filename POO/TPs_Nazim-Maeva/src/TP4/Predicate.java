@@ -1,6 +1,9 @@
-package TP4;
+package TDTP4;
 
-public interface Predicate<T>
-{
-	boolean test(T e);
+public interface Predicate {
+
+	/*public boolean test(int i) {
+		return true;
+	}*/
+	
 }
