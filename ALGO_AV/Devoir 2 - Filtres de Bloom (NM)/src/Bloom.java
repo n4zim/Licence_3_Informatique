@@ -1,7 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.math.BigInteger;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Iterator;
@@ -55,44 +54,31 @@ public class Bloom<Key> {
 		return true;
 	}
 	
-
-	public static void main(String[] args) throws FileNotFoundException {
-		// --------------> Person file reader <-------------- 
-		File nameOfSuspects = new File(args[0]);
-		ArrayList<Person> listOfSuspects = new ArrayList<>();
-		Scanner bufPositive = new Scanner(nameOfSuspects);
-		bufPositive.useDelimiter("\n");
-		while (bufPositive.hasNext()) {
-			listOfSuspects.add(Person.readPerson(bufPositive));
-		}
-		bufPositive.close();
-		// --------------------> END <----------------------
+	public ArrayList<Person> getPersonListFromFile(String file) throws FileNotFoundException {	
+		ArrayList<Person> liste = new ArrayList<>();
 		
-		Bloom<Person> filter = new Bloom<Person>(577);
-		Iterator<Person> it = listOfSuspects.iterator();
-		
-		while(it.hasNext())
-			filter.add(it.next());
-		
-		// --------------> Person file reader <-------------- 
-		File name = new File(args[1]);
-		ArrayList<Person> listOfName = new ArrayList<>();
-		Scanner buf = new Scanner(name);
+		Scanner buf = new Scanner(new File(file));
 		buf.useDelimiter("\n");
-		while (buf.hasNext()) {
-			listOfName.add(Person.readPerson(buf));
-		}
+		while(buf.hasNext()) liste.add(Person.readPerson(buf));
 		buf.close();
-		// --------------------> END <----------------------
 		
-		Iterator<Person> iter = listOfName.iterator();
+		return liste;
+	}
+	
+	public static void main(String[] args) throws FileNotFoundException {
+		Bloom<Person> filter = new Bloom<Person>(577);
+		
+		// --------------> Suspects <--------------
+		ArrayList<Person> suspectsList = filter.getPersonListFromFile("liste_suspects_577.txt");
+		Iterator<Person> it1 = suspectsList.iterator();
+		while(it1.hasNext()) filter.add(it1.next());
+		
+		// --------------> Liste globale <--------------
+		ArrayList<Person> globalList = filter.getPersonListFromFile("person_list_100k.txt");
+		Iterator<Person> it2 = globalList.iterator();
 
 		int compteur = 0;
-		while(iter.hasNext())
-		{
-			if(filter.probablyContains(iter.next()))
-				compteur++;
-		}
+		while(it2.hasNext()) if(filter.probablyContains(it2.next())) compteur++;
 		System.out.println("Nombre : " + compteur);
 	}
 
