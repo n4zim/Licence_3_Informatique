@@ -1,6 +1,6 @@
 import java.util.Scanner;
 
-public class Person {
+public class Person implements Comparable<Person> {
 	String nom; 
 	String prenom; 
 	String ville;
@@ -44,9 +44,6 @@ public class Person {
 		return true;
 	} 
 	
-	public void personCompare(/* args */){
-		// TODO
-	} 
 
 	@Override
 	public String toString() { return "Person [nom=" + nom + ", prenom=" + prenom + ", ville=" + ville + "]"; }
@@ -59,7 +56,10 @@ public class Person {
 		Person person = new Person(prenom, nom, ville);
 		return person;
 	}
-	
-	
-	
+
+	@Override
+	public int compareTo(Person o) {
+		return 0;
+	}
+
 }

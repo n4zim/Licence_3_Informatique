@@ -20,11 +20,7 @@ public class Bloom<Key> {
 	private int pairs[][]; // a and b pairs table
 	private Random gen;	  
 	
-	private  BitSet bitmap;
-	private HashSet hashset;
-	private TreeSet treeset;
-	
-	
+	private BitSet bitmap;	
 	
 	public Bloom(int numberOfKeys) {
 		this.gen = new Random();
@@ -63,11 +59,11 @@ public class Bloom<Key> {
 		return true;
 	}
 	
-	public boolean testHashSet(Key key){
-		Person liste = getPersonListFromFile();
+	/*public boolean testHashSet(Key key){
+		ArrayList<Person> liste = getPersonListFromFile("liste_suspects_577.txt");
 		for(int i = 0; i < liste)
 		return true; 
-	}
+	}*/
 	
 	public ArrayList<Person> getPersonListFromFile(String file) throws FileNotFoundException {	
 		ArrayList<Person> liste = new ArrayList<>();
@@ -80,30 +76,47 @@ public class Bloom<Key> {
 		return liste;
 	}
 	
-	public static void main(String[] args) throws FileNotFoundException {
-		long start = System.nanoTime();
-		
+	public static void main(String[] args) throws FileNotFoundException {		
 		Bloom<Person> filter = new Bloom<Person>(577);
 		HashSet<Person> filter2 = new HashSet<Person>();
+		TreeSet<Person> filter3 = new TreeSet<Person>();
+		
+		long start = System.nanoTime();
  		
 		// --------------> Suspects <--------------
 		ArrayList<Person> suspectsList = filter.getPersonListFromFile("liste_suspects_577.txt");
 		Iterator<Person> it1 = suspectsList.iterator();
 		while(it1.hasNext()) filter.add(it1.next());
+		long step1 = System.nanoTime()-start;
 		
-		ArrayList<Person> suspectsList2 = filter2.getPersonListFromFile("liste_suspects_577.txt");
-		Iterator<Person> it12 = suspectsList2.iterator();
-		while(it1.hasNext()) filter2.add(it12.next());
+		/* ------------------------------------- */
+		ArrayList<Person> suspectsList2 = new ArrayList<>();
+		Scanner buf2 = new Scanner(new File("liste_suspects_577.txt")); buf2.useDelimiter("\n");
+		while(buf2.hasNext()) suspectsList2.add(Person.readPerson(buf2)); buf2.close();
+		Iterator<Person> it2 = suspectsList2.iterator();
+		while(it2.hasNext()) filter2.add(it2.next());
+		long step2 = System.nanoTime()-start-step1;
 		
+		/* ------------------------------------- */
+		ArrayList<Person> suspectsList3 = new ArrayList<>();
+		Scanner buf3 = new Scanner(new File("liste_suspects_577.txt")); buf3.useDelimiter("\n");
+		while(buf3.hasNext()) suspectsList3.add(Person.readPerson(buf3)); buf3.close();
+		Iterator<Person> it3 = suspectsList3.iterator();
+		while(it3.hasNext()) filter3.add(it3.next());
+		long step3 = System.nanoTime()-start-step1-step2;
+
 		// --------------> Liste globale <--------------
 		int compteur = 0;
 		ArrayList<Person> globalList = filter.getPersonListFromFile("person_list_100k.txt");
-		Iterator<Person> it2 = globalList.iterator();		
-		while(it2.hasNext()) if(filter.probablyContains(it2.next())) compteur++;
+		Iterator<Person> it = globalList.iterator();		
+		while(it.hasNext()) if(filter.probablyContains(it.next())) compteur++;
 		System.out.println("Nombre : " + compteur);
-		
+
 		long end = System.nanoTime()-start;
-		System.out.println("Temps d'éxécution : "+ end + " ns (" + (double)end/1000000000 + " s)");
+		System.out.println("Temps d'éxécution global : "+ end + " ns (" + (double)end/1000000000 + " s)");
+		System.out.println("------- Bloom : "+ step1 + " ns (" + (double)step1/1000000000 + " s)");
+		System.out.println("------- HashSet : "+ step2 + " ns (" + (double)step2/1000000000 + " s)");
+		System.out.println("------- TreeSet : "+ step3 + " ns (" + (double)step3/1000000000 + " s)");
 	}
 
 }
