@@ -83,13 +83,13 @@ public class Bloom<Key> {
 		
 		long start = System.nanoTime();
  		
-		// --------------> Suspects <--------------
+		// ----------------> Suspects (avec Bloom) <----------------
 		ArrayList<Person> suspectsList = filter.getPersonListFromFile("liste_suspects_577.txt");
 		Iterator<Person> it1 = suspectsList.iterator();
 		while(it1.hasNext()) filter.add(it1.next());
 		long step1 = System.nanoTime()-start;
 		
-		/* ------------------------------------- */
+		// --------------> Suspects (avec un HashSet) <--------------
 		ArrayList<Person> suspectsList2 = new ArrayList<>();
 		Scanner buf2 = new Scanner(new File("liste_suspects_577.txt")); buf2.useDelimiter("\n");
 		while(buf2.hasNext()) suspectsList2.add(Person.readPerson(buf2)); buf2.close();
@@ -97,7 +97,7 @@ public class Bloom<Key> {
 		while(it2.hasNext()) filter2.add(it2.next());
 		long step2 = System.nanoTime()-start-step1;
 		
-		/* ------------------------------------- */
+		// --------------> Suspects (avec un TreeSet) <--------------
 		ArrayList<Person> suspectsList3 = new ArrayList<>();
 		Scanner buf3 = new Scanner(new File("liste_suspects_577.txt")); buf3.useDelimiter("\n");
 		while(buf3.hasNext()) suspectsList3.add(Person.readPerson(buf3)); buf3.close();
@@ -105,7 +105,7 @@ public class Bloom<Key> {
 		while(it3.hasNext()) filter3.add(it3.next());
 		long step3 = System.nanoTime()-start-step1-step2;
 
-		// --------------> Liste globale <--------------
+		// --------------> Liste globale (avec Bloom) <--------------
 		int compteur = 0;
 		ArrayList<Person> globalList = filter.getPersonListFromFile("person_list_100k.txt");
 		Iterator<Person> it = globalList.iterator();		
