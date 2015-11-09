@@ -87,6 +87,7 @@ public class Bloom<Key> {
 		ArrayList<Person> suspectsList = filter.getPersonListFromFile("liste_suspects_577.txt");
 		Iterator<Person> it1 = suspectsList.iterator();
 		while(it1.hasNext()) filter.add(it1.next());
+		
 		long step1 = System.nanoTime()-start;
 		
 		// --------------> Suspects (avec un HashSet) <--------------
@@ -95,6 +96,7 @@ public class Bloom<Key> {
 		while(buf2.hasNext()) suspectsList2.add(Person.readPerson(buf2)); buf2.close();
 		Iterator<Person> it2 = suspectsList2.iterator();
 		while(it2.hasNext()) filter2.add(it2.next());
+		
 		long step2 = System.nanoTime()-start-step1;
 		
 		// --------------> Suspects (avec un TreeSet) <--------------
@@ -103,6 +105,7 @@ public class Bloom<Key> {
 		while(buf3.hasNext()) suspectsList3.add(Person.readPerson(buf3)); buf3.close();
 		Iterator<Person> it3 = suspectsList3.iterator();
 		while(it3.hasNext()) filter3.add(it3.next());
+		
 		long step3 = System.nanoTime()-start-step1-step2;
 
 		// --------------> Liste globale (avec Bloom) <--------------
