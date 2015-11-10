@@ -6,5 +6,5 @@ import java.awt.Point;
 public interface Shape {
 	void paint(Graphics graphics);
 	int getNumberOfPoints();
-	Point point(int index);
+	Point getPoint(int index);
 }

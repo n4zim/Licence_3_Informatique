@@ -1,5 +1,6 @@
 package TP5_Ex2;
 
+import java.awt.Graphics;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,16 +17,14 @@ public abstract class AbstractShape implements Shape {
 		points.add(p);
 	}
 	
+	public Point getPoint(int index) {
+		return points.get(index);
+	}
+	
 	public int getNumberOfPoints() {
 		return points.size();
 	}
 	
-	public Point point(int index) {
-		return points.get(index);
-	}
-	
-	public abstract point(Graphics graphics) {
-		
-	}
+	public abstract void paint(Graphics graphics);
 	
 }

@@ -25,8 +25,8 @@ public abstract class Decorator implements Shape {
 	}
 
 	@Override
-	public Point point(int index) {
-		return decoratedShape.point(index);
+	public Point getPoint(int index) {
+		return decoratedShape.getPoint(index);
 	}
 
 }
