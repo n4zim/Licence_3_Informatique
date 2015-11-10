@@ -3,7 +3,7 @@ package TP5_Ex2;
 import java.awt.Graphics;
 import java.awt.Point;
 
-public abstract Decorator implements Shape {
+public abstract class Decorator implements Shape {
 	
 	protected Shape decoratedShape;
 	
@@ -11,14 +11,12 @@ public abstract Decorator implements Shape {
 		this.decoratedShape = decoratedShape;
 	}
 	
-	protected void PaintDecoration(Graphics graphics) {
-		
-	}
+	abstract protected void PaintDecoration(Graphics graphics);
 
 	@Override
 	public void paint(Graphics graphics) {
 		decoratedShape.paint(graphics);
-		paintDecoration(graphics);
+		PaintDecoration(graphics);
 	}
 
 	@Override
@@ -29,11 +27,6 @@ public abstract Decorator implements Shape {
 	@Override
 	public Point point(int index) {
 		return decoratedShape.point(index);
-	}
-	
-	public void paint(Graphics graphics) {
-		decoratedShape.point(graphics);
-		paintDecorated(graphics);
 	}
 
 }
