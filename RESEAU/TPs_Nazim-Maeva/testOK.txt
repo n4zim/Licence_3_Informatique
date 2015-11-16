@@ -1,0 +1,15 @@
+HTTP/1.1 200 OK
+Date: Mon, 16 Nov 2015 14:26:35 GMT
+Server: Apache/2.4.6 (CentOS) PHP/5.4.16 mod_wsgi/4.4.13 Python/3.4.3
+Last-Modified: Tue, 04 Mar 2008 08:03:03 GMT
+ETag: "d0-44797ef0bbbc0"
+Accept-Ranges: bytes
+Content-Length: 208
+Connection: close
+Content-Type: text/plain; charset=UTF-8
+
+Felicitations, vous venez de vous connecter sur un serveur web.
+Si vous remplacez le deuxieme mot de votre requete par un chemin de
+fichier, vous pourrez obtenir le fichier desire.
+Ce fichier se termine ici.
+

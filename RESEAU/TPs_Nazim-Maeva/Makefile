@@ -14,7 +14,7 @@ LIBS   =
 EXECS = 
 
 # pour compiler avec bor-util.c
-EXECSUTIL = pair-cli pair-ser
+EXECSUTIL = aspiweb
 
 # pour compiler avec bor-util.c et bor-timer.c
 EXECSTIMER = 
