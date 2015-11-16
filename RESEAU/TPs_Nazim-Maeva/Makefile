@@ -14,7 +14,7 @@ LIBS   =
 EXECS = 
 
 # pour compiler avec bor-util.c
-EXECSUTIL = aspiweb
+EXECSUTIL = defrag
 
 # pour compiler avec bor-util.c et bor-timer.c
 EXECSTIMER = 
