@@ -15,6 +15,7 @@ public class Graph implements Iterable<Edge> {
 	public Graph(int upperBound) {
 		this.upperBound = upperBound;
 		arcs = new ArrayList<Arc>();
+		edges = new ArrayList<Edge>();
 		isOriented = false;
 		this.order = 0;
 	}
@@ -22,6 +23,7 @@ public class Graph implements Iterable<Edge> {
 	public Graph(int upperBound, boolean isOriented) {
 		this.upperBound = upperBound;
 		arcs = new ArrayList<Arc>();
+		edges = new ArrayList<Edge>();
 		this.isOriented = isOriented;
 	}
 	

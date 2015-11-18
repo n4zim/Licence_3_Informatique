@@ -25,9 +25,9 @@ public class MainStub {
 		Grid grid = null;
 		grid = new Grid(1920/11,1080/11);
 		
-		//Graph graph = grid.graph;
+		Graph graph = grid.graph;
 		
-		Graph graph = new Complete(400).graph;
+//		Graph graph = new Complete(400).graph;
 //		Graph graph = new ErdosRenyi(1_000, 100).graph;
 //		Graph graph = new Lollipop(1_000).graph;
 		
