@@ -7,24 +7,42 @@ public class Graph implements Iterable<Edge> {
 
 	int upperBound;
 	List<Arc> arcs;
+	List<Edge> edges;
 	boolean isOriented;
+	
+	public int order;
 	
 	public Graph(int upperBound) {
 		this.upperBound = upperBound;
 		arcs = new ArrayList<Arc>();
 		isOriented = false;
+		this.order = 0;
+	}
+	
+	public Graph(int upperBound, boolean isOriented) {
+		this.upperBound = upperBound;
+		arcs = new ArrayList<Arc>();
+		this.isOriented = isOriented;
 	}
 	
 	public void addVertex(int indexVertex) {
 		
 	}
 	
-	public void addArc(Arc arc) {
-		
+	public void addArc(Arc a) {
+		if(edges.size() <= 0) {
+			isOriented = true;
+			arcs.add(a);
+		}
 	}
 	
 	public void addEdge(Edge e) {
-		
+		if(!isOriented) {
+			edges.add(e);
+		} else {
+			try { throw new Exception("Ajout d'un Edge impossible car le graphe est orienté");
+				} catch (Exception e1) { e1.printStackTrace(); }
+		}
 	}
 	
 	public List<Edge> neighbours(int vertex) {
