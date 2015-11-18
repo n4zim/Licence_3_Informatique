@@ -11,13 +11,13 @@ import java.util.TreeSet;
 
 public class Bloom<Key> {
 	
-	private int k; // k functions of dispersions
-	private int m ; // Bits length
+	private int k; // Dispersions
+	private int m ; // Bits
 	private int n; // numberOfKeys
-	private float p = (float) 0.01; // probability
+	private float p = (float) 0.01; // Probabilité
 	
-	private int prime;     // prime number 
-	private int pairs[][]; // a and b pairs table
+	private int prime;
+	private int pairs[][];
 	private Random gen;	  
 	
 	private BitSet bitmap;	
@@ -26,16 +26,16 @@ public class Bloom<Key> {
 		this.gen = new Random();
 		
 		this.n = numberOfKeys;	
-		this.prime = BigInteger.probablePrime(30, gen).intValue(); // prime number generate
+		this.prime = BigInteger.probablePrime(30, gen).intValue(); // Génération du nombre premier
 		this.m = (int) Math.ceil((n * Math.log(p)) / Math.log(1.0 / (Math.pow(2.0, Math.log(2.0)))));
 		this.k = (int) Math.round(Math.log(2.0) * m / n); 
 		 
 		this.pairs = new int[k][2];
 		
 		for(int i = 0; i < k; i++){
-			pairs[i][0] = gen.nextInt(prime-2)+1; // a
-			pairs[i][1] = gen.nextInt(prime-1);   // b
-		} // pairs calculate (one for each (k)function of dispersion)
+			pairs[i][0] = gen.nextInt(prime-2)+1;
+			pairs[i][1] = gen.nextInt(prime-1);
+		}
 		
 		this.bitmap = new BitSet(m);
 	}
@@ -53,18 +53,9 @@ public class Bloom<Key> {
 		for(int i=0; i<k; i++)
 			if(!bitmap.get(Math.abs((pairs[i][0]*hash+pairs[i][1])%prime%m)))
 				return false;
-		
-		//System.out.println(key.toString());
-		
+				
 		return true;
 	}
-	
-	/*public boolean testHashSet(Key key){
-		ArrayList<Person> liste = getPersonListFromFile("liste_suspects_577.txt");
-		for(int i = 0; i < liste)
-		return true; 
-	}*/
-	
 	public ArrayList<Person> getPersonListFromFile(String file) throws FileNotFoundException {	
 		ArrayList<Person> liste = new ArrayList<>();
 		
@@ -120,6 +111,9 @@ public class Bloom<Key> {
 		System.out.println("------- Bloom : "+ step1 + " ns (" + (double)step1/1000000000 + " s)");
 		System.out.println("------- HashSet : "+ step2 + " ns (" + (double)step2/1000000000 + " s)");
 		System.out.println("------- TreeSet : "+ step3 + " ns (" + (double)step3/1000000000 + " s)");
+		
+		// Le temps affiché ici est largement suppérieur au résultat attendu, nous pensons que cela est
+			// du à une mauvaise implémentation du filtre qui prendrait donc un peu plus de temps que normal
 	}
 
 }
