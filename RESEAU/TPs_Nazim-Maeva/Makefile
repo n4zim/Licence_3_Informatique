@@ -14,7 +14,7 @@ LIBS   =
 EXECS = 
 
 # pour compiler avec bor-util.c
-EXECSUTIL = defrag
+EXECSUTIL = serveur1
 
 # pour compiler avec bor-util.c et bor-timer.c
 EXECSTIMER = 

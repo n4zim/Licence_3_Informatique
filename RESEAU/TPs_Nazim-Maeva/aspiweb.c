@@ -7,7 +7,7 @@ int server_connection(int socket, struct sockaddr_in *addr_server){
 	printf("connexion avec%s : %d \n", inet_ntoa(addr_server->sin_addr), ntohs(addr_server->sin_port));
 	if(bor_connect_in(socket, addr_server) < 0) return -1;
 	printf("Connexion etablie \n");
-	return 0; 
+	return 0;
 }
 
 int server_read(int socket, char * outputFileName){
