@@ -1,6 +1,11 @@
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
+
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+
 
 public class MainStub {
 
@@ -10,25 +15,30 @@ public class MainStub {
 	public static ArrayList<Edge> genTree(Graph graph) {
 		ArrayList<Edge> randomTree;
 		
-		// TOOO : modifier l'algorithme utilisé ici.
+		// TOOO : modifier l'algorithme utiliser ici.
 		
 		// Non-random BFS
-		ArrayList<Arc> randomArcTree = BreadthFirstSearch.generateTree(graph,0);
+		ArrayList<Arc> randomArcTree = 
+				BreadthFirstSearch.generateTree(graph,0);
 		randomTree = new ArrayList<>();
 		for (Arc a : randomArcTree) randomTree.add(a.support);
-
+	
+		
+		
 		return randomTree;
 	}
 	
 	
-	public static void main(String[] args) throws InterruptedException {
+	public static void main(String argv[]) throws InterruptedException {
+
 		Grid grid = null;
 		grid = new Grid(1920/11,1080/11);
-		
 		Graph graph = grid.graph;
 		
 //		Graph graph = new Complete(400).graph;
+		
 //		Graph graph = new ErdosRenyi(1_000, 100).graph;
+
 //		Graph graph = new Lollipop(1_000).graph;
 		
 		int nbrOfSamples = 10;
@@ -46,7 +56,7 @@ public class MainStub {
 			randomTree= genTree(graph);
 
 			rooted = new RootedTree(randomTree,0);
-			rooted.printStats();
+//			rooted.printStats();
 			diameterSum = diameterSum + rooted.getDiameter();
 			eccentricitySum = eccentricitySum + rooted.getAverageEccentricity();
 			wienerSum = wienerSum + rooted.getWienerIndex();
@@ -84,8 +94,8 @@ public class MainStub {
 		JFrame window = new JFrame("solution");
 		final Labyrinth laby = new Labyrinth(grid, rooted);
 
-		laby.setStyleBalanced();
-//		laby.setShapeBigNodes();
+//		laby.setStyleBalanced();
+		laby.setShapeBigNodes();
 //		laby.setShapeSmallAndFull();
 		laby.setShapeSmoothSmallNodes();
 		

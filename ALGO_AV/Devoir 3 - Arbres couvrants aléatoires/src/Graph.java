@@ -1,102 +1,65 @@
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
-
-public class Graph implements Iterable<Edge> {
-
-	int upperBound;
-	List<Arc> arcs;
-	List<Edge> edges;
-	boolean isOriented;
-	
+public class Graph {
 	public int order;
+	private HashSet<Integer> vertices;
+
+	private HashMap<Integer,List<Edge>> neighbours;
+	private HashMap<Integer,List<Arc>> inNeighbours;
+	private HashMap<Integer,List<Arc>> outNeighbours;
 	
 	public Graph(int upperBound) {
-		this.upperBound = upperBound;
-		arcs = new ArrayList<Arc>();
-		edges = new ArrayList<Edge>();
-		isOriented = false;
-		this.order = 0;
-	}
-	
-	public Graph(int upperBound, boolean isOriented) {
-		this.upperBound = upperBound;
-		arcs = new ArrayList<Arc>();
-		edges = new ArrayList<Edge>();
-		this.isOriented = isOriented;
-	}
-	
-	public void addVertex(int indexVertex) {
+		order = upperBound;
 		
+		vertices =  new HashSet<>();
+		neighbours = new HashMap<>();
+		inNeighbours = new HashMap<>();
+		outNeighbours = new HashMap<>();
+	}
+		
+	public void addVertex(int indexVertex) {
+		if(!vertices.contains(indexVertex)) {
+			vertices.add(indexVertex);
+			neighbours.put(indexVertex, new ArrayList<>());
+			outNeighbours.put(indexVertex, new ArrayList<>());
+			inNeighbours.put(indexVertex, new ArrayList<>());
+		}
 	}
 	
-	public void addArc(Arc a) {
-		if(edges.size() <= 0) {
-			isOriented = true;
-			arcs.add(a);
-		}
+	public void addArc(Arc arc) {
+		inNeighbours.get(arc.getDest()).add(arc);
+		outNeighbours.get(arc.getSource()).add(arc);
+
 	}
 	
 	public void addEdge(Edge e) {
-		if(!isOriented) {
-			edges.add(e);
-		} else {
-			try { throw new Exception("Ajout d'un Edge impossible car le graphe est orienté");
-				} catch (Exception e1) { e1.printStackTrace(); }
-		}
+		addVertex(e.dest);
+		neighbours.get(e.dest).add(e);
+		addVertex(e.source);
+		neighbours.get(e.source).add(e);
+		
+		addArc(new Arc(e,false));
+		addArc(new Arc(e,true));
 	}
 	
-	public List<Edge> neighbours(int vertex) {
-		return null;
-	}
+	public List<Edge> neighbours(int vertex) { return neighbours.get(vertex); }
 	
-	public List<Arc> inNeighbours(int vertex) {
-		return null;
-	}
+	public List<Arc> inNeighbours(int vertex) { return inNeighbours.get(vertex); }
 	
-	public List<Arc> outNeighbours(int vertex) {
-		return null;
-	}
+	public List<Arc> outNeighbours(int vertex) { return outNeighbours.get(vertex); }
 
 	public int degree(int vertex) {
-		return 0;
+		return neighbours.get(vertex).size();
 	}
 	
 	public int inDegree(int vertex) {
-		return 0;
+		return inNeighbours.get(vertex).size();
 	}
 	
 	public int outDegree(int vertex) {
-		return 0;
+		return outNeighbours.get(vertex).size();
 	}
-	
-	private class EdgeIterator implements Iterator<Edge>{
-		
-		
-		public EdgeIterator() {
-			//TODO
-		}
-		
-		
-		public boolean hasNext() {
-			//TODO
-			return false;
-		}
-		
-		public Edge next() {
-			//TODO
-			return null;
-		}
-		
-		public void remove() {
-			return;
-		}
-
-	}
-	
-	public Iterator<Edge> iterator() {
-		return new EdgeIterator();
-	}
-	
 }
