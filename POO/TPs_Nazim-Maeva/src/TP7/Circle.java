@@ -30,11 +30,7 @@ public class Circle implements Shape {
 	}
 
 	@Override
-	public boolean contains(Point point) {
-		int maxX = minX()+width();
-		int maxY = minY()+height();
-		return point.x <= maxX && point.y <= maxY && minX() >= point.x && minY() >= point.y;
-	}
+	public boolean contains(Point point) { return radius() >= center.distance(point); }
 
 	@Override
 	public void translate(int dx, int dy) {

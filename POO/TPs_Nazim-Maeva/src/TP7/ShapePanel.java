@@ -35,9 +35,9 @@ public class ShapePanel extends JPanel {
 	}
 	
 	public Shape getShape(Point point) {
-		for(int i = shapes.size(); i >= 0; i--) {
+		for(int i = shapes.size()-1; i >= 0; i--) {
 			Shape shape = shapes.get(i);
-			if(shape.contains(point)) return shape;
+			if(shape.contains(point)) { return shape; }
 		}
 		return null;
 	}

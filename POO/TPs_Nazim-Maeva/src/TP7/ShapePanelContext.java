@@ -34,6 +34,9 @@ public class ShapePanelContext {
 				setState(new RectangleState0(point));
 				System.out.println("Etat : Rectangle");
 				break;
+			case 'm':
+				setState(new MoveState0(point));
+				System.out.println("Etat : Move");
 		}
 	}
 }
