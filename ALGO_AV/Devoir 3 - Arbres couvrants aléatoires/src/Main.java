@@ -7,7 +7,7 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 
-public class MainStub {
+public class Main {
 
 	@SuppressWarnings("unused")
 	private final static Random gen = new Random();
