@@ -37,7 +37,7 @@ public class AldousBroder {
 	public static ArrayList<Edge> generateTree(Graph graph) {
 		AldousBroder algo = new AldousBroder(graph);
 		
-		int sommetActuel = (int)(Math.random()*graph.order);
+		int sommetActuel = 0; //(int)(Math.random()*graph.order);
 		System.out.println("Premier sommet : "+sommetActuel);
 		
 		algo.main(sommetActuel);

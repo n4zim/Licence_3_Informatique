@@ -15,8 +15,10 @@ public class Main {
 		
 		// Random Aldous-Broder
 		ArrayList<Edge> randomEdgeTree = AldousBroder.generateTree(graph);
+		
+		int counter = graph.order;
 		for(Edge e : randomEdgeTree) {
-			System.out.println("- - Ajout de : "+e.dest);
+			System.out.println("- Ajout du sommet "+e.dest+" (reste "+(--counter)+")");
 			randomTree.add(e);
 		}
 		
