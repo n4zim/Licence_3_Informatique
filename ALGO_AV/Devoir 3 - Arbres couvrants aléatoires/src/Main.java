@@ -9,18 +9,29 @@ public class Main {
 	private final static Random gen = new Random();
 	
 	public static ArrayList<Edge> genTree(Graph graph) {
-		ArrayList<Edge> randomTree;
+		ArrayList<Edge> randomTree = new ArrayList<>();
 		
-		ArrayList<Arc> aldousbroder =  AldousBroder.generateTree(graph);
-		randomTree = new ArrayList<>();
-		for(Arc a : aldousbroder) randomTree.add(a.support);
+		// -------------------------------- OPTIONS DE LANCEMENT --------------------------------
+		int Algo = 2; // 1 pour Aldous Broder, 2 pour le parcours aléatoire et 3 pour le standard
+		boolean Debug = false;
+		// --------------------------------------------------------------------------------------
 		
-		// Non-random BFS
-		/*ArrayList<Arc> randomArcTree = 
-				BreadthFirstSearch.generateTree(graph,0);
-		randomTree = new ArrayList<>();
-		for (Arc a : randomArcTree) randomTree.add(a.support);*/
-	
+		switch(Algo) {
+			case 1: // Aldous Broder
+				randomTree =  AldousBroder.generateTree(graph, Debug);
+				break;
+			
+			case 2: // RandomWay
+				ArrayList<Arc> randomArcTree1 = RandomWay.generateTree(graph);
+				for(Arc a : randomArcTree1) randomTree.add(a.support);
+				break;
+			
+			case 3: // Non-random BFS
+				ArrayList<Arc> randomArcTree2 = BreadthFirstSearch.generateTree(graph,0);
+				for(Arc a : randomArcTree2) randomTree.add(a.support);
+				break;
+		}
+		
 		return randomTree;
 	}
 	
