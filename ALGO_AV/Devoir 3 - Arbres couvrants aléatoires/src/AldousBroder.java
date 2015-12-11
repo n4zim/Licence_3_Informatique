@@ -1,47 +1,46 @@
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class AldousBroder {
-	
 	Graph graph;
-	Queue<Edge> queue;
 	ArrayList<Edge> tree;
 	BitSet reached;
 	
-	public AldousBroder(Graph graph) {		
+	public AldousBroder(Graph graph) {
 		this.graph = graph;
 		this.tree = new ArrayList<>();
-		this.queue = new LinkedList<>();
-		this.reached = new BitSet(graph.order);
+		this.reached = new BitSet(graph.order+1);
 	}
 	
-	private void push(int vertex) {
-		for(Edge edge : graph.neighbours(vertex)) queue.offer(edge);
-	}
+	private void main(boolean debugDisplay) {
+		int current = (int)(Math.random()*this.graph.order+1);
+		List<Arc> neighbours;
+		Arc currentArc;
+		reached.set(current);
+		
+		while(tree.size() < graph.order) {
+			neighbours = this.graph.outNeighbours(current);
+			currentArc = neighbours.get(ThreadLocalRandom.current().nextInt(0, neighbours.size()));
+			
+			if(debugDisplay) System.out.print(currentArc.getSource() +" -> "+ currentArc.getDest()+"  ");
+			
+			if(!reached.get(currentArc.getDest())) {
+				if(debugDisplay) System.out.println("\tDécouverte X");
+				tree.add(currentArc.support);
+				reached.set(currentArc.getDest());
+			} else if(debugDisplay) System.out.println("\tDéjà passé O");
+			
+			current = currentArc.getDest();
+		}
+	}	
 	
-	private void explore(Edge nextEdge) {
-		if(reached.get(nextEdge.getDest())) return;
-		reached.set(nextEdge.getDest());
-		tree.add(nextEdge);
-		push(nextEdge.getDest());
-	}
-	
-	private void main(int startingVertex) {
-		reached.set(startingVertex);
-		push(startingVertex);
-		while(!queue.isEmpty()) explore(queue.poll());
-	}
-
-	public static ArrayList<Edge> generateTree(Graph graph) {
+	public static ArrayList<Edge> generateTree(Graph graph, boolean debugDisplay) {
 		AldousBroder algo = new AldousBroder(graph);
-		
-		int sommetActuel = (int)(Math.random()*graph.order);
-		System.out.println("Premier sommet : "+sommetActuel);
-		
-		algo.main(sommetActuel);
+		if(debugDisplay) System.out.println("-------- Début de la recherche --------");
+		algo.main(debugDisplay);
+		if(debugDisplay) System.out.println("-------- Fin de la recherche --------");
 		return algo.tree;
 	}
-	
 }
