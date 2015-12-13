@@ -12,7 +12,7 @@ public class Main {
 		ArrayList<Edge> randomTree = new ArrayList<>();
 		
 		// -------------------------------- OPTIONS DE LANCEMENT --------------------------------
-		int Algo = 2; // 1 pour Aldous Broder, 2 pour le parcours aléatoire et 3 pour le standard
+		int Algo = 2; 
 		boolean Debug = false;
 		// --------------------------------------------------------------------------------------
 		
@@ -63,7 +63,7 @@ public class Main {
 			randomTree= genTree(graph);
 
 			rooted = new RootedTree(randomTree,0);
-//			rooted.printStats();
+			rooted.printStats();
 			diameterSum = diameterSum + rooted.getDiameter();
 			eccentricitySum = eccentricitySum + rooted.getAverageEccentricity();
 			wienerSum = wienerSum + rooted.getWienerIndex();
