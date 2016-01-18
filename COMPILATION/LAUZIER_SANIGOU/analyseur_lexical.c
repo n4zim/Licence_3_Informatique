@@ -4,6 +4,7 @@
 #include "symboles.h"
 #include "analyseur_lexical.h"
 #include "util.h"
+#include <regex.h>
 
 #define YYTEXT_MAX 100
 #define is_num(c)(('0' <= (c)) && ((c) <= '9'))
@@ -85,7 +86,89 @@ int yylex(void)
   char c;
   int i;
   yytext[yyleng = 0] = '\0';
-  // COMPLÉTER
+
+  if(mangeEspaces() != -1)  return 29;
+  
+  c = lireCar();
+
+  if(c == ";")  return 1;
+
+  //Opérateurs
+  if(c == "+")  return 2;
+  if(c == "-")  return 3;
+  if(c == "*")  return 4;
+  if(c == "/")  return 5;
+
+  //Structure
+  if(c == "(")  return 6;
+  if(c == ")")  return 7;
+  if(c == "[")  return 8;
+  if(c == "]")  return 9;
+  if(c == "{")  return 10;
+  if(c == "}")  return 11;
+
+  //Comparateurs
+  if(c == "=")  return 12;
+  if(c == "<")  return 13;
+  if(c == "&")  return 14;
+  if(c == "|")  return 15;
+  if(c == "!")  return 16;
+
+  regex_t regex;
+  int retour;
+
+  retour = regcomp(&regex, "[a-zA-Z_$][0-9a-zA-Z_\$]*", 0);
+  if(retour)
+  {
+    fprintf(stderr, "Impossible de compiler la regex\n");
+    exit(1);
+  }
+
+  bool boucle = 0;
+  while(regexec(&regex, yytext, 0, NULL, 0))
+  {
+    lireCar();
+    boucle = 1;
+  }
+
+  if(boucle)
+    delireCar();
+
+  if(yytext == "si")  return 17;
+  if(yytext == "alors") return 18;
+  if(yytext == "sinon") return 19;
+  if(yytext == "tantque") return 20;
+  if(yytext == "faire") return 21;
+  if(yytext == "retour") return 23;
+  if(yytext == "lire")  return 24;
+  if(yytext == "ecrire")  return 25;
+
+  if(yytext[0] == '$') return 26;
+
+  if(boucle && yytext[0] != '$') return 27;
+
+  retour = regcomp(&regex, "[0-9]*", 0);
+  if(retour)
+  {
+    fprintf(stderr, "Impossible de compiler la regex\n");
+    exit(1);
+  }
+
+  boucle = 0;
+  while(regexec(&regex, yytext, 0, NULL, 0))
+  {
+    lireCar();
+    boucle = 1;
+  }
+
+  if(boucle)
+  {
+    delireCar();
+    return 28;
+  }
+
+
+  if(c == ",")  return 30;
 }
 
 /*******************************************************************************
