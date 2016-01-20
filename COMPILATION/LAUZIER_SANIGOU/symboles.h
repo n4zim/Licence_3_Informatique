@@ -71,7 +71,7 @@
 #define SINON 19 //
 #define TANTQUE 20 //
 #define FAIRE 21 //
-#define ENTIER 22
+#define ENTIER 22 //
 #define RETOUR 23 //
 #define LIRE 24 //
 #define ECRIRE 25 //
