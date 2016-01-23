@@ -23,7 +23,7 @@ char *tableMotsClefs[] = {
   "ecrire",
   "tantque",
   "faire",
-  "sinon",
+
 };
 
 int codeMotClefs[] = { 
@@ -34,7 +34,6 @@ int codeMotClefs[] = {
   ECRIRE,
   TANTQUE,
   FAIRE,
-  SINON,
 };
 
 char yytext[YYTEXT_MAX];
