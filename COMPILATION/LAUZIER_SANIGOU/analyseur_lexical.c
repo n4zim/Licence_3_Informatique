@@ -190,6 +190,7 @@ int yylex(void)
    }
 
   if(c == ',')  return 30;
+  if(c == '>')  return 31;
 
   return -1;
 }
@@ -215,6 +216,7 @@ void nom_token( int token, char *nom, char *valeur ) {
   else if(token == ACCOLADE_FERMANTE) strcpy(valeur, "ACCOLADE_FERMANTE");
   else if(token == EGAL) strcpy(valeur, "EGAL");
   else if(token == INFERIEUR) strcpy(valeur, "INFERIEUR");
+  else if(token == SUPERIEUR) strcpy(valeur, "SUPERIEUR");
   else if(token == ET) strcpy(valeur, "ET");
   else if(token == OU) strcpy(valeur, "OU");
   else if(token == NON) strcpy(valeur, "NON");

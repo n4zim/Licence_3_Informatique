@@ -9,5 +9,5 @@ main()
 entier $d;
 {
 	$d = f($d, 2);
-	ecrire($d > 256233481);
+	ecrire($d + 256233481);
 }
