@@ -4,6 +4,7 @@
 #include "symboles.h"
 #include "analyseur_lexical.h"
 #include "util.h"
+#include <regex.h>
 
 #define YYTEXT_MAX 100
 #define is_num(c)(('0' <= (c)) && ((c) <= '9'))
@@ -16,10 +17,24 @@ extern FILE *yyin;
 
 char *tableMotsClefs[] = {
   "si", 
+  "entier",
+  "retour",
+  "lire",
+  "ecrire",
+  "tantque",
+  "faire",
+  "sinon",
 };
 
 int codeMotClefs[] = { 
   SI, 
+  ENTIER,
+  RETOUR,
+  LIRE,
+  ECRIRE,
+  TANTQUE,
+  FAIRE,
+  SINON,
 };
 
 char yytext[YYTEXT_MAX];
@@ -83,9 +98,106 @@ void delireCar()
 int yylex(void)
 {
   char c;
-  int i;
+  //int i;
   yytext[yyleng = 0] = '\0';
-  // COMPLÉTER
+
+  if(mangeEspaces() == -1)  return 29;
+  
+  c = lireCar();
+
+  if(c == ';')  return 1;
+
+  //Opérateurs
+  if(c == '+')  return 2;
+  if(c == '-')  return 3;
+  if(c == '*')  return 4;
+  if(c == '/')  return 5;
+
+  //Structure
+  if(c == '(')  return 6;
+  if(c == ')')  return 7;
+  if(c == '[')  return 8;
+  if(c == ']')  return 9;
+  if(c == '{')  return 10;
+  if(c == '}')  return 11;
+
+  //Comparateurs
+  if(c == '=')  return 12;
+  if(c == '<')  return 13;
+  if(c == '&')  return 14;
+  if(c == '|')  return 15;
+  if(c == '!')  return 16;
+
+  regex_t regex;
+  int retour;
+
+  retour = regcomp(&regex, "^[a-zA-Z_$][0-9a-zA-Z_]*$", REG_NOSUB | REG_EXTENDED);
+  if(retour)
+  {
+    fprintf(stderr, "Impossible de compiler la regex\n");
+    exit(1);
+  }
+
+  int boucle = 0;
+  int match = regexec(&regex, yytext, 0, NULL, 0);
+  
+  while(match != REG_NOMATCH)
+  {
+    lireCar();
+    match = regexec(&regex, yytext, 0, NULL, 0);
+    boucle = 1;
+  }
+
+  regfree(&regex);
+
+  if(boucle == 1)
+  {	
+    delireCar();
+  }  
+
+  if(strcmp(yytext,"si") == 0)  return 17;
+  if(strcmp(yytext,"alors") == 0) return 18;
+  if(strcmp(yytext,"sinon") == 0) return 19;
+  if(strcmp(yytext,"tantque") == 0) return 20;
+  if(strcmp(yytext,"faire") == 0) return 21;
+  if(strcmp(yytext,"entier") == 0)  return 22;
+  if(strcmp(yytext,"retour") == 0) return 23;
+  if(strcmp(yytext,"lire") == 0)  return 24;
+  if(strcmp(yytext,"ecrire") == 0)  return 25;
+
+
+  if(yytext[0] == '$') return 26;
+
+  if(boucle && yytext[0] != '$') return 27;
+
+   retour = regcomp(&regex, "[0-9]+$", REG_NOSUB | REG_EXTENDED);
+   if(retour)
+   {
+     fprintf(stderr, "Impossible de compiler la regex\n");
+     exit(1);
+   }
+
+   boucle = 0;
+   match = regexec(&regex, yytext, 0, NULL, 0);
+   while(match != REG_NOMATCH)
+   {
+     lireCar();
+     match = regexec(&regex, yytext, 0, NULL, 0);
+     boucle = 1;
+   }
+
+   regfree(&regex);
+
+   if(boucle)
+   {
+     delireCar();
+     return 28;
+   }
+
+  if(c == ',')  return 30;
+  if(c == '>')  return 31;
+
+  return -1;
 }
 
 /*******************************************************************************
@@ -109,6 +221,7 @@ void nom_token( int token, char *nom, char *valeur ) {
   else if(token == ACCOLADE_FERMANTE) strcpy(valeur, "ACCOLADE_FERMANTE");
   else if(token == EGAL) strcpy(valeur, "EGAL");
   else if(token == INFERIEUR) strcpy(valeur, "INFERIEUR");
+  else if(token == SUPERIEUR) strcpy(valeur, "SUPERIEUR");
   else if(token == ET) strcpy(valeur, "ET");
   else if(token == OU) strcpy(valeur, "OU");
   else if(token == NON) strcpy(valeur, "NON");
