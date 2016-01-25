@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "analyseur_lexical.h"
 #include "symboles.h"
+#include "analyseur_syntaxique.h"
 
 char yytext[100];
 FILE *yyin;
@@ -18,8 +19,9 @@ int main(int argc, char **argv) {
   }
   do {
 	uniteCourante = yylex();
-	nom_token( uniteCourante, nom, valeur );
-	printf("%s\t%s\t%s\n", yytext, nom, valeur);
+  analyseur_syntaxique(uniteCourante);
+	//nom_token( uniteCourante, nom, valeur );
+	//printf("%s\t%s\t%s\n", yytext, nom, valeur);
   } while (uniteCourante != FIN); return 0;
 
   //test_yylex_internal(yyin); 
