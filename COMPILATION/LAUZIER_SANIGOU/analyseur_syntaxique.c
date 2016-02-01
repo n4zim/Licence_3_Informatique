@@ -9,92 +9,175 @@ int uniteCourante;
 char nom[100];
 char valeur[100];
 char yytext[100];
+int trace_xml = 1;
 
-void Eprim(void)
-{
-	if(uniteCourante == PLUS)
-	{
-		nom_token( uniteCourante, nom, valeur );
-		printf("%s\t%s\t%s\n", yytext, nom, valeur);
-		uniteCourante = yylex();
-		E();
-		return;
-	}
-	else
-	{
-		return;
-	}
+void programme(void){
+	affiche_balise_ouvrante("programme", trace_xml);
+	optDecVariables();
+	listeDecFonctions();
+	affiche_balise_fermante("programme", trace_xml);
 }
 
-void T(void)
-{
-	F();
-	Tprim();
-	return;
+void optDecVariables(void){
+	affiche_balise_ouvrante("optDecVariables", trace_xml);
+
+	listeDecVariables();
+	if(uniteCourante == POINT_VIRGULE){
+		affiche_element("symbole", "POINT_VIRGULE", trace_xml);
+		uniteCourante = yylex();
+	}
+
+	affiche_balise_fermante("optDecVariables", trace_xml);
+	
 }
 
-void Tprim(void)
-{
-	if(uniteCourante == FOIS)
-	{
-		nom_token( uniteCourante, nom, valeur );
-		printf("%s\t%s\t%s\n", yytext, nom, valeur);
-		uniteCourante = yylex();
-		T();
-		return;
-	}
-	else
-	{
-		return;
-	}
+void listeDecVariables(void) {
+	affiche_balise_ouvrante("listeDecVariables", trace_xml);
+
+	declarationVariables(); 
+	listeDecVariablesBis();
+
+	affiche_balise_fermante("listeDecVariables", trace_xml);
 }
 
-void F(void)
-{
-	if(uniteCourante == PARENTHESE_OUVRANTE)
-	{
-		nom_token( uniteCourante, nom, valeur );
-		printf("%s\t%s\t%s\n", yytext, nom, valeur);
+void listeDecVariablesBis(void) {
+	affiche_balise_ouvrante("listeDecVariablesBis", trace_xml);
+
+	if(uniteCourante == VIRGULE){
+		affiche_element("symbole", "VIRGULE", trace_xml);
 		uniteCourante = yylex();
-		E();
-		if(uniteCourante != PARENTHESE_FERMANTE)
-		{
-			printf( "Erreur de syntaxe \n" );
-			exit( -1 );
-		}
-		else
-		{
-			nom_token( uniteCourante, nom, valeur );
-			printf("%s\t%s\t%s\n", yytext, nom, valeur);
+
+		declarationVariables();
+		listeDecVariablesBis();
+	}
+
+	affiche_balise_fermante("listeDecVariablesBis", trace_xml);
+}
+
+void declarationVariables(void) {
+	affiche_balise_ouvrante("declarationVariables", trace_xml);
+	
+	if(uniteCourante == ENTIER){
+		affiche_element("mot_clef", "entier", trace_xml);
+		
+		uniteCourante = yylex();
+		
+		if(uniteCourante == ID_VAR){
+			affiche_element("id_variable", yytext, trace_xml);
+			
 			uniteCourante = yylex();
-			return;
+			optTailleTableau();
 		}
+		else{	printf("Erreur Syntaxe \n"); 	}
 	}
-	else 
-	{
-		if(uniteCourante != NOMBRE)
-		{
-			if(uniteCourante == FIN)
-				return;
 
-			printf( "Erreur de syntaxe \n" );
-			exit( -1 );
-		}
-	}
-	nom_token( uniteCourante, nom, valeur );
-	printf("%s\t%s\t%s\n", yytext, nom, valeur);
-	uniteCourante = yylex();
+	affiche_balise_fermante("declarationVariables", trace_xml);
 }
 
-void E(void)
-{
-	T();
-	Eprim();
-	return;
+void optTailleTableau(void) {
+	affiche_balise_ouvrante("optTailleTableau", trace_xml);
+
+	if(uniteCourante == CROCHET_OUVRANT){
+		affiche_element("symbole", "CROCHET_OUVRANT", trace_xml);
+		uniteCourante = yylex();
+
+		if(uniteCourante == NOMBRE){
+			affiche_element("nombre", yytext, trace_xml);
+			uniteCourante = yylex();
+
+			if(uniteCourante == CROCHET_FERMANT)
+			{
+				affiche_element("symbole", "CROCHET_FERMANT", trace_xml);
+				uniteCourante = yylex();
+			}
+			else{	printf("Erreur Syntaxe \n"); 	}
+		}
+		else{	printf("Erreur Syntaxe \n"); 	}
+	}
+
+	affiche_balise_fermante("optTailleTableau", trace_xml);
 }
+
+void listeDecFonctions(void) {
+	affiche_balise_ouvrante("listeDecFonctions", trace_xml);
+	
+	declarationFonction();
+	listeDecFonctions(); // Probleme 
+	
+	affiche_balise_fermante("listeDecFonctions", trace_xml);
+}
+
+void declarationFonction(void) {
+	affiche_balise_ouvrante("declarationFonction", trace_xml);
+
+	if(uniteCourante == ID_FCT){
+		affiche_element("id_fonction", yytext, trace_xml);
+		uniteCourante = yylex();
+		listeParam();
+		optDecVariables();
+	}
+
+	affiche_balise_fermante("declarationFonction", trace_xml);
+}
+
+void listeParam(void) {
+	affiche_balise_ouvrante("listeParam", trace_xml);
+
+	if(uniteCourante == PARENTHESE_OUVRANTE){
+		affiche_element("symbole", "PARENTHESE_OUVRANTE", trace_xml);
+		
+		uniteCourante = yylex();
+		optListeVariables();
+		if(uniteCourante == PARENTHESE_FERMANTE){
+			affiche_element("symbole", "PARENTHESE_FERMANTE", trace_xml);
+			uniteCourante = yylex();
+		}
+		else { printf ("Erreur de Syntaxe");	}
+	}
+
+	affiche_balise_fermante("listeParam", trace_xml);
+}
+
+void optListeDecVariables(void) {
+	affiche_balise_ouvrante("optListeDecVariables", trace_xml);
+
+	listeDecVariables();
+
+	affiche_balise_fermante("optListeDecVariables", trace_xml);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void analyseur_syntaxique(int uc)
 {
 	uniteCourante = uc;
-	E();
+	
+	programme(void);
 }
