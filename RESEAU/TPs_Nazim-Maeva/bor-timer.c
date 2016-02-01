@@ -1,11 +1,3 @@
-/* bor-timer.c : Liste de timers pour select
- *
- * Edouard.Thiel@lif.univ-mrs.fr - 19/03/2010 - V 2.0a
- *
- * This program is free software under the terms of the
- * GNU Lesser General Public License (LGPL) version 2.1.
-*/
-
 #include "bor-util.h"
 #include "bor-timer.h"
 

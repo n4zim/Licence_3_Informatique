@@ -2,36 +2,53 @@ import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.JFrame;
 
-public class MainStub {
+
+public class Main {
 
 	@SuppressWarnings("unused")
 	private final static Random gen = new Random();
 	
 	public static ArrayList<Edge> genTree(Graph graph) {
-		ArrayList<Edge> randomTree;
+		ArrayList<Edge> randomTree = new ArrayList<>();
 		
-		// TOOO : modifier l'algorithme utilisé ici.
+		// -------------------------------- OPTIONS DE LANCEMENT --------------------------------
+		int Algo = 2; 
+		boolean Debug = false;
+		// --------------------------------------------------------------------------------------
 		
-		// Non-random BFS
-		ArrayList<Arc> randomArcTree = BreadthFirstSearch.generateTree(graph,0);
-		randomTree = new ArrayList<>();
-		for (Arc a : randomArcTree) randomTree.add(a.support);
-
+		switch(Algo) {
+			case 1: // Aldous Broder
+				randomTree =  AldousBroder.generateTree(graph, Debug);
+				break;
+			
+			case 2: // RandomWay
+				ArrayList<Arc> randomArcTree1 = RandomWay.generateTree(graph);
+				for(Arc a : randomArcTree1) randomTree.add(a.support);
+				break;
+			
+			case 3: // Non-random BFS
+				ArrayList<Arc> randomArcTree2 = BreadthFirstSearch.generateTree(graph,0);
+				for(Arc a : randomArcTree2) randomTree.add(a.support);
+				break;
+		}
+		
 		return randomTree;
 	}
 	
 	
-	public static void main(String[] args) throws InterruptedException {
+	public static void main(String argv[]) throws InterruptedException {
+
 		Grid grid = null;
 		grid = new Grid(1920/11,1080/11);
-		
 		Graph graph = grid.graph;
 		
 //		Graph graph = new Complete(400).graph;
+		
 //		Graph graph = new ErdosRenyi(1_000, 100).graph;
+
 //		Graph graph = new Lollipop(1_000).graph;
 		
-		int nbrOfSamples = 10;
+		int nbrOfSamples = 1;
 		int diameterSum = 0;
 		double eccentricitySum = 0;
 		long wienerSum = 0;
@@ -110,6 +127,4 @@ public class MainStub {
 //		}
 
 	}
-	
-	
 }

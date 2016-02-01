@@ -14,10 +14,10 @@ LIBS   =
 EXECS = 
 
 # pour compiler avec bor-util.c
-EXECSUTIL = 
+EXECSUTIL = serveur2
 
 # pour compiler avec bor-util.c et bor-timer.c
-EXECSTIMER = serweb3
+EXECSTIMER = 
 
 
 .c.o :
