@@ -368,7 +368,7 @@ void LP() {
         yylval = yylex();
         if(est_premier(_optListeDecVariables_, yylval)) OLDV();
         if(yylval == PARENTHESE_FERMANTE) yylval = yylex();
-            else  error("')' été attendu");
+            else error("')' été attendu");
     } else error("'(' été attendu");
     affiche_balise_fermante(__FUNCTION__, 1);
 }
@@ -395,661 +395,350 @@ void I() {
 }
 
 void IAFF() {
-    affiche_balise_ouvrante(__FUNCTION__, 1);
-    
-    if(est_premier(_var_, yylval)) {
-    VAR();
-
-    if(yylval == EGAL) {
-      yylval = yylex();
-
-      if(est_premier(_expression_, yylval)) {
-        EXP();
-
-        if(yylval == POINT_VIRGULE)
-        {
-        yylval = yylex();
-      }
-      else
-      {
-        error("';' été attendu");
-      }
-    }
-    else
-    {
-    syntaxError();
-}
-} else {
-    error("'=' été attendu");
-}
-} else {
-    syntaxError();
-}
-
-    affiche_balise_fermante(__FUNCTION__, 1);
+	affiche_balise_ouvrante(__FUNCTION__, 1);
+	if(est_premier(_var_, yylval)) {
+		VAR();
+		if(yylval == EGAL) {
+			yylval = yylex();
+			if(est_premier(_expression_, yylval)) {
+				EXP();
+				if(yylval == POINT_VIRGULE) yylval = yylex();
+					else error("';' été attendu");
+			} else syntaxError();
+		} else error("'=' été attendu");
+	} else syntaxError();
+	affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void IB() {
-    affiche_balise_ouvrante(__FUNCTION__, 1);
-    
-    if(yylval == ACCOLADE_OUVRANTE) {
-    yylval = yylex();
-
-    if(est_premier(_listeInstructions_, yylval)) {
-      LI();
-    }
-    if(yylval == ACCOLADE_FERMANTE) {
-      yylval = yylex();
-    } else {
-      error("'}' été attendu");
-    }
-} else {
-    error("'{' été attendu");
-}
-
-    affiche_balise_fermante(__FUNCTION__, 1);
+	affiche_balise_ouvrante(__FUNCTION__, 1);
+	if(yylval == ACCOLADE_OUVRANTE) {
+		yylval = yylex();
+		if(est_premier(_listeInstructions_, yylval)) LI();
+		if(yylval == ACCOLADE_FERMANTE) yylval = yylex();
+			else error("'}' été attendu");
+	} else error("'{' été attendu");
+	affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void LI() {
-    affiche_balise_ouvrante(__FUNCTION__, 1);
-    
-    if(est_premier(_instruction_, yylval)) {
-    I();
-
-    if(est_premier(_listeInstructions_, yylval)) {
-      LI();
-    }
-}
-
-if(!est_suivant(_listeInstructions_, yylval)) {
-    syntaxError();
-}
-
-    affiche_balise_fermante(__FUNCTION__, 1);
+	affiche_balise_ouvrante(__FUNCTION__, 1);
+	if(est_premier(_instruction_, yylval)) {
+		I();
+		if(est_premier(_listeInstructions_, yylval)) LI();
+	}
+	if(!est_suivant(_listeInstructions_, yylval)) syntaxError();
+	affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void ISI() {
-    affiche_balise_ouvrante(__FUNCTION__, 1);
-    
-    if(yylval == SI) {
-        yylval = yylex();
-
-        if(est_premier(_expression_, yylval)) {
-        EXP();
-      } else {
-        syntaxError();
-      }
-
-      if(yylval == ALORS) {
-        yylval = yylex();
-
-        if(est_premier(_instructionBloc_, yylval)) {
-          IB();
-
-          if(est_premier(_optSinon_, yylval))
-          {
-            OSINON();
-        }
-      }
-      else
-      {
-        syntaxError();
-    }
-} else {
-    error("'alors' été attendu");
-}
-} else {
-    error("'si' été attendu");
-}
-
-    affiche_balise_fermante(__FUNCTION__, 1);
+	affiche_balise_ouvrante(__FUNCTION__, 1);
+	if(yylval == SI) {
+		yylval = yylex();
+		if(est_premier(_expression_, yylval)) EXP();
+			else syntaxError();
+		if(yylval == ALORS) {
+			yylval = yylex();
+			if(est_premier(_instructionBloc_, yylval)) {
+				IB();
+				if(est_premier(_optSinon_, yylval)) OSINON();
+			} else syntaxError();
+		} else error("'alors' été attendu");
+	} else error("'si' été attendu");
+	affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void OSINON() {
-    affiche_balise_ouvrante(__FUNCTION__, 1);
-    
-    if(yylval == SINON) {
-    yylval = yylex();
-
-    if(est_premier(_instructionBloc_, yylval)) {
-      IB();
-    }
-}
-
-if(!est_suivant(_optSinon_, yylval)) {
-    syntaxError();
-}
-
-    affiche_balise_fermante(__FUNCTION__, 1);
+	affiche_balise_ouvrante(__FUNCTION__, 1);
+	if(yylval == SINON) {
+		yylval = yylex();
+		if(est_premier(_instructionBloc_, yylval)) IB();
+	}
+	if(!est_suivant(_optSinon_, yylval)) syntaxError();
+	affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void ITQ() {
-    affiche_balise_ouvrante(__FUNCTION__, 1);
-    
-    if(yylval == TANTQUE) {
-    yylval = yylex();
-
-    if(est_premier(_expression_, yylval)) {
-      EXP();
-
-      if(yylval == FAIRE) {
-        yylval = yylex();
-        
-        if(est_premier(_instructionBloc_, yylval))
-        {
-        IB();
-      }
-      else
-      {
-        syntaxError();
-      }
-    }
-    else
-    {
-    error("'faire' été attendu");
-}
-} else {
-    syntaxError();
-}
-} else {
-    error("'tantque' été attendu");
-}
-
-    affiche_balise_fermante(__FUNCTION__, 1);
+	affiche_balise_ouvrante(__FUNCTION__, 1);
+	if(yylval == TANTQUE) {
+		yylval = yylex();
+		if(est_premier(_expression_, yylval)) {
+			EXP();
+			if(yylval == FAIRE) {
+				yylval = yylex();
+				if(est_premier(_instructionBloc_, yylval)) IB();
+					else syntaxError();
+			}
+			else error("'faire' été attendu");
+		} else syntaxError();
+	} else error("'tantque' été attendu");
+	affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void IAPP() {
-    affiche_balise_ouvrante(__FUNCTION__, 1);
-    
-    if(est_premier(_instructionAppel_, yylval)) {
-    APPF();
-
-    if(yylval == POINT_VIRGULE) {
-      yylval = yylex();
-    } else {
-      error("';' été attendu");
-    }
-} else {
-    syntaxError();
-}
-
-    affiche_balise_fermante(__FUNCTION__, 1);
+	affiche_balise_ouvrante(__FUNCTION__, 1);
+	if(est_premier(_instructionAppel_, yylval)) {
+		APPF();
+		if(yylval == POINT_VIRGULE) yylval = yylex();
+			else error("';' été attendu");
+	} else syntaxError();
+	affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void IRET() {
-    affiche_balise_ouvrante(__FUNCTION__, 1);
-    
-    if(yylval == RETOUR) {
-    yylval = yylex();
-
-    if(est_premier(_expression_, yylval)) {
-      EXP();
-
-      if(yylval == POINT_VIRGULE) {
-        yylval = yylex();
-    }
-    else
-    {
-        error("';' été attendu");
-    }
-} else {
-    syntaxError();
-}
-} else {
-    error("'retour' été attendu");
-}
-
-    affiche_balise_fermante(__FUNCTION__, 1);
+	affiche_balise_ouvrante(__FUNCTION__, 1);
+	if(yylval == RETOUR) {
+		yylval = yylex();
+		if(est_premier(_expression_, yylval)) {
+			EXP();
+			if(yylval == POINT_VIRGULE) yylval = yylex();
+				else error("';' été attendu");
+		} else syntaxError();
+	} else error("'retour' été attendu");
+	affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void IECR() {
-    affiche_balise_ouvrante(__FUNCTION__, 1);
-    
-    if(yylval == ECRIRE) {
-        yylval = yylex();
-
-        if(yylval == PARENTHESE_OUVRANTE) {
-        yylval = yylex();
-
-        if(est_premier(_expression_, yylval)) {
-          EXP();
-
-          if(yylval == PARENTHESE_FERMANTE)
-          {
-            yylval = yylex();
-        } else {
-            error("')' été attendu");
-        }
-      }
-      else
-      {
-        syntaxError();
-    }
-} else {
-    error("'(' été attendu");
-}
-} else {
-    error("'ecrire' été attendu");
-}
-
-    affiche_balise_fermante(__FUNCTION__, 1);
+	affiche_balise_ouvrante(__FUNCTION__, 1);
+	if(yylval == ECRIRE) {
+		yylval = yylex();
+		if(yylval == PARENTHESE_OUVRANTE) {
+			yylval = yylex();
+			if(est_premier(_expression_, yylval)) {
+				EXP();
+				if(yylval == PARENTHESE_FERMANTE) yylval = yylex();
+					else error("')' été attendu");
+			} else syntaxError();
+		} else error("'(' été attendu");
+	} else error("'ecrire' été attendu");
+	affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void IVIDE() {
-    affiche_balise_ouvrante(__FUNCTION__, 1);
-    
-    if(yylval == POINT_VIRGULE) {
-    yylval = yylex();
-} else {
-    error("';' été attendu");
-}
-
-    affiche_balise_fermante(__FUNCTION__, 1);
+	affiche_balise_ouvrante(__FUNCTION__, 1);
+	if(yylval == POINT_VIRGULE) yylval = yylex();
+		else error("';' été attendu");
+	affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void EXP() {
-    affiche_balise_ouvrante(__FUNCTION__, 1);
-    
-    if(est_premier(_conjonction_, yylval)) {
-        CONJ();
-
-        if(est_premier(_expressionBis_, yylval)) {
-        EXPB();
-      }
-    } else {
-    syntaxError();
-}
-
-    affiche_balise_fermante(__FUNCTION__, 1);
+	affiche_balise_ouvrante(__FUNCTION__, 1);
+	if(est_premier(_conjonction_, yylval)) {
+		CONJ();
+		if(est_premier(_expressionBis_, yylval)) EXPB();
+	} else syntaxError();
+	affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void EXPB() {
-    affiche_balise_ouvrante(__FUNCTION__, 1);
-    
-    if(yylval == OU) {
-    yylval = yylex();
-
-    if(est_premier(_conjonction_, yylval)) {
-      CONJ();
-
-      if(est_premier(_expressionBis_, yylval)) {
-        EXPB();
-    }
-} else {
-    syntaxError();
-}
-}
-
-if(!est_suivant(_expressionBis_, yylval)) {
-    syntaxError();
-}
-
-    affiche_balise_fermante(__FUNCTION__, 1);
+	affiche_balise_ouvrante(__FUNCTION__, 1);
+	if(yylval == OU) {
+		yylval = yylex();
+		if(est_premier(_conjonction_, yylval)) {
+			CONJ();
+			if(est_premier(_expressionBis_, yylval)) EXPB();
+		} else syntaxError();
+	}
+	if(!est_suivant(_expressionBis_, yylval)) syntaxError();
+	affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void CONJ() {
-    affiche_balise_ouvrante(__FUNCTION__, 1);
-    
-    if(est_premier(_negation_, yylval)) {
-        NEG();
-
-        if(est_premier(_conjonctionBis_, yylval)) {
-        CONJB();
-      }
-    } else {
-    syntaxError();
-}
-
-    affiche_balise_fermante(__FUNCTION__, 1);
+	affiche_balise_ouvrante(__FUNCTION__, 1);
+	if(est_premier(_negation_, yylval)) {
+		NEG();
+		if(est_premier(_conjonctionBis_, yylval)) CONJB();
+	} else syntaxError();
+	affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void CONJB() {
-    affiche_balise_ouvrante(__FUNCTION__, 1);
-    
-    if(yylval == ET) {
-    yylval = yylex();
-
-    if(est_premier(_negation_, yylval)) {
-      NEG();
-      
-      if(est_premier(_conjonctionBis_, yylval)) {
-        CONJB();
-    }
-} else {
-    syntaxError();
-}
-}
-
-if(!est_suivant(_conjonctionBis_, yylval)) {
-    syntaxError();
-}
-
-    affiche_balise_fermante(__FUNCTION__, 1);
+	affiche_balise_ouvrante(__FUNCTION__, 1);
+	if(yylval == ET) {
+		yylval = yylex();
+		if(est_premier(_negation_, yylval)) {
+			NEG();
+			if(est_premier(_conjonctionBis_, yylval)) CONJB();
+		} else syntaxError();
+	}
+	if(!est_suivant(_conjonctionBis_, yylval)) syntaxError();
+	affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void NEG() {
-    affiche_balise_ouvrante(__FUNCTION__, 1);
-    
-    if(yylval == NON) {
-        yylval = yylex();
-
-        if(est_premier(_comparaison_, yylval)) {
-        COMP();
-      } else {
-        syntaxError();
-      }
-    }
-    else if(est_premier(_comparaison_, yylval)) {
-    COMP();
-} else {
-    syntaxError();
-}
-
-    affiche_balise_fermante(__FUNCTION__, 1);
+	affiche_balise_ouvrante(__FUNCTION__, 1);
+	if(yylval == NON) {
+		yylval = yylex();
+		if(est_premier(_comparaison_, yylval)) COMP();
+			else syntaxError();
+	} else if(est_premier(_comparaison_, yylval)) COMP();
+		else syntaxError();
+	affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void COMP() {
-    affiche_balise_ouvrante(__FUNCTION__, 1);
-    
-    if(est_premier(_expression_, yylval)) {
-        E();
-
-        if(est_premier(_comparaisonBis_, yylval)) {
-        COMPB();
-      }
-    } else {
-    syntaxError();
-}
-
-    affiche_balise_fermante(__FUNCTION__, 1);
+	affiche_balise_ouvrante(__FUNCTION__, 1);
+	if(est_premier(_expression_, yylval)) {
+		E();
+		if(est_premier(_comparaisonBis_, yylval)) COMPB();
+	} else syntaxError();
+	affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void COMPB() {
-    affiche_balise_ouvrante(__FUNCTION__, 1);
-    
-    if(yylval == EGAL) {
-        yylval = yylex();
-
-        if(est_premier(_expression_, yylval)) {
-        E();
-
-        if(est_premier(_comparaisonBis_, yylval)) {
-          COMPB();
-        }
-    } else syntaxError();
-}
-else if(yylval == INFERIEUR) {
-    yylval = yylex();
-
-    if(est_premier(_expression_, yylval)) {
-      E();
-      
-      if(est_premier(_comparaisonBis_, yylval)) {
-        COMPB();
-    }
-} else {
-    syntaxError();
-}
-}
-
-if(!est_suivant(_comparaisonBis_, yylval)) {
-    syntaxError();
-}
-
-    affiche_balise_fermante(__FUNCTION__, 1);
+	affiche_balise_ouvrante(__FUNCTION__, 1);
+	if(yylval == EGAL) {
+		yylval = yylex();
+		if(est_premier(_expression_, yylval)) {
+			E();
+			if(est_premier(_comparaisonBis_, yylval)) COMPB();
+		} else syntaxError();
+	} else if(yylval == INFERIEUR) {
+		yylval = yylex();
+		if(est_premier(_expression_, yylval)) {
+			E();
+			if(est_premier(_comparaisonBis_, yylval)) COMPB();
+		} else syntaxError();
+	}
+	if(!est_suivant(_comparaisonBis_, yylval)) syntaxError();
+	affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void E() {
-    affiche_balise_ouvrante(__FUNCTION__, 1);
-    
-    if(est_premier(_terme_, yylval)) {
-        T();
-
-        if(est_premier(_expArithBis_, yylval)) {
-        EB();
-      }
-    } else {
-    syntaxError();
-}
-
-    affiche_balise_fermante(__FUNCTION__, 1);
+	affiche_balise_ouvrante(__FUNCTION__, 1);
+	if(est_premier(_terme_, yylval)) {
+		T();
+		if(est_premier(_expArithBis_, yylval)) EB();
+	} else syntaxError();
+	affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void EB() {
-    affiche_balise_ouvrante(__FUNCTION__, 1);
-    
-    if(yylval == PLUS) {
-        yylval = yylex();
-
-        if(est_premier(_terme_, yylval)) {
-        T();
-
-        if(est_premier(_expArithBis_, yylval)) {
-          EB();
-        }
-    } else syntaxError();
-}
-else if(yylval == MOINS) {
-    yylval = yylex();
-
-    if(est_premier(_terme_, yylval)) {
-      T();
-
-      if(est_premier(_expArithBis_, yylval)) {
-        EB();
-    }
-} else {
-    syntaxError();
-}
-}
-
-if(!est_suivant(_expArithBis_, yylval)) {
-    syntaxError();
-}
-
-    affiche_balise_fermante(__FUNCTION__, 1);
+	affiche_balise_ouvrante(__FUNCTION__, 1);
+	if(yylval == PLUS) {
+		yylval = yylex();
+		if(est_premier(_terme_, yylval)) {
+			T();
+			if(est_premier(_expArithBis_, yylval)) EB();
+		} else syntaxError();
+	} else if(yylval == MOINS) {
+		yylval = yylex();
+		if(est_premier(_terme_, yylval)) {
+			T();
+			if(est_premier(_expArithBis_, yylval)) EB();
+		} else syntaxError();
+	}
+	if(!est_suivant(_expArithBis_, yylval)) syntaxError();
+	affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void T() {
-    affiche_balise_ouvrante(__FUNCTION__, 1);
-    
-    if(est_premier(_facteur_, yylval)) {
-        F();
-
-        if(est_premier(_termeBis_, yylval)) {
-        TB();
-      }
-    } else {
-    syntaxError();
-}
-
-    affiche_balise_fermante(__FUNCTION__, 1);
+	affiche_balise_ouvrante(__FUNCTION__, 1);
+	if(est_premier(_facteur_, yylval)) {
+		F();
+		if(est_premier(_termeBis_, yylval)) TB();
+	} else syntaxError();
+	affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void TB() {
-    affiche_balise_ouvrante(__FUNCTION__, 1);
-    
-    if(yylval == FOIS) {
-        yylval = yylex();
-
-        if(est_premier(_facteur_, yylval)) {
-        F();
-
-        if(est_premier(_termeBis_, yylval)) {
-          TB();
-        }
-    } else syntaxError();
-}
-else if(yylval == DIVISE) {
-    yylval = yylex();
-
-    if(est_premier(_facteur_, yylval)) {
-      F();
-
-      if(est_premier(_termeBis_, yylval)) {
-        TB();
-    }
-} else {
-    syntaxError();
-}
-}
-
-if(!est_suivant(_termeBis_, yylval)) {
-    syntaxError();
-}
-
-    affiche_balise_fermante(__FUNCTION__, 1);
+	affiche_balise_ouvrante(__FUNCTION__, 1);
+	if(yylval == FOIS) {
+		yylval = yylex();
+		if(est_premier(_facteur_, yylval)) {
+			F();
+			if(est_premier(_termeBis_, yylval)) TB();
+		} else syntaxError();
+	} else if(yylval == DIVISE) {
+		yylval = yylex();
+		if(est_premier(_facteur_, yylval)) {
+			F();
+			if(est_premier(_termeBis_, yylval)) TB();
+		} else syntaxError();
+	}
+	if(!est_suivant(_termeBis_, yylval)) syntaxError();
+	affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void F() {
-    affiche_balise_ouvrante(__FUNCTION__, 1);
-    
-    if(yylval == PARENTHESE_OUVRANTE) {
-        yylval = yylex();
-
-        if(est_premier(_expression_, yylval)) {
-        EXP();
-
-        if(yylval == PARENTHESE_FERMANTE) {
-          yylval = yylex();
-        } else error("')' été attendu");
-    } else syntaxError();
-}
-else if(yylval == NOMBRE) {
-    yylval = yylex();
-}
-else if(est_premier(_appelFct_, yylval)) {
-    APPF();
-}
-else if(est_premier(_var_, yylval)) {
-    VAR();
-}
-else if(yylval == LIRE) {
-    yylval = yylex();
-
-    if(yylval == PARENTHESE_OUVRANTE) {
-      yylval = yylex();
-
-      if(yylval == PARENTHESE_FERMANTE) {
-        yylval = yylex();
-    }
-    else
-    {
-        error("')' été attendu");
-    }
-} else {
-    error("'(' été attendu");
-}
-} else {
-    syntaxError();
-}
-
-    affiche_balise_fermante(__FUNCTION__, 1);
+	affiche_balise_ouvrante(__FUNCTION__, 1);
+	if(yylval == PARENTHESE_OUVRANTE) {
+		yylval = yylex();
+		if(est_premier(_expression_, yylval)) {
+			EXP();
+			if(yylval == PARENTHESE_FERMANTE) yylval = yylex();
+				else error("')' été attendu");
+		} else syntaxError();
+	} else if(yylval == NOMBRE) yylval = yylex();
+		else if(est_premier(_appelFct_, yylval)) APPF();
+		else if(est_premier(_var_, yylval)) VAR();
+	else if(yylval == LIRE) {
+		yylval = yylex();
+		if(yylval == PARENTHESE_OUVRANTE) {
+			yylval = yylex();
+			if(yylval == PARENTHESE_FERMANTE) yylval = yylex();
+				else error("')' été attendu");
+		} else error("'(' été attendu");
+	} else syntaxError();
+	affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void VAR() {
-    affiche_balise_ouvrante(__FUNCTION__, 1);
-    
-    if(yylval == ID_VAR) {
-        yylval = yylex();
-
-        if(est_premier(_optIndice_, yylval)) {
-        OIND();
-      }
-    } else {
-    error("Indice de variable été attendu");
-}
-
-    affiche_balise_fermante(__FUNCTION__, 1);
+	affiche_balise_ouvrante(__FUNCTION__, 1);
+	if(yylval == ID_VAR) {
+		yylval = yylex();
+		if(est_premier(_optIndice_, yylval)) OIND();
+	} else error("Indice de variable été attendu");
+	affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void OIND() {
-    affiche_balise_ouvrante(__FUNCTION__, 1);
-    
-    if(yylval == CROCHET_OUVRANT) {
-        yylval = yylex();
-
-        if(est_premier(_expression_, yylval)) {
-        EXP();
-
-        if(yylval == CROCHET_FERMANT) {
-          yylval = yylex();
-        }
-        else error("']' été attendu");
-    } else syntaxError();
-}
-
-if(!est_suivant(_optIndice_, yylval)) {
-    syntaxError();
-}
-
-    affiche_balise_fermante(__FUNCTION__, 1);
+	affiche_balise_ouvrante(__FUNCTION__, 1);
+	if(yylval == CROCHET_OUVRANT) {
+		yylval = yylex();
+		if(est_premier(_expression_, yylval)) {
+			EXP();
+			if(yylval == CROCHET_FERMANT) yylval = yylex();
+				else error("']' été attendu");
+		} else syntaxError();
+	}
+	if(!est_suivant(_optIndice_, yylval)) syntaxError();
+	affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void APPF() {
-    affiche_balise_ouvrante(__FUNCTION__, 1);
-    
-    if(yylval == ID_FCT) {
-        yylval = yylex();
-
-        if(yylval == PARENTHESE_OUVRANTE) {
-        yylval = yylex();
-
-        if(est_premier(_listeExpressions_, yylval)) {
-          LEXP();
-        }
-
-        if(yylval == PARENTHESE_FERMANTE) {
-          yylval = yylex();
-        } else error("')' été attendu");
-    } else {
-      error("'(' été attendu");
-    }
-} else {
-    error("Identificateur de fonction été attendu");
-}
-
-    affiche_balise_fermante(__FUNCTION__, 1);
+	affiche_balise_ouvrante(__FUNCTION__, 1);
+	if(yylval == ID_FCT) {
+		yylval = yylex();
+		if(yylval == PARENTHESE_OUVRANTE) {
+			yylval = yylex();
+			if(est_premier(_listeExpressions_, yylval)) LEXP();
+			if(yylval == PARENTHESE_FERMANTE) yylval = yylex();
+				else error("')' été attendu");
+		} else error("'(' été attendu");
+	} else error("Identificateur de fonction été attendu");
+	affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void LEXP() {
-    affiche_balise_ouvrante(__FUNCTION__, 1);
-    
-    if(est_premier(_expression_, yylval)) {
-        EXP();
-
-        if(est_premier(_listeExpressionsBis_, yylval)) {
-        LEXPB();
-      }
-    }
-
-    if(!est_suivant(_listeExpressions_, yylval)) {
-    syntaxError();
-}
-
-    affiche_balise_fermante(__FUNCTION__, 1);
+	affiche_balise_ouvrante(__FUNCTION__, 1);
+	if(est_premier(_expression_, yylval)) {
+		EXP();
+		if(est_premier(_listeExpressionsBis_, yylval)) LEXPB();
+	}
+	if(!est_suivant(_listeExpressions_, yylval)) syntaxError();
+	affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void LEXPB() {
-    affiche_balise_ouvrante(__FUNCTION__, 1);
-    
-    if(yylval == VIRGULE) {
-    yylval = yylex();
-    
-    if(est_premier(_expression_, yylval)) {
-      EXP();
-
-      if(est_premier(_listeExpressionsBis_, yylval)) {
-        LEXPB();
-    }
-} else {
-    syntaxError();
-}
-}
-
-if(!est_suivant(_listeExpressionsBis_, yylval)) {
-    syntaxError();
-}
-
-    affiche_balise_fermante(__FUNCTION__, 1);
+	affiche_balise_ouvrante(__FUNCTION__, 1);
+	if(yylval == VIRGULE) {
+		yylval = yylex();
+		if(est_premier(_expression_, yylval)) {
+			EXP();
+			if(est_premier(_listeExpressionsBis_, yylval)) LEXPB();
+		} else syntaxError();
+	}
+	if(!est_suivant(_listeExpressionsBis_, yylval)) syntaxError();
+	affiche_balise_fermante(__FUNCTION__, 1);
 }
