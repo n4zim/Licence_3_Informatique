@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
         fprintf(stderr, "Impossible d'ouvrir le fichier %s\n", argv[1]);
         exit(1);
     }
-
+	
     analyseur_syntaxique();
     
     /*do {
