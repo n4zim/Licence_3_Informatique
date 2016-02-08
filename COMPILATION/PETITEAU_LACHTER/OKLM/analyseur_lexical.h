@@ -7,7 +7,7 @@ int yylval;
 
 int yylex(void);
 void nom_token( int token, char *nom, char *valeur );
-void test_yylex_internal( FILE *yyin );
+void test_yylex_internal();
 
 void syntaxError();
 void syntaxErrorMsg( const char * msg );
