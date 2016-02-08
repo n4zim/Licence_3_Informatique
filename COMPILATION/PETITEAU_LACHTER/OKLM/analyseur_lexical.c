@@ -248,7 +248,7 @@ void nom_token( int token, char *nom, char *valeur ) {
  * lexical et, étant donné un programme en entrée, afficher la liste des tokens.
  ******************************************************************************/
 
-void test_yylex_internal(FILE *yyin) {
+void test_yylex_internal() {
     int uniteCourante;
     uniteCourante = yylex();
     while (uniteCourante != FIN) {
