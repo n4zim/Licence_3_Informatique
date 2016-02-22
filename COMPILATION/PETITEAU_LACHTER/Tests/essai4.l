@@ -15,7 +15,7 @@ entier $i;
     tantque $i < $n faire {
         ecrire( $tab[ $i ] );
         $i = $i + 1;
-        
+    }    
     ecrire( 0 ); # marqueur fin de tableau         
 }
 
@@ -32,7 +32,7 @@ entier $echange, entier $j, entier $m;
 {
     $m = $n;
     $echange = 1;
-    tantque $echange == 1 faire
+    tantque $echange = 1 faire
     {
         $echange = 0;
         $j = 0;
@@ -44,7 +44,7 @@ entier $echange, entier $j, entier $m;
             }
             $j = $j + 1;
         }
-        $m -= 1;        
+        $m = $m - 1;        
     }    
 }
 

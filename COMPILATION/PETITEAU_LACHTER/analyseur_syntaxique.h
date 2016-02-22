@@ -5,8 +5,8 @@
 
 void analyseur_syntaxique(void);
 
-void syntaxError();
-void error( const char * msg );
+void syntaxError(const char * f);
+void error(const char * f, const char * s);
 
 void PG();
 void ODV();

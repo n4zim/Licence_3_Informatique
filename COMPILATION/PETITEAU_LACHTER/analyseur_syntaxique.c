@@ -8,6 +8,8 @@
 #include "suivants.h"
 
 extern FILE *yyin;
+extern int nb_ligne;
+
 int uniteCourante;
 
 void analyseur_syntaxique(void) {
@@ -18,13 +20,13 @@ void analyseur_syntaxique(void) {
 	printf("La syntaxe gère un max. #CestCool #Pèse #YOLO\n");
 }
 
-void error(const char * s) {
-    printf("%s\n", s);
+void error(const char * f, const char * s) {
+    printf("LIGNE %d (%s) : %s\n", nb_ligne, f, s);
     exit(1);
 }
 
-void syntaxError() {
-    printf("Erreur dans la syntaxe !\n");
+void syntaxError(const char * f) {
+    printf("LIGNE %d (%s) : Erreur dans la syntaxe avec l'unité \"%d\"!\n", nb_ligne, f, uniteCourante);
     exit(1);
 }
 
@@ -35,7 +37,7 @@ void PG() {
       if(est_premier(_listeDecFonctions_, uniteCourante)) LDF();
     }
     else if(est_premier(_listeDecFonctions_, uniteCourante)) LDF();
-    else syntaxError();
+    else syntaxError(__func__);
     affiche_balise_fermante(__func__, 1);
 }
 
@@ -44,9 +46,9 @@ void ODV() {
     if(est_premier(_listeDecVariables_, uniteCourante)) {
         LDV();
         if(uniteCourante == POINT_VIRGULE) uniteCourante = yylex();
-          else error("';' était attendu");
+          else error(__func__, "';' était attendu");
     }
-    if(!est_suivant(_optDecVariables_, uniteCourante)) syntaxError();
+    if(!est_suivant(_optDecVariables_, uniteCourante)) syntaxError(__func__);
     affiche_balise_fermante(__func__, 1);
 }
 
@@ -55,7 +57,7 @@ void LDV() {
     if(est_premier(_declarationVariable_, uniteCourante)) {
         DV();
         if(est_premier(_listeDecVariablesBis_, uniteCourante)) LDVB();
-    } else syntaxError();
+    } else syntaxError(__func__);
     affiche_balise_fermante(__func__, 1);
 }
 
@@ -66,9 +68,9 @@ void LDVB() {
         if(est_premier(_declarationVariable_, uniteCourante)) {
             DV();
             if(est_premier(_listeDecVariablesBis_, uniteCourante)) LDVB();
-        } else syntaxError();
+        } else syntaxError(__func__);
     }
-    if(!est_suivant(_listeDecVariablesBis_, uniteCourante)) syntaxError();
+    if(!est_suivant(_listeDecVariablesBis_, uniteCourante)) syntaxError(__func__);
     affiche_balise_fermante(__func__, 1);
 }
 
@@ -79,8 +81,8 @@ void DV() {
         if(uniteCourante == ID_VAR) {
             uniteCourante = yylex();
             if(est_premier(_optTailleTableau_, uniteCourante)) OTT();
-        } else error("Un identificateur de variable était attendu");
-    } else error("'ENTIER' était attendu");
+        } else error(__func__, "Un identificateur de variable était attendu");
+    } else error(__func__, "'ENTIER' était attendu");
     affiche_balise_fermante(__func__, 1);
 }
 
@@ -91,10 +93,10 @@ void OTT() {
         if(uniteCourante == NOMBRE) {
             uniteCourante = yylex();
             if(uniteCourante == CROCHET_FERMANT) uniteCourante = yylex();
-                else error("']' était attendu");
-        } else error("Un nombre était attendu");
+                else error(__func__, "']' était attendu");
+        } else error(__func__, "Un nombre était attendu");
     }
-    if(!est_suivant(_optTailleTableau_, uniteCourante)) syntaxError();
+    if(!est_suivant(_optTailleTableau_, uniteCourante)) syntaxError(__func__);
     affiche_balise_fermante(__func__, 1);
 }
 
@@ -103,8 +105,8 @@ void LDF() {
     if(est_premier(_declarationFonction_, uniteCourante)) {
         DF();
         if(est_premier(_listeDecFonctions_, uniteCourante)) LDF();
-    } else syntaxError();
-    if(!est_suivant(_listeDecFonctions_, uniteCourante)) syntaxError();
+    } else syntaxError(__func__);
+    if(!est_suivant(_listeDecFonctions_, uniteCourante)) syntaxError(__func__);
     affiche_balise_fermante(__func__, 1);
 }
 
@@ -116,9 +118,9 @@ void DF() {
             LP();
             if(est_premier(_optDecVariables_, uniteCourante)) ODV();
             if(est_premier(_instructionBloc_, uniteCourante)) IB();
-                else syntaxError();
-        } else syntaxError();
-    } else error("Un identificateur de fonction était attendu");
+                else syntaxError(__func__);
+        } else syntaxError(__func__);
+    } else error(__func__, "Un identificateur de fonction était attendu");
     affiche_balise_fermante(__func__, 1);
 }
 
@@ -128,15 +130,15 @@ void LP() {
         uniteCourante = yylex();
         if(est_premier(_optListeDecVariables_, uniteCourante)) OLDV();
         if(uniteCourante == PARENTHESE_FERMANTE) uniteCourante = yylex();
-            else error("')' était attendu");
-    } else error("'(' était attendu");
+            else error(__func__, "')' était attendu");
+    } else error(__func__, "'(' était attendu");
     affiche_balise_fermante(__func__, 1);
 }
 
 void OLDV() {
     affiche_balise_ouvrante(__func__, 1);
     if(est_premier(_listeDecVariables_, uniteCourante)) LDV();
-    if(!est_suivant(_optListeDecVariables_, uniteCourante)) syntaxError();
+    if(!est_suivant(_optListeDecVariables_, uniteCourante)) syntaxError(__func__);
     affiche_balise_fermante(__func__, 1);
 }
 
@@ -150,7 +152,7 @@ void I() {
         else if(est_premier(_instructionRetour_, uniteCourante)) IRET();
         else if(est_premier(_instructionEcriture_, uniteCourante)) IECR();
         else if(est_premier(_instructionVide_, uniteCourante)) IVIDE();
-        else syntaxError();
+        else syntaxError(__func__);
     affiche_balise_fermante(__func__, 1);
 }
 
@@ -163,10 +165,10 @@ void IAFF() {
 			if(est_premier(_expression_, uniteCourante)) {
 				EXP();
 				if(uniteCourante == POINT_VIRGULE) uniteCourante = yylex();
-					else error("';' était attendu");
-			} else syntaxError();
-		} else error("'=' était attendu");
-	} else syntaxError();
+					else error(__func__, "';' était attendu");
+			} else syntaxError(__func__);
+		} else error(__func__, "'=' était attendu");
+	} else syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
 }
 
@@ -176,8 +178,8 @@ void IB() {
 		uniteCourante = yylex();
 		if(est_premier(_listeInstructions_, uniteCourante)) LI();
 		if(uniteCourante == ACCOLADE_FERMANTE) uniteCourante = yylex();
-			else error("'}' était attendu");
-	} else error("'{' était attendu");
+			else error(__func__, "'}' était attendu");
+	} else error(__func__, "'{' était attendu");
 	affiche_balise_fermante(__func__, 1);
 }
 
@@ -187,7 +189,7 @@ void LI() {
 		I();
 		if(est_premier(_listeInstructions_, uniteCourante)) LI();
 	}
-	if(!est_suivant(_listeInstructions_, uniteCourante)) syntaxError();
+	if(!est_suivant(_listeInstructions_, uniteCourante)) syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
 }
 
@@ -196,15 +198,15 @@ void ISI() {
 	if(uniteCourante == SI) {
 		uniteCourante = yylex();
 		if(est_premier(_expression_, uniteCourante)) EXP();
-			else syntaxError();
+			else syntaxError(__func__);
 		if(uniteCourante == ALORS) {
 			uniteCourante = yylex();
 			if(est_premier(_instructionBloc_, uniteCourante)) {
 				IB();
 				if(est_premier(_optSinon_, uniteCourante)) OSINON();
-			} else syntaxError();
-		} else error("'alors' était attendu");
-	} else error("'si' était attendu");
+			} else syntaxError(__func__);
+		} else error(__func__, "'alors' était attendu");
+	} else error(__func__, "'si' était attendu");
 	affiche_balise_fermante(__func__, 1);
 }
 
@@ -214,7 +216,7 @@ void OSINON() {
 		uniteCourante = yylex();
 		if(est_premier(_instructionBloc_, uniteCourante)) IB();
 	}
-	if(!est_suivant(_optSinon_, uniteCourante)) syntaxError();
+	if(!est_suivant(_optSinon_, uniteCourante)) syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
 }
 
@@ -227,11 +229,11 @@ void ITQ() {
 			if(uniteCourante == FAIRE) {
 				uniteCourante = yylex();
 				if(est_premier(_instructionBloc_, uniteCourante)) IB();
-					else syntaxError();
+					else syntaxError(__func__);
 			}
-			else error("'faire' était attendu");
-		} else syntaxError();
-	} else error("'tantque' était attendu");
+			else error(__func__, "'faire' était attendu");
+		} else syntaxError(__func__);
+	} else error(__func__, "'tantque' était attendu");
 	affiche_balise_fermante(__func__, 1);
 }
 
@@ -240,8 +242,8 @@ void IAPP() {
 	if(est_premier(_instructionAppel_, uniteCourante)) {
 		APPF();
 		if(uniteCourante == POINT_VIRGULE) uniteCourante = yylex();
-			else error("';' était attendu");
-	} else syntaxError();
+			else error(__func__, "';' était attendu");
+	} else syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
 }
 
@@ -252,9 +254,9 @@ void IRET() {
 		if(est_premier(_expression_, uniteCourante)) {
 			EXP();
 			if(uniteCourante == POINT_VIRGULE) uniteCourante = yylex();
-				else error("';' était attendu");
-		} else syntaxError();
-	} else error("'retour' était attendu");
+				else error(__func__, "';' était attendu");
+		} else syntaxError(__func__);
+	} else error(__func__, "'retour' était attendu");
 	affiche_balise_fermante(__func__, 1);
 }
 
@@ -267,17 +269,17 @@ void IECR() {
 			if(est_premier(_expression_, uniteCourante)) {
 				EXP();
 				if(uniteCourante == PARENTHESE_FERMANTE) uniteCourante = yylex();
-					else error("')' était attendu");
-			} else syntaxError();
-		} else error("'(' était attendu");
-	} else error("'ecrire' était attendu");
+					else error(__func__, "')' était attendu");
+			} else syntaxError(__func__);
+		} else error(__func__, "'(' était attendu");
+	} else error(__func__, "'ecrire' était attendu");
 	affiche_balise_fermante(__func__, 1);
 }
 
 void IVIDE() {
 	affiche_balise_ouvrante(__func__, 1);
 	if(uniteCourante == POINT_VIRGULE) uniteCourante = yylex();
-		else error("';' était attendu");
+		else error(__func__, "';' était attendu");
 	affiche_balise_fermante(__func__, 1);
 }
 
@@ -286,7 +288,7 @@ void EXP() {
 	if(est_premier(_conjonction_, uniteCourante)) {
 		CONJ();
 		if(est_premier(_expressionBis_, uniteCourante)) EXPB();
-	} else syntaxError();
+	} else syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
 }
 
@@ -297,9 +299,9 @@ void EXPB() {
 		if(est_premier(_conjonction_, uniteCourante)) {
 			CONJ();
 			if(est_premier(_expressionBis_, uniteCourante)) EXPB();
-		} else syntaxError();
+		} else syntaxError(__func__);
 	}
-	if(!est_suivant(_expressionBis_, uniteCourante)) syntaxError();
+	if(!est_suivant(_expressionBis_, uniteCourante)) syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
 }
 
@@ -308,7 +310,7 @@ void CONJ() {
 	if(est_premier(_negation_, uniteCourante)) {
 		NEG();
 		if(est_premier(_conjonctionBis_, uniteCourante)) CONJB();
-	} else syntaxError();
+	} else syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
 }
 
@@ -319,9 +321,9 @@ void CONJB() {
 		if(est_premier(_negation_, uniteCourante)) {
 			NEG();
 			if(est_premier(_conjonctionBis_, uniteCourante)) CONJB();
-		} else syntaxError();
+		} else syntaxError(__func__);
 	}
-	if(!est_suivant(_conjonctionBis_, uniteCourante)) syntaxError();
+	if(!est_suivant(_conjonctionBis_, uniteCourante)) syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
 }
 
@@ -330,9 +332,9 @@ void NEG() {
 	if(uniteCourante == NON) {
 		uniteCourante = yylex();
 		if(est_premier(_comparaison_, uniteCourante)) COMP();
-			else syntaxError();
+			else syntaxError(__func__);
 	} else if(est_premier(_comparaison_, uniteCourante)) COMP();
-		else syntaxError();
+		else syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
 }
 
@@ -341,7 +343,7 @@ void COMP() {
 	if(est_premier(_expression_, uniteCourante)) {
 		E();
 		if(est_premier(_comparaisonBis_, uniteCourante)) COMPB();
-	} else syntaxError();
+	} else syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
 }
 
@@ -352,15 +354,15 @@ void COMPB() {
 		if(est_premier(_expression_, uniteCourante)) {
 			E();
 			if(est_premier(_comparaisonBis_, uniteCourante)) COMPB();
-		} else syntaxError();
+		} else syntaxError(__func__);
 	} else if(uniteCourante == INFERIEUR) {
 		uniteCourante = yylex();
 		if(est_premier(_expression_, uniteCourante)) {
 			E();
 			if(est_premier(_comparaisonBis_, uniteCourante)) COMPB();
-		} else syntaxError();
+		} else syntaxError(__func__);
 	}
-	if(!est_suivant(_comparaisonBis_, uniteCourante)) syntaxError();
+	if(!est_suivant(_comparaisonBis_, uniteCourante)) syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
 }
 
@@ -369,7 +371,7 @@ void E() {
 	if(est_premier(_terme_, uniteCourante)) {
 		T();
 		if(est_premier(_expArithBis_, uniteCourante)) EB();
-	} else syntaxError();
+	} else syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
 }
 
@@ -380,15 +382,15 @@ void EB() {
 		if(est_premier(_terme_, uniteCourante)) {
 			T();
 			if(est_premier(_expArithBis_, uniteCourante)) EB();
-		} else syntaxError();
+		} else syntaxError(__func__);
 	} else if(uniteCourante == MOINS) {
 		uniteCourante = yylex();
 		if(est_premier(_terme_, uniteCourante)) {
 			T();
 			if(est_premier(_expArithBis_, uniteCourante)) EB();
-		} else syntaxError();
+		} else syntaxError(__func__);
 	}
-	if(!est_suivant(_expArithBis_, uniteCourante)) syntaxError();
+	if(!est_suivant(_expArithBis_, uniteCourante)) syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
 }
 
@@ -397,7 +399,7 @@ void T() {
 	if(est_premier(_facteur_, uniteCourante)) {
 		F();
 		if(est_premier(_termeBis_, uniteCourante)) TB();
-	} else syntaxError();
+	} else syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
 }
 
@@ -408,15 +410,15 @@ void TB() {
 		if(est_premier(_facteur_, uniteCourante)) {
 			F();
 			if(est_premier(_termeBis_, uniteCourante)) TB();
-		} else syntaxError();
+		} else syntaxError(__func__);
 	} else if(uniteCourante == DIVISE) {
 		uniteCourante = yylex();
 		if(est_premier(_facteur_, uniteCourante)) {
 			F();
 			if(est_premier(_termeBis_, uniteCourante)) TB();
-		} else syntaxError();
+		} else syntaxError(__func__);
 	}
-	if(!est_suivant(_termeBis_, uniteCourante)) syntaxError();
+	if(!est_suivant(_termeBis_, uniteCourante)) syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
 }
 
@@ -427,8 +429,8 @@ void F() {
 		if(est_premier(_expression_, uniteCourante)) {
 			EXP();
 			if(uniteCourante == PARENTHESE_FERMANTE) uniteCourante = yylex();
-				else error("')' était attendu");
-		} else syntaxError();
+				else error(__func__, "')' était attendu");
+		} else syntaxError(__func__);
 	} else if(uniteCourante == NOMBRE) uniteCourante = yylex();
 		else if(est_premier(_appelFct_, uniteCourante)) APPF();
 		else if(est_premier(_var_, uniteCourante)) VAR();
@@ -437,9 +439,9 @@ void F() {
 		if(uniteCourante == PARENTHESE_OUVRANTE) {
 			uniteCourante = yylex();
 			if(uniteCourante == PARENTHESE_FERMANTE) uniteCourante = yylex();
-				else error("')' était attendu");
-		} else error("'(' était attendu");
-	} else syntaxError();
+				else error(__func__, "')' était attendu");
+		} else error(__func__, "'(' était attendu");
+	} else syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
 }
 
@@ -448,7 +450,7 @@ void VAR() {
 	if(uniteCourante == ID_VAR) {
 		uniteCourante = yylex();
 		if(est_premier(_optIndice_, uniteCourante)) OIND();
-	} else error("Indice de variable était attendu");
+	} else error(__func__, "Indice de variable était attendu");
 	affiche_balise_fermante(__func__, 1);
 }
 
@@ -459,10 +461,10 @@ void OIND() {
 		if(est_premier(_expression_, uniteCourante)) {
 			EXP();
 			if(uniteCourante == CROCHET_FERMANT) uniteCourante = yylex();
-				else error("']' était attendu");
-		} else syntaxError();
+				else error(__func__, "']' était attendu");
+		} else syntaxError(__func__);
 	}
-	if(!est_suivant(_optIndice_, uniteCourante)) syntaxError();
+	if(!est_suivant(_optIndice_, uniteCourante)) syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
 }
 
@@ -474,9 +476,9 @@ void APPF() {
 			uniteCourante = yylex();
 			if(est_premier(_listeExpressions_, uniteCourante)) LEXP();
 			if(uniteCourante == PARENTHESE_FERMANTE) uniteCourante = yylex();
-				else error("')' était attendu");
-		} else error("'(' était attendu");
-	} else error("Identificateur de fonction était attendu");
+				else error(__func__, "')' était attendu");
+		} else error(__func__, "'(' était attendu");
+	} else error(__func__, "Identificateur de fonction était attendu");
 	affiche_balise_fermante(__func__, 1);
 }
 
@@ -486,7 +488,7 @@ void LEXP() {
 		EXP();
 		if(est_premier(_listeExpressionsBis_, uniteCourante)) LEXPB();
 	}
-	if(!est_suivant(_listeExpressions_, uniteCourante)) syntaxError();
+	if(!est_suivant(_listeExpressions_, uniteCourante)) syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
 }
 
@@ -497,8 +499,8 @@ void LEXPB() {
 		if(est_premier(_expression_, uniteCourante)) {
 			EXP();
 			if(est_premier(_listeExpressionsBis_, uniteCourante)) LEXPB();
-		} else syntaxError();
+		} else syntaxError(__func__);
 	}
-	if(!est_suivant(_listeExpressionsBis_, uniteCourante)) syntaxError();
+	if(!est_suivant(_listeExpressionsBis_, uniteCourante)) syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
 }
