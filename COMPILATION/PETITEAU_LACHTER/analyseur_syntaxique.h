@@ -4,10 +4,47 @@
 #include "stdio.h"
 
 void analyseur_syntaxique(void);
-void E(void);
-void Ep(void);
-void T(void);
-void Tp(void);
-void F(void);
+
+void syntaxError();
+void error( const char * msg );
+
+void PG();
+void ODV();
+void LDV();
+void LDVB();
+void DV();
+void OTT();
+void LDF();
+void DF();
+void LP();
+void OLDV();
+void I();
+void IAFF();
+void IB();
+void LI();
+void ISI();
+void OSINON();
+void ITQ();
+void IAPP();
+void IRET();
+void IECR();
+void IVIDE();
+void EXP();
+void EXPB();
+void CONJ();
+void CONJB();
+void NEG();
+void COMP();
+void COMPB();
+void E();
+void EB();
+void T();
+void TB();
+void F();
+void VAR();
+void OIND();
+void APPF();
+void LEXP();
+void LEXPB();
 
 #endif

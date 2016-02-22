@@ -3,7 +3,7 @@ CC = gcc
 LIBS = -lm 
 CCFLAGS = -Wall -ggdb
 
-OBJ = util.o analyseur_syntaxique.o analyseur_lexical.o
+OBJ = util.o premiers.o suivants.o analyseur_syntaxique.o analyseur_lexical.o
 
 all: test_yylex
 
@@ -14,6 +14,12 @@ analyseur_syntaxique.o: analyseur_syntaxique.c
 	$(CC) $(CCFLAGS) -c $^
 
 analyseur_lexical.o: analyseur_lexical.c
+	$(CC) $(CCFLAGS) -c $^
+	
+premiers.o: premiers.c
+	$(CC) $(CCFLAGS) -c $^
+
+suivants.o: suivants.c
 	$(CC) $(CCFLAGS) -c $^
 
 .PHONY : clean
