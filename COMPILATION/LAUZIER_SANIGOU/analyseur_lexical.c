@@ -51,7 +51,7 @@ int mangeEspaces()
 { 
 	char c = fgetc(yyin);
 	int comment = 0;
-	while( comment || (c == ' ') || (c == '\n') || (c == '\t') || (c == '#' ) ) {
+	while( comment || (c == ' ') || (c == '\n') || (c == '\t') || (c == '#' ) || (c == 13) || (c == 10) ) {
 		if( c == '#' ) {
 				comment = 1;
 		}
