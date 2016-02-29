@@ -6,9 +6,11 @@
 #include "util.h"
 #include "premiers.h"
 #include "suivants.h"
+#include "syntabs.h"
 
 extern FILE *yyin;
 extern int nb_ligne;
+extern yytext;
 
 int uniteCourante;
 
@@ -30,60 +32,82 @@ void syntaxError(const char * f) {
     exit(1);
 }
 
-void PG() {
+n_prog* PG() {
+	n_prog *$$ = NULL;
+	n_l_dec *vars = NULL;
+	n_l_dec *funcs = NULL;
+
     affiche_balise_ouvrante(__func__, 1);
     if(est_premier(_optDecVariables_, uniteCourante)) {
-      ODV();
-      if(est_premier(_listeDecFonctions_, uniteCourante)) LDF();
+        vars = ODV();
+		if(est_premier(_listeDecFonctions_, uniteCourante)) funcs = LDF();
     }
-    else if(est_premier(_listeDecFonctions_, uniteCourante)) LDF();
+    else if(est_premier(_listeDecFonctions_, uniteCourante)) funcs = LDF();
     else syntaxError(__func__);
+    $$ = creer_n_prog(vars, funcs);
     affiche_balise_fermante(__func__, 1);
+    return $$;
 }
 
-void ODV() {
+n_l_dec* ODV() {
+	n_l_dec *$$ = NULL;
+
     affiche_balise_ouvrante(__func__, 1);
     if(est_premier(_listeDecVariables_, uniteCourante)) {
-        LDV();
+        $$ = LDV();
         if(uniteCourante == POINT_VIRGULE) uniteCourante = yylex();
-          else error(__func__, "';' était attendu");
+        	else error(__func__, "';' était attendu");
     }
     if(!est_suivant(_optDecVariables_, uniteCourante)) syntaxError(__func__);
     affiche_balise_fermante(__func__, 1);
+    return $$;
 }
 
-void LDV() {
+n_l_dec* LDV() {
+	n_l_dec *$$ = NULL;
+    n_dec *tete = NULL;
+    n_l_dec *queue = NULL;
     affiche_balise_ouvrante(__func__, 1);
     if(est_premier(_declarationVariable_, uniteCourante)) {
-        DV();
-        if(est_premier(_listeDecVariablesBis_, uniteCourante)) LDVB();
+        tete = DV();
+        if(est_premier(_listeDecVariablesBis_, uniteCourante)) queue = LDVB();
+        $$ = cree_n_l_dec(tete, queue);
     } else syntaxError(__func__);
     affiche_balise_fermante(__func__, 1);
+    return $$;
 }
 
-void LDVB() {
+n_l_dec* LDVB() {
+    n_l_dec *$$ = NULL;
+    n_dec *tete = NULL;
+    n_l_dec *queue = NULL;
     affiche_balise_ouvrante(__func__, 1);
     if(uniteCourante == VIRGULE) {
         uniteCourante = yylex();
         if(est_premier(_declarationVariable_, uniteCourante)) {
-            DV();
-            if(est_premier(_listeDecVariablesBis_, uniteCourante)) LDVB();
+            tete = DV();
+            if(est_premier(_listeDecVariablesBis_, uniteCourante)) queue = LDVB();
         } else syntaxError(__func__);
     }
+    $$ = cree_n_l_dec(tete, queue);
     if(!est_suivant(_listeDecVariablesBis_, uniteCourante)) syntaxError(__func__);
     affiche_balise_fermante(__func__, 1);
 }
 
-void DV() {
+n_dec* DV() {
+    n_dec *$$ = NULL;
+    n_l_dec *$1 = NULL;
     affiche_balise_ouvrante(__func__, 1);
     if(uniteCourante == ENTIER) {
         uniteCourante = yylex();
         if(uniteCourante == ID_VAR) {
             uniteCourante = yylex();
-            if(est_premier(_optTailleTableau_, uniteCourante)) OTT();
+            if(est_premier(_optTailleTableau_, uniteCourante)) $1 = OTT();
         } else error(__func__, "Un identificateur de variable était attendu");
     } else error(__func__, "'ENTIER' était attendu");
+    if($1 == NULL) $$ = cree_n_dec_var(yytext);
     affiche_balise_fermante(__func__, 1);
+    return $$;
 }
 
 void OTT() {

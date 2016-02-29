@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="CPP_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/analyseur_lexical.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/analyseur_syntaxique.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/util.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Tests/essai3.l" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Tests/essai1.l" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Tests/affect-err.l" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Tests/tri.l" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Tests/boucle.l" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Tests/affect.l" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Tests/essai4.l" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Tests/essai2.l" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Tests/expression.l" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Tests/boucle_error.l" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Tests/fichierTest.l" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Tests/max.l" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/analyseur_syntaxique.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/symboles.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/test_yylex.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/suivants.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/premiers.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/suivants.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/premiers.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/syntabs.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/affiche_arbre_abstrait.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/affiche_arbre_abstrait.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/analyseur_lexical.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/syntabs.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/util.h" isTestSource="false" />
+    </content>
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library">
+      <library name="Header Search Paths">
+        <CLASSES>
+          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/4.9/include-fixed" />
+          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/4.9/include" />
+          <root url="file:///usr/include" />
+          <root url="file:///usr/local/include" />
+        </CLASSES>
+        <SOURCES>
+          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/4.9/include-fixed" />
+          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/4.9/include" />
+          <root url="file:///usr/include" />
+          <root url="file:///usr/local/include" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+  </component>
+</module>

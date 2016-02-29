@@ -2,17 +2,18 @@
 #define __ANALYSEUR_SYNTAXIQUE__
 
 #include "stdio.h"
+#include "syntabs.h"
 
 void analyseur_syntaxique(void);
 
 void syntaxError(const char * f);
 void error(const char * f, const char * s);
 
-void PG();
-void ODV();
-void LDV();
-void LDVB();
-void DV();
+n_prog * PG();
+n_l_dec * ODV();
+n_l_dec * LDV();
+n_l_dec * LDVB();
+n_dec * DV();
 void OTT();
 void LDF();
 void DF();
