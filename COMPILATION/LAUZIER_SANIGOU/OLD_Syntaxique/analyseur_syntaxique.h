@@ -1,9 +1,9 @@
 void syntaxError(void);
-n_prog * programme(void);
-n_l_dec * optDecVariables(void);
-n_l_dec * listeDecVariables(void);
-n_l_dec * listeDecVariablesBis(void);
-n_dec * declarationVariables(void);
+void programme(void);
+void optDecVariables(void);
+void listeDecVariables(void);
+void listeDecVariablesBis(void);
+void declarationVariables(void);
 void optTailleTableau(void);
 void listeDecFonctions(void);
 void declarationFonction(void);

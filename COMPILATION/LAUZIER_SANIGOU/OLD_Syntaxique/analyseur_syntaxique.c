@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "symboles.h"
-#include "affiche_arbre_abstrait.h"
 #include "analyseur_lexical.h"
 #include "analyseur_syntaxique.h"
 #include "util.h"
@@ -16,93 +15,53 @@ void syntaxError(void) {
 	printf ("Erreur de Syntaxe \n");
 }
 
-n_prog * programme(void){
-
-	n_prog *res = NULL;
-	n_l_dec *var1 = NULL;
-	n_l_dec *var2 = NULL;
-
+void programme(void){
 	affiche_balise_ouvrante("programme", trace_xml);
-	var1 = optDecVariables();
-	var2 = listeDecFonctions();
+	optDecVariables();
+	listeDecFonctions();
 	affiche_balise_fermante("programme", trace_xml);
-
-	res = cree_n_prog(var1, var2);
-
-	return res;
 }
 
-n_l_dec * optDecVariables(void){
-
-	n_l_dec *res = NULL;
-
+void optDecVariables(void){
 	affiche_balise_ouvrante("optDecVariables", trace_xml);
 
-	if(uniteCourante == ENTIER)
-	{
-		res = listeDecVariables();
+	listeDecVariables();
 
-		if(uniteCourante == POINT_VIRGULE){
-			affiche_element("symbole", "POINT_VIRGULE", trace_xml);
-			uniteCourante = yylex();
-		}
+	if(uniteCourante == POINT_VIRGULE){
+		affiche_element("symbole", "POINT_VIRGULE", trace_xml);
+		uniteCourante = yylex();
+	}
 
-		affiche_balise_fermante("optDecVariables", trace_xml);		
-		
-	} 
-	else
-		res = NULL;
-
-	return res;
+	affiche_balise_fermante("optDecVariables", trace_xml);
+	
 }
 
-n_l_dec * listeDecVariables(void) {
-	n_l_dec *res = NULL;
-	n_dec *var1 = NULL;
-	n_dec *var2 = NULL;
-
+void listeDecVariables(void) {
 	if(uniteCourante == ENTIER) {
 		affiche_balise_ouvrante("listeDecVariables", trace_xml);
 
-		var1 = declarationVariables(); 
-		var2 = listeDecVariablesBis();
+		declarationVariables(); 
+		listeDecVariablesBis();
 
 		affiche_balise_fermante("listeDecVariables", trace_xml);
 	}
-	else
-		syntaxError();
-
-	res = cree_n_l_dec(var1, var2);
-
-	return res;
 }
 
-n_l_dec * listeDecVariablesBis(void) {
-	n_l_dec *res = NULL;
-	n_dec *var1 = NULL;
-	n_dec *var2 = NULL;
-
+void listeDecVariablesBis(void) {
 	affiche_balise_ouvrante("listeDecVariablesBis", trace_xml);
 
 	if(uniteCourante == VIRGULE){
 		affiche_element("symbole", "VIRGULE", trace_xml);
 		uniteCourante = yylex();
 
-		var1 = declarationVariables();
-		var2 = listeDecVariablesBis();
-		res = cree_n_l_dec(var1, var2);
+		declarationVariables();
+		listeDecVariablesBis();
 	}
-	else
-		res = NULL;
 
 	affiche_balise_fermante("listeDecVariablesBis", trace_xml);
-
-	return res;
 }
 
-n_dec * declarationVariables(void) {
-	n_dec *res = NULL;
-
+void declarationVariables(void) {
 	affiche_balise_ouvrante("declarationVariable", trace_xml);
 	
 	if(uniteCourante == ENTIER){
@@ -114,25 +73,15 @@ n_dec * declarationVariables(void) {
 			affiche_element("id_variable", yytext, trace_xml);
 			
 			uniteCourante = yylex();
-
-			char * nom = strdup(yytext);
-			res = optTailleTableau(nom);
-
-			if(res == NULL)
-				res = cree_n_dec_var(yytext);
+			optTailleTableau();
 		}
 		else{	syntaxError(); 	}
 	}
-	else{	syntaxError(); 	} // peut etre erreur
 
 	affiche_balise_fermante("declarationVariable", trace_xml);
-
-	return res;
 }
 
-n_dec * optTailleTableau(char * nom) {
-	n_dec *res = NULL;
-
+void optTailleTableau(void) {
 	affiche_balise_ouvrante("optTailleTableau", trace_xml);
 
 	if(uniteCourante == CROCHET_OUVRANT){
@@ -142,8 +91,6 @@ n_dec * optTailleTableau(char * nom) {
 		if(uniteCourante == NOMBRE){
 			affiche_element("nombre", yytext, trace_xml);
 			uniteCourante = yylex();
-
-			res = cree_n_dec_tab(nom, atoi(yytext));
 
 			if(uniteCourante == CROCHET_FERMANT)
 			{
@@ -156,8 +103,6 @@ n_dec * optTailleTableau(char * nom) {
 	}
 
 	affiche_balise_fermante("optTailleTableau", trace_xml);
-
-	return res;
 }
 
 void listeDecFonctions(void) {
@@ -708,7 +653,5 @@ void analyseur_syntaxique(int uc)
 {
 	uniteCourante = uc;
 	
-	res = programme();
-
-	affiche_n_prog(res);
+	programme();
 }
