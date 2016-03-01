@@ -1,0 +1,104 @@
+= TP1 - Préparation de corpus
+
+Nazim Lachter (nazim.lachter@etu.univ-amu.fr)
+
+
+
+== Prétraitements
+
+1.1.1) Opérations effectuées :
+- Affichage de ted.txt avec less (et cat, donnant BEAUCOUP de lignes)
+
+- Avec "wc ted.txt" on sait qu'il y a 185 552 lignes, 3 343 242 mots
+	et 20 217 667 caractères
+
+- On affiche le texte de la ligne "Ca peut être très compliqué [...]"
+	à "Voila le thème de mon allocution." avec "head"
+
+- On affiche le texte de la ligne "Et c'est sûr, à 3 ou 4 ans [...]"
+	à "Merci." avec "tail"
+
+
+1.1.2) Avec la commande "grep -E ' oiseau ' ted.txt | wc", on peut trouver
+	45 occurences du mot "oiseau", seul.
+
+
+1.1.3) La commande utilisée est "grep -o '[a-zA-Z]\+ment' ted.txt
+					| sort | uniq > tp1.1.3"
+
+On trouve ainsi 1 568 lignes ("wc tp1.1.3").
+
+
+1.1.4) On éxecute "sed 's/ /-/g' ted.txt > tp1.1.4"
+
+
+
+== Encodage des caractères
+
+1.2.1) Avec la commande "file ted-latin1.txt", on obtient :
+	"ted-latin1.txt: ISO-8859 text, with very long lines"
+
+
+1.2.2) On éxecute"iconv -f ISO-8859-1 -t UTF-8 ted-latin1.txt
+					> ted-latin1-converted-to-ISO-8859-1"
+
+Avec "file > ted-latin1-converted-to-ISO-8859-1" on a alors :
+	"../ted-latin1-converted-to-ISO-8859-1: UTF-8 Unicode text,
+		with very long lines"
+
+
+1.2.3) "iconv -f ISO-8859-1 -t ASCII ted-latin1.txt"
+
+On obtient : "Ca peut iconv: séquence d'échappement non permise à la position 8"
+
+L'option "-c" supprime les caractères invalides d'après la documentation
+
+
+1.2.4) On découvre que l'encodage ISO-8859-1 correspond à un octet alors que
+	UTF-8 en correspond à deux
+
+
+
+== Segmentation, tokenisation et casse
+
+1.3.1) On éxecute la commande "sed 's/\./.\n/g' ted.txt | wc"
+
+On obtient alors un résultat de 380 470 lignes, 3 351 682 mots
+	et 20 412 585 caractères
+
+Ici, les ponctuations constituent une ambiguïté car elles ne sont pas toutes
+	prises en compte. Les multiples retours à la ligne sont aussi par exemple
+	pas pris en compte et comptent une phrase supplémentaire. Pour améliorer
+	notre segmentation il faut prendre ces cas en considération.
+
+
+1.3.2) Il y a 206 291 phrases, ce qui comparé à la question précédente est
+	bien inférieur et probablement plus proche de la réalité (prenant ainsi
+	compte des doubles retour à la ligne et à d'autres éléments de la
+	ponctuation).
+
+
+1.3.3) On éxecute :
+	"sed -r "s/([^ ])([,\.\(\)\?\!;:'-]) ?/\1 \2 /g" tp1.3.2 > tp1.3.3"
+
+On obtient alors un résultat de 4 274 591 mots.
+
+
+1.3.4) On trouve avec le tokenizer 3 997 430 mots, ce qui est "légèrement"
+	inférieur à la question précédente. Les résultats de sortie semblent
+	plus cohérents.
+
+
+1.3.5) On éxecute "cat ted-sent-tok | tr '[:upper:]' '[:lower:]'"
+
+
+1.3.6) Le résultat est cohérent. On peut notament souligner la conservation
+	des chiffres romains, celle des acronymes, celle des majuscules sur
+	certains mots dont les noms propres, ...
+
+
+1.3.7) Initiallement nous avons 206 292 phrases, avec les différentes
+	variations nous avons :
+- Pour entre 5 et 50 mots, nous avons 188 177 phrases
+- Pour entre 40 et 50 mots, nous avons 8 642 phrases
+- Pour entre 5 et 30 mots, nous avons 160 623 phrases
