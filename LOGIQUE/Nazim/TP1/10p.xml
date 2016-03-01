@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE proofs SYSTEM "proof3.dtd">
+
+<?xml-stylesheet type="text/xsl" href="proof3.xsl"?>
+
+<proofs number_of_proofs="1">
+
+<heading><![CDATA[
+Prover9 (32) version Dec-2007, Dec 2007.
+Process 5616 was started by Nazim on nazim-laptop,
+Tue Mar  1 15:45:15 2016
+The command was "/cygdrive/c/Program Files (x86)/Prover9-Mace4/bin-win32/prover9".
+]]></heading>
+
+<proof number="1" length="15" max_count="13">
+
+<comments><![CDATA[
+% Proof 1 at 0.00 (+ 0.01) seconds.
+% Length of proof is 15.
+% Level of proof is 7.
+% Maximum clause weight is 3.
+% Given clauses 7.
+]]></comments>
+
+  <clause id="1" type="assumption">
+    <literal><![CDATA[
+      p -> q
+    ]]></literal>
+    <attribute><![CDATA[
+      label(non_clause)
+    ]]></attribute>
+    <justification jstring="[assumption].">
+      <j1 rule="assumption"/>
+    </justification>
+  </clause>
+
+  <clause id="2" type="assumption">
+    <literal><![CDATA[
+      q -> r
+    ]]></literal>
+    <attribute><![CDATA[
+      label(non_clause)
+    ]]></attribute>
+    <justification jstring="[assumption].">
+      <j1 rule="assumption"/>
+    </justification>
+  </clause>
+
+  <clause id="3" type="goal">
+    <literal><![CDATA[
+      p & q & r
+    ]]></literal>
+    <literal><![CDATA[
+      -p & -q & -r
+    ]]></literal>
+    <attribute><![CDATA[
+      label(non_clause)
+    ]]></attribute>
+    <attribute><![CDATA[
+      label(goal)
+    ]]></attribute>
+    <justification jstring="[goal].">
+      <j1 rule="goal"/>
+    </justification>
+  </clause>
+
+  <clause id="4" type="clausify">
+    <literal><![CDATA[
+      -p
+    ]]></literal>
+    <literal><![CDATA[
+      q
+    ]]></literal>
+    <justification jstring="[clausify(1)].">
+      <j1 rule="clausify" parents="1"/>
+    </justification>
+  </clause>
+
+  <clause id="5" type="clausify">
+    <literal><![CDATA[
+      -q
+    ]]></literal>
+    <literal><![CDATA[
+      r
+    ]]></literal>
+    <justification jstring="[clausify(2)].">
+      <j1 rule="clausify" parents="2"/>
+    </justification>
+  </clause>
+
+  <clause id="6" type="assumption">
+    <literal><![CDATA[
+      p
+    ]]></literal>
+    <literal><![CDATA[
+      -r
+    ]]></literal>
+    <justification jstring="[assumption].">
+      <j1 rule="assumption"/>
+    </justification>
+  </clause>
+
+  <clause id="7" type="deny">
+    <literal><![CDATA[
+      -p
+    ]]></literal>
+    <literal><![CDATA[
+      -q
+    ]]></literal>
+    <literal><![CDATA[
+      -r
+    ]]></literal>
+    <justification jstring="[deny(3)].">
+      <j1 rule="deny" parents="3"/>
+    </justification>
+  </clause>
+
+  <clause id="8" type="deny">
+    <literal><![CDATA[
+      p
+    ]]></literal>
+    <literal><![CDATA[
+      q
+    ]]></literal>
+    <literal><![CDATA[
+      r
+    ]]></literal>
+    <justification jstring="[deny(3)].">
+      <j1 rule="deny" parents="3"/>
+    </justification>
+  </clause>
+
+  <clause id="9">
+    <literal><![CDATA[
+      p
+    ]]></literal>
+    <literal><![CDATA[
+      q
+    ]]></literal>
+    <justification jstring="[resolve(8,c,6,b),merge(c)].">
+      <j1 rule="resolve" parents="8 6"/>
+      <j2 rule="merge"/>
+    </justification>
+  </clause>
+
+  <clause id="10">
+    <literal><![CDATA[
+      p
+    ]]></literal>
+    <literal><![CDATA[
+      r
+    ]]></literal>
+    <justification jstring="[resolve(9,b,5,a)].">
+      <j1 rule="resolve" parents="9 5"/>
+    </justification>
+  </clause>
+
+  <clause id="11">
+    <literal><![CDATA[
+      p
+    ]]></literal>
+    <justification jstring="[resolve(10,b,6,b),merge(b)].">
+      <j1 rule="resolve" parents="10 6"/>
+      <j2 rule="merge"/>
+    </justification>
+  </clause>
+
+  <clause id="12">
+    <literal><![CDATA[
+      -q
+    ]]></literal>
+    <literal><![CDATA[
+      -r
+    ]]></literal>
+    <justification jstring="[back_unit_del(7),unit_del(a,11)].">
+      <j1 rule="back_unit_del" parents="7"/>
+      <j2 rule="unit_del" parents="11"/>
+    </justification>
+  </clause>
+
+  <clause id="13">
+    <literal><![CDATA[
+      q
+    ]]></literal>
+    <justification jstring="[back_unit_del(4),unit_del(a,11)].">
+      <j1 rule="back_unit_del" parents="4"/>
+      <j2 rule="unit_del" parents="11"/>
+    </justification>
+  </clause>
+
+  <clause id="14">
+    <literal><![CDATA[
+      -r
+    ]]></literal>
+    <justification jstring="[back_unit_del(12),unit_del(a,13)].">
+      <j1 rule="back_unit_del" parents="12"/>
+      <j2 rule="unit_del" parents="13"/>
+    </justification>
+  </clause>
+
+  <clause id="15">
+    <literal><![CDATA[
+      $F
+    ]]></literal>
+    <justification jstring="[back_unit_del(5),unit_del(a,13),unit_del(b,14)].">
+      <j1 rule="back_unit_del" parents="5"/>
+      <j2 rule="unit_del" parents="13"/>
+      <j2 rule="unit_del" parents="14"/>
+    </justification>
+  </clause>
+
+</proof>
+
+</proofs>

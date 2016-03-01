@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE proofs SYSTEM "proof3.dtd">
+
+<?xml-stylesheet type="text/xsl" href="proof3.xsl"?>
+
+<proofs number_of_proofs="1">
+
+<heading><![CDATA[
+Prover9 (32) version Dec-2007, Dec 2007.
+Process 11192 was started by Nazim on nazim-laptop,
+Tue Mar  1 15:25:58 2016
+The command was "/cygdrive/c/Program Files (x86)/Prover9-Mace4/bin-win32/prover9".
+]]></heading>
+
+<proof number="1" length="2" max_count="3">
+
+<comments><![CDATA[
+% Proof 1 at 0.01 (+ 0.01) seconds.
+% Length of proof is 2.
+% Level of proof is 1.
+% Maximum clause weight is 0.
+% Given clauses 0.
+]]></comments>
+
+  <clause id="1" type="goal">
+    <literal><![CDATA[
+      p -> p
+    ]]></literal>
+    <attribute><![CDATA[
+      label(non_clause)
+    ]]></attribute>
+    <attribute><![CDATA[
+      label(goal)
+    ]]></attribute>
+    <justification jstring="[goal].">
+      <j1 rule="goal"/>
+    </justification>
+  </clause>
+
+  <clause id="2" type="deny">
+    <literal><![CDATA[
+      $F
+    ]]></literal>
+    <justification jstring="[deny(1)].">
+      <j1 rule="deny" parents="1"/>
+    </justification>
+  </clause>
+
+</proof>
+
+</proofs>

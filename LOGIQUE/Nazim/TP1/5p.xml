@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE proofs SYSTEM "proof3.dtd">
+
+<?xml-stylesheet type="text/xsl" href="proof3.xsl"?>
+
+<proofs number_of_proofs="1">
+
+<heading><![CDATA[
+Prover9 (32) version Dec-2007, Dec 2007.
+Process 9996 was started by Nazim on nazim-laptop,
+Tue Mar  1 15:36:53 2016
+The command was "/cygdrive/c/Program Files (x86)/Prover9-Mace4/bin-win32/prover9".
+]]></heading>
+
+<proof number="1" length="6" max_count="6">
+
+<comments><![CDATA[
+% Proof 1 at 0.00 (+ 0.00) seconds.
+% Length of proof is 6.
+% Level of proof is 2.
+% Maximum clause weight is 2.
+% Given clauses 0.
+]]></comments>
+
+  <clause id="1" type="assumption">
+    <literal><![CDATA[
+      q -> -q | r
+    ]]></literal>
+    <attribute><![CDATA[
+      label(non_clause)
+    ]]></attribute>
+    <justification jstring="[assumption].">
+      <j1 rule="assumption"/>
+    </justification>
+  </clause>
+
+  <clause id="3" type="goal">
+    <literal><![CDATA[
+      q -> r
+    ]]></literal>
+    <attribute><![CDATA[
+      label(non_clause)
+    ]]></attribute>
+    <attribute><![CDATA[
+      label(goal)
+    ]]></attribute>
+    <justification jstring="[goal].">
+      <j1 rule="goal"/>
+    </justification>
+  </clause>
+
+  <clause id="4" type="clausify">
+    <literal><![CDATA[
+      -q
+    ]]></literal>
+    <literal><![CDATA[
+      r
+    ]]></literal>
+    <justification jstring="[clausify(1)].">
+      <j1 rule="clausify" parents="1"/>
+    </justification>
+  </clause>
+
+  <clause id="7" type="deny">
+    <literal><![CDATA[
+      q
+    ]]></literal>
+    <justification jstring="[deny(3)].">
+      <j1 rule="deny" parents="3"/>
+    </justification>
+  </clause>
+
+  <clause id="8" type="deny">
+    <literal><![CDATA[
+      -r
+    ]]></literal>
+    <justification jstring="[deny(3)].">
+      <j1 rule="deny" parents="3"/>
+    </justification>
+  </clause>
+
+  <clause id="10">
+    <literal><![CDATA[
+      $F
+    ]]></literal>
+    <justification jstring="[back_unit_del(4),unit_del(a,7),unit_del(b,8)].">
+      <j1 rule="back_unit_del" parents="4"/>
+      <j2 rule="unit_del" parents="7"/>
+      <j2 rule="unit_del" parents="8"/>
+    </justification>
+  </clause>
+
+</proof>
+
+</proofs>
