@@ -1,0 +1,28 @@
+strict digraph "ExempleTP" {
+ rotate=90;
+ size="10,7.5!";
+ margin="0.5,0.5";
+ 1 [label="{1} p -> -q | r",shape="box"];
+ 2 [label="{2} q -> p & -r",shape="box"];
+ 3 [label="{3} -q", shape="doubleoctagon"];
+ 4 [label="{4} -p | -q | r",shape="plaintext"];
+ 1 -> 4;
+ 5 [label="{5} -q | p",shape="plaintext"];
+ 2 -> 5;
+ 6 [label="{6} -q | -r",shape="plaintext"];
+ 2 -> 6;
+ 7 [label="{7} q", shape="octagon"];
+ 3 -> 7;
+ 8 [label="{8} -r",shape="ellipse"];
+ 6 -> 8;
+ 7 -> 8;
+ 9 [label="{9} p",shape="ellipse"];
+ 5 -> 9;
+ 7 -> 9;
+ 10 [label="{10} $F",shape="ellipse"];
+ 4 -> 10;
+ 9 -> 10;
+ 7 -> 10;
+ 8 -> 10;
+ root=10; // last step is plausible root
+}

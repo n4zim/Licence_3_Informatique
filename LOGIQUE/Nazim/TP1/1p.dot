@@ -1,0 +1,9 @@
+strict digraph "1p" {
+ rotate=90;
+ size="10,7.5!";
+ margin="0.5,0.5";
+ 1 [label="{1} p -> p", shape="doubleoctagon"];
+ 2 [label="{2} $F", shape="octagon"];
+ 1 -> 2;
+ root=2; // last step is plausible root
+}

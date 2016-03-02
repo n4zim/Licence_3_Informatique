@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE proofs SYSTEM "proof3.dtd">
+
+<?xml-stylesheet type="text/xsl" href="proof3.xsl"?>
+
+<proofs number_of_proofs="1">
+
+<heading><![CDATA[
+Prover9 (32) version Dec-2007, Dec 2007.
+Process 10992 was started by Nazim on nazim-laptop,
+Tue Mar  1 15:31:05 2016
+The command was "/cygdrive/c/Program Files (x86)/Prover9-Mace4/bin-win32/prover9".
+]]></heading>
+
+<proof number="1" length="7" max_count="16">
+
+<comments><![CDATA[
+% Proof 1 at 0.00 (+ 0.01) seconds.
+% Length of proof is 7.
+% Level of proof is 3.
+% Maximum clause weight is 2.
+% Given clauses 0.
+]]></comments>
+
+  <clause id="1" type="goal">
+    <literal><![CDATA[
+      (s -> r) & p & -r -> -r & -s & p
+    ]]></literal>
+    <attribute><![CDATA[
+      label(non_clause)
+    ]]></attribute>
+    <attribute><![CDATA[
+      label(goal)
+    ]]></attribute>
+    <justification jstring="[goal].">
+      <j1 rule="goal"/>
+    </justification>
+  </clause>
+
+  <clause id="2" type="deny">
+    <literal><![CDATA[
+      -s
+    ]]></literal>
+    <literal><![CDATA[
+      r
+    ]]></literal>
+    <justification jstring="[deny(1)].">
+      <j1 rule="deny" parents="1"/>
+    </justification>
+  </clause>
+
+  <clause id="3" type="deny">
+    <literal><![CDATA[
+      p
+    ]]></literal>
+    <justification jstring="[deny(1)].">
+      <j1 rule="deny" parents="1"/>
+    </justification>
+  </clause>
+
+  <clause id="4" type="deny">
+    <literal><![CDATA[
+      -r
+    ]]></literal>
+    <justification jstring="[deny(1)].">
+      <j1 rule="deny" parents="1"/>
+    </justification>
+  </clause>
+
+  <clause id="5" type="deny">
+    <literal><![CDATA[
+      r
+    ]]></literal>
+    <literal><![CDATA[
+      s
+    ]]></literal>
+    <literal><![CDATA[
+      -p
+    ]]></literal>
+    <justification jstring="[deny(1)].">
+      <j1 rule="deny" parents="1"/>
+    </justification>
+  </clause>
+
+  <clause id="6">
+    <literal><![CDATA[
+      s
+    ]]></literal>
+    <justification jstring="[copy(5),unit_del(a,4),unit_del(c,3)].">
+      <j1 rule="copy" parents="5"/>
+      <j2 rule="unit_del" parents="4"/>
+      <j2 rule="unit_del" parents="3"/>
+    </justification>
+  </clause>
+
+  <clause id="7">
+    <literal><![CDATA[
+      $F
+    ]]></literal>
+    <justification jstring="[back_unit_del(2),unit_del(a,6),unit_del(b,4)].">
+      <j1 rule="back_unit_del" parents="2"/>
+      <j2 rule="unit_del" parents="6"/>
+      <j2 rule="unit_del" parents="4"/>
+    </justification>
+  </clause>
+
+</proof>
+
+</proofs>
