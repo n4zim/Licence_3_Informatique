@@ -92,29 +92,35 @@ n_l_dec* LDVB() {
     $$ = cree_n_l_dec(tete, queue);
     if(!est_suivant(_listeDecVariablesBis_, uniteCourante)) syntaxError(__func__);
     affiche_balise_fermante(__func__, 1);
+    return $$;
 }
 
 n_dec* DV() {
     n_dec *$$ = NULL;
-    n_l_dec *$1 = NULL;
+    char* nomVar;
+    int optTailleTableau = 0;
     affiche_balise_ouvrante(__func__, 1);
     if(uniteCourante == ENTIER) {
         uniteCourante = yylex();
         if(uniteCourante == ID_VAR) {
+        	strcpy(nomVar, yytext);
             uniteCourante = yylex();
-            if(est_premier(_optTailleTableau_, uniteCourante)) $1 = OTT();
+            if(est_premier(_optTailleTableau_, uniteCourante)) optTailleTableau = OTT();
         } else error(__func__, "Un identificateur de variable était attendu");
     } else error(__func__, "'ENTIER' était attendu");
-    if($1 == NULL) $$ = cree_n_dec_var(yytext);
+    if(optTailleTableau <= 0) $$ = cree_n_dec_var(nomVar);
+    	else $$ = cree_n_dec_tab(nomVar, optTailleTableau);
     affiche_balise_fermante(__func__, 1);
     return $$;
 }
 
-void OTT() {
+int OTT() {
+	int optTailleTableau = -1;
     affiche_balise_ouvrante(__func__, 1);
     if(uniteCourante == CROCHET_OUVRANT) {
-        uniteCourante = yylex();
+        uniteCourante = yylex(); 
         if(uniteCourante == NOMBRE) {
+        	optTailleTableau = atoi(yytext);
             uniteCourante = yylex();
             if(uniteCourante == CROCHET_FERMANT) uniteCourante = yylex();
                 else error(__func__, "']' était attendu");
@@ -122,212 +128,304 @@ void OTT() {
     }
     if(!est_suivant(_optTailleTableau_, uniteCourante)) syntaxError(__func__);
     affiche_balise_fermante(__func__, 1);
+    return optTailleTableau;
 }
 
-void LDF() {
+n_l_dec* LDF() {
+	n_l_dec *$$ = NULL;
+	n_dec *declarationFonction = NULL;
+	n_l_dec *listeDecFonctions = NULL;
     affiche_balise_ouvrante(__func__, 1);
     if(est_premier(_declarationFonction_, uniteCourante)) {
-        DF();
-        if(est_premier(_listeDecFonctions_, uniteCourante)) LDF();
+        declarationFonction = DF();
+        if(est_premier(_listeDecFonctions_, uniteCourante)) listeDecFonctions = LDF();
     } else syntaxError(__func__);
     if(!est_suivant(_listeDecFonctions_, uniteCourante)) syntaxError(__func__);
     affiche_balise_fermante(__func__, 1);
+    $$ = cree_n_l_dec(declarationFonction, listeDecFonctions);
+  	return $$;
 }
 
-void DF() {
+n_dec* DF() {
+	n_dec* $$ = NULL;
+	char* nomFonc = NULL;
+	n_l_dec *listeParam = NULL;
+	n_l_dec *optDecVariables = NULL;
+	n_instr *instructionBloc = NULL;
     affiche_balise_ouvrante(__func__, 1);
     if(uniteCourante == ID_FCT) {
+   		strcpy(nomFonc, yytext);
         uniteCourante = yylex();
         if(est_premier(_listeParam_, uniteCourante)) {
-            LP();
-            if(est_premier(_optDecVariables_, uniteCourante)) ODV();
-            if(est_premier(_instructionBloc_, uniteCourante)) IB();
+            listeParam = LP();
+            if(est_premier(_optDecVariables_, uniteCourante)) optDecVariables = ODV();
+            if(est_premier(_instructionBloc_, uniteCourante)) instructionBloc = IB();
                 else syntaxError(__func__);
+            $$ = cree_n_dec_fonc(nomFonc, listeParam, optDecVariables, instructionBloc);
         } else syntaxError(__func__);
     } else error(__func__, "Un identificateur de fonction était attendu");
     affiche_balise_fermante(__func__, 1);
+    return $$;
 }
 
-void LP() {
+n_l_dec* LP() {
+	n_l_dec *$$ = NULL;
+	n_l_dec *optListeDecVariables = NULL;
     affiche_balise_ouvrante(__func__, 1);
     if(uniteCourante == PARENTHESE_OUVRANTE) {
         uniteCourante = yylex();
-        if(est_premier(_optListeDecVariables_, uniteCourante)) OLDV();
+        if(est_premier(_optListeDecVariables_, uniteCourante)) optListeDecVariables = OLDV();
         if(uniteCourante == PARENTHESE_FERMANTE) uniteCourante = yylex();
             else error(__func__, "')' était attendu");
+        $$ = cree_n_l_dec(optListeDecVariables->tete, optListeDecVariables->queue);
     } else error(__func__, "'(' était attendu");
     affiche_balise_fermante(__func__, 1);
+    return $$;
 }
 
-void OLDV() {
+n_l_dec* OLDV() {
+	n_l_dec *$$ = NULL;
+	n_l_dec *listeDecVariables = NULL;
     affiche_balise_ouvrante(__func__, 1);
-    if(est_premier(_listeDecVariables_, uniteCourante)) LDV();
+    if(est_premier(_listeDecVariables_, uniteCourante)) listeDecVariables = LDV();
     if(!est_suivant(_optListeDecVariables_, uniteCourante)) syntaxError(__func__);
+    $$ = cree_n_l_dec(listeDecVariables->tete, listeDecVariables->queue);
     affiche_balise_fermante(__func__, 1);
+    return $$;
 }
 
-void I() {
+n_instr* I() {
+	n_instr *$$ = NULL;
+	n_instr *instruction = NULL;
     affiche_balise_ouvrante(__func__, 1);
-    if(est_premier(_instructionAffect_, uniteCourante)) IAFF();
-        else if(est_premier(_instructionBloc_, uniteCourante)) IB();
-        else if(est_premier(_instructionSi_, uniteCourante)) ISI();
-        else if(est_premier(_instructionTantque_, uniteCourante)) ITQ();
-        else if(est_premier(_instructionAppel_, uniteCourante)) IAPP();
-        else if(est_premier(_instructionRetour_, uniteCourante)) IRET();
-        else if(est_premier(_instructionEcriture_, uniteCourante)) IECR();
-        else if(est_premier(_instructionVide_, uniteCourante)) IVIDE();
-        else syntaxError(__func__);
+    if(est_premier(_instructionAffect_, uniteCourante)) {
+    	instruction = IAFF();
+    	$$ = cree_n_instr_affect(instruction->var, instruction->exp);
+    } else if(est_premier(_instructionBloc_, uniteCourante)) {
+    	instruction = IB();
+    	$$ = cree_n_instr_bloc(instruction->liste);
+    } else if(est_premier(_instructionSi_, uniteCourante)) {
+    	instruction = ISI();
+    	$$ = cree_n_instr_si(instruction->test, instruction->alors, instruction->sinon);
+    } else if(est_premier(_instructionTantque_, uniteCourante)) {
+    	instruction = ITQ();
+    	$$ = cree_n_instr_tantque(instruction->test, instruction->faire);
+    } else if(est_premier(_instructionAppel_, uniteCourante)) {
+    	instruction = IAPP();
+    	$$ = cree_n_instr_appel(instruction->appel);
+    } else if(est_premier(_instructionRetour_, uniteCourante)) {
+    	instruction = IRET();
+    	$$ = cree_n_instr_retour(instruction->expression);
+    } else if(est_premier(_instructionEcriture_, uniteCourante)) {
+    	instruction = IECR();
+    	$$ = cree_n_instr_ecrire(instruction->expression);
+    } else if(est_premier(_instructionVide_, uniteCourante)) {
+    	IVIDE();
+    	$$ = cree_n_instr_vide();
+    } else syntaxError(__func__);
     affiche_balise_fermante(__func__, 1);
+    return $$;
 }
 
-void IAFF() {
+n_instr* IAFF() {
+	n_instr *$$ = NULL;
+	n_var *var = NULL;
+	n_exp *exp = NULL;
 	affiche_balise_ouvrante(__func__, 1);
 	if(est_premier(_var_, uniteCourante)) {
-		VAR();
+		var = VAR();
 		if(uniteCourante == EGAL) {
 			uniteCourante = yylex();
 			if(est_premier(_expression_, uniteCourante)) {
-				EXP();
+				exp = EXP();
 				if(uniteCourante == POINT_VIRGULE) uniteCourante = yylex();
 					else error(__func__, "';' était attendu");
+				$$ = cree_n_instr_affect(var, exp);
 			} else syntaxError(__func__);
 		} else error(__func__, "'=' était attendu");
 	} else syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
+	return $$;
 }
 
-void IB() {
+n_instr* IB() {
+	n_instr *$$ = NULL;
+	n_l_instr *listeInstructions = NULL;
 	affiche_balise_ouvrante(__func__, 1);
 	if(uniteCourante == ACCOLADE_OUVRANTE) {
 		uniteCourante = yylex();
-		if(est_premier(_listeInstructions_, uniteCourante)) LI();
+		if(est_premier(_listeInstructions_, uniteCourante)) listeInstructions = LI();
 		if(uniteCourante == ACCOLADE_FERMANTE) uniteCourante = yylex();
 			else error(__func__, "'}' était attendu");
+		$$ = cree_n_instr_bloc(listeInstructions);
 	} else error(__func__, "'{' était attendu");
 	affiche_balise_fermante(__func__, 1);
+	return $$;
 }
 
-void LI() {
+n_l_instr *LI() {
+	n_l_instr *$$ = NULL;
+	n_instr *instruction = NULL;
+	n_l_instr *listeInstructions = NULL;
 	affiche_balise_ouvrante(__func__, 1);
 	if(est_premier(_instruction_, uniteCourante)) {
-		I();
-		if(est_premier(_listeInstructions_, uniteCourante)) LI();
+		instruction = I();
+		if(est_premier(_listeInstructions_, uniteCourante)) listeInstructions = LI();
 	}
 	if(!est_suivant(_listeInstructions_, uniteCourante)) syntaxError(__func__);
+	$$ = cree_n_l_instr(instruction, listeInstructions);
 	affiche_balise_fermante(__func__, 1);
+	return $$;
 }
 
-void ISI() {
+n_instr *ISI() {
+	n_instr *$$ = NULL;
+	n_exp *expression = NULL;
+	n_instr *instructionBloc = NULL;
+	n_instr *instructionSinon = NULL;
 	affiche_balise_ouvrante(__func__, 1);
 	if(uniteCourante == SI) {
 		uniteCourante = yylex();
-		if(est_premier(_expression_, uniteCourante)) EXP();
+		if(est_premier(_expression_, uniteCourante)) expression = EXP();
 			else syntaxError(__func__);
 		if(uniteCourante == ALORS) {
 			uniteCourante = yylex();
 			if(est_premier(_instructionBloc_, uniteCourante)) {
-				IB();
-				if(est_premier(_optSinon_, uniteCourante)) OSINON();
+				instructionBloc = IB();
+				if(est_premier(_optSinon_, uniteCourante)) instructionSinon = OSINON();
+				$$ = cree_n_instr_si(expression, instructionBloc, instructionSinon);
 			} else syntaxError(__func__);
 		} else error(__func__, "'alors' était attendu");
 	} else error(__func__, "'si' était attendu");
 	affiche_balise_fermante(__func__, 1);
+	return $$;
 }
 
-void OSINON() {
+n_instr *OSINON() {
+	n_instr *$$ = NULL;
 	affiche_balise_ouvrante(__func__, 1);
 	if(uniteCourante == SINON) {
 		uniteCourante = yylex();
-		if(est_premier(_instructionBloc_, uniteCourante)) IB();
+		if(est_premier(_instructionBloc_, uniteCourante)) $$ = IB();
 	}
 	if(!est_suivant(_optSinon_, uniteCourante)) syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
+	return $$;
 }
 
-void ITQ() {
+n_instr *ITQ() {
+	n_instr *$$ = NULL;
+	n_exp *expression = NULL;
+	n_instr *instructionBloc = NULL;
 	affiche_balise_ouvrante(__func__, 1);
 	if(uniteCourante == TANTQUE) {
 		uniteCourante = yylex();
 		if(est_premier(_expression_, uniteCourante)) {
-			EXP();
+			expression = EXP();
 			if(uniteCourante == FAIRE) {
 				uniteCourante = yylex();
-				if(est_premier(_instructionBloc_, uniteCourante)) IB();
+				if(est_premier(_instructionBloc_, uniteCourante)) instructionBloc = IB();
 					else syntaxError(__func__);
+				$$ = cree_n_instr_tantque(expression, instructionBloc);
 			}
 			else error(__func__, "'faire' était attendu");
 		} else syntaxError(__func__);
 	} else error(__func__, "'tantque' était attendu");
 	affiche_balise_fermante(__func__, 1);
+	return $$;
 }
 
-void IAPP() {
+n_instr *IAPP() {
+	n_instr *$$ = NULL;
+	n_appel *appelFct = NULL;
 	affiche_balise_ouvrante(__func__, 1);
 	if(est_premier(_instructionAppel_, uniteCourante)) {
-		APPF();
+		appelFct = APPF();
 		if(uniteCourante == POINT_VIRGULE) uniteCourante = yylex();
 			else error(__func__, "';' était attendu");
+		$$ = cree_n_instr_appel(appelFct);
 	} else syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
+	return $$;
 }
 
-void IRET() {
+n_instr *IRET() {
+	n_instr *$$ = NULL;
+	n_exp *expression = NULL;
 	affiche_balise_ouvrante(__func__, 1);
 	if(uniteCourante == RETOUR) {
 		uniteCourante = yylex();
 		if(est_premier(_expression_, uniteCourante)) {
-			EXP();
+			expression = EXP();
 			if(uniteCourante == POINT_VIRGULE) uniteCourante = yylex();
 				else error(__func__, "';' était attendu");
+			$$ = cree_n_instr_retour(expression);
 		} else syntaxError(__func__);
 	} else error(__func__, "'retour' était attendu");
 	affiche_balise_fermante(__func__, 1);
+	return $$;
 }
 
-void IECR() {
+n_instr *IECR() {
+	n_instr *$$ = NULL;
+	n_exp *expression = NULL;
 	affiche_balise_ouvrante(__func__, 1);
 	if(uniteCourante == ECRIRE) {
 		uniteCourante = yylex();
 		if(uniteCourante == PARENTHESE_OUVRANTE) {
 			uniteCourante = yylex();
 			if(est_premier(_expression_, uniteCourante)) {
-				EXP();
+				expression = EXP();
 				if(uniteCourante == PARENTHESE_FERMANTE) uniteCourante = yylex();
 					else error(__func__, "')' était attendu");
+				$$ = cree_n_instr_ecrire(expression);
 			} else syntaxError(__func__);
 		} else error(__func__, "'(' était attendu");
 	} else error(__func__, "'ecrire' était attendu");
 	affiche_balise_fermante(__func__, 1);
+	return $$;
 }
 
-void IVIDE() {
+n_instr *IVIDE() {
+	n_instr *$$ = NULL;
 	affiche_balise_ouvrante(__func__, 1);
 	if(uniteCourante == POINT_VIRGULE) uniteCourante = yylex();
 		else error(__func__, "';' était attendu");
+	$$ = cree_n_instr_vide();
 	affiche_balise_fermante(__func__, 1);
+	return $$;
 }
 
-void EXP() {
+n_exp *EXP() {
+	n_exp *$$ = NULL;
+	n_exp *conjonction = NULL;
 	affiche_balise_ouvrante(__func__, 1);
 	if(est_premier(_conjonction_, uniteCourante)) {
-		CONJ();
-		if(est_premier(_expressionBis_, uniteCourante)) EXPB();
+		conjonction = CONJ();
+		if(est_premier(_expressionBis_, uniteCourante)) $$ = EXPB(conjonction);
 	} else syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
+	return $$;
 }
 
-void EXPB() {
+n_exp *EXPB(n_exp *heritage) {
+	n_exp *$$ = heritage;
+	n_exp *conjonction = NULL;
+	n_exp *expressionBis = NULL;
 	affiche_balise_ouvrante(__func__, 1);
 	if(uniteCourante == OU) {
 		uniteCourante = yylex();
 		if(est_premier(_conjonction_, uniteCourante)) {
-			CONJ();
-			if(est_premier(_expressionBis_, uniteCourante)) EXPB();
+			conjonction = CONJ();
+			expressionBis = cree_n_exp_op(ou, heritage, conjonction);
+			if(est_premier(_expressionBis_, uniteCourante)) expressionBis = EXPB(expressionBis);
+			$$ = expressionBis;
 		} else syntaxError(__func__);
 	}
 	if(!est_suivant(_expressionBis_, uniteCourante)) syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
-}
+	return $$;
+;}
 
 void CONJ() {
 	affiche_balise_ouvrante(__func__, 1);
