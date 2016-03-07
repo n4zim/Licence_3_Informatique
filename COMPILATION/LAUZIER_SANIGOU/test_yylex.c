@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "analyseur_lexical.h"
 #include "symboles.h"
+#include "syntabs.h"
 #include "analyseur_syntaxique.h"
 
 char yytext[100];
