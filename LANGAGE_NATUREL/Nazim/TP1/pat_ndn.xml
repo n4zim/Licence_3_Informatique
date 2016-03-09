@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dict SYSTEM "dtd/mwetoolkit-patterns.dtd">
+<patterns>
+	  <pat> 
+	      <w pos="NOM"/>
+	      <pat repeat="+"> 
+	          <either>
+	              <w pos="PRP:det" lemma="du"/>
+	              <w pos="PRP" lemma="de"/>	        
+	          </either>
+	          <w pos="NOM"/>
+        </pat>
+	  </pat>
+</patterns>

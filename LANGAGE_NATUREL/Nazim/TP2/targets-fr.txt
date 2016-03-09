@@ -1,0 +1,4 @@
+oiseau
+avion
+table
+chaise
