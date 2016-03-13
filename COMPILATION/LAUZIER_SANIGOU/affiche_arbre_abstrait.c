@@ -200,7 +200,6 @@ void affiche_l_exp(n_l_exp *n)
 
 void affiche_exp(n_exp *n)
 {
-
   if(n->type == varExp) affiche_varExp(n);
   else if(n->type == opExp) affiche_opExp(n);
   else if(n->type == intExp) affiche_intExp(n);

@@ -12,10 +12,12 @@ int uniteCourante;
 //char nom[100];
 //char valeur[100];
 char yytext[100];
-int trace_xml = 1;
+int nb_ligne;
+int trace_xml = 0;
 
 void syntaxError(void) {
-	printf ("Erreur de Syntaxe \n");
+	printf ("Erreur de Syntaxe : Ligne %d \n", nb_ligne);
+	exit(-1);
 }
 
 n_prog * programme(void){
@@ -48,6 +50,8 @@ n_l_dec * optDecVariables(void){
 			affiche_element("symbole", "POINT_VIRGULE", trace_xml);
 			uniteCourante = yylex();
 		}
+		else
+			syntaxError();
 
 		affiche_balise_fermante("optDecVariables", trace_xml);		
 		
@@ -69,12 +73,10 @@ n_l_dec * listeDecVariables(void) {
 		var1 = declarationVariables(); 
 		var2 = listeDecVariablesBis();
 
+		res = cree_n_l_dec(var1, var2);
+
 		affiche_balise_fermante("listeDecVariables", trace_xml);
 	}
-	else
-		syntaxError();
-
-	res = cree_n_l_dec(var1, var2);
 
 	return res;
 }
@@ -114,14 +116,14 @@ n_dec * declarationVariables(void) {
 		
 		if(uniteCourante == ID_VAR){
 			affiche_element("id_variable", yytext, trace_xml);
+			char * nom = strdup(yytext);
 			
 			uniteCourante = yylex();
 
-			char * nom = strdup(yytext);
 			res = optTailleTableau(nom);
 
 			if(res == NULL)
-				res = cree_n_dec_var(yytext);
+				res = cree_n_dec_var(nom);
 		}
 		else{	syntaxError(); 	}
 	}
@@ -267,6 +269,8 @@ n_instr * instruction(void) {
 		res = instructionEcriture();
 	else if(uniteCourante == POINT_VIRGULE)
 		res = instructionVide();
+	else 
+		syntaxError();
 
 	affiche_balise_fermante("instruction", trace_xml);
 
@@ -284,13 +288,13 @@ n_instr * instructionAffect(void) {
 		affiche_element("symbole", "EGAL", trace_xml);
 		uniteCourante = yylex();
 
-		n_exp * exp = expression();
+		n_exp * expr = expression();
 		
 		if(uniteCourante == POINT_VIRGULE) {
 			affiche_element("symbole", "POINT_VIRGULE", trace_xml);
 			uniteCourante = yylex();
 
-			res = cree_n_instr_affect(var1, exp);
+			res = cree_n_instr_affect(var1, expr);
 		}
 		else { 	syntaxError(); }
 	}
@@ -531,7 +535,7 @@ n_exp * expression(void) {
 }
 
 n_exp * expressionBis(n_exp * con) {
-	n_exp * res = NULL;
+	n_exp * res = con;
 
 	affiche_balise_ouvrante("expressionBis", trace_xml);
 
@@ -566,7 +570,7 @@ n_exp * conjonction(void) {
 }
 
 n_exp * conjonctionBis(n_exp * op1) {
-	n_exp * res = NULL;
+	n_exp * res = op1;
 
 	affiche_balise_ouvrante("conjonctionBis", trace_xml);
 
@@ -592,15 +596,25 @@ n_exp * negation(void) {
 
 	affiche_balise_ouvrante("negation", trace_xml);
 
+	int estNon = 0;
+
 	if(uniteCourante == NON) {
 		affiche_element("symbole", "NON", trace_xml);
 		uniteCourante = yylex();
+
+		estNon = 1;
 	}
 
-	operation op = non;
+	
 	n_exp * op1 = comparaison();
 
-	res = cree_n_exp_op(op, op1, NULL);
+	if(estNon)
+	{
+		operation op = non;
+		res = cree_n_exp_op(op, op1, NULL);
+	}
+	else
+		res = op1;
 
 	affiche_balise_fermante("negation", trace_xml);
 
@@ -621,10 +635,9 @@ n_exp * comparaison(void) {
 }
 
 n_exp * comparaisonBis(n_exp * ex) {
-	n_exp * res = NULL;
+	n_exp * res = ex;
 
 	affiche_balise_ouvrante("comparaisonBis", trace_xml);
-
 	if(uniteCourante == EGAL) {
 		affiche_element("symbole", "EGAL", trace_xml);
 		uniteCourante = yylex();
@@ -680,7 +693,7 @@ n_exp * expArith(void) {
 }
 
 n_exp * expArithBis(n_exp * ter) {
-	n_exp * res = NULL;
+	n_exp * res = ter;
 
 	affiche_balise_ouvrante("expArithBis", trace_xml);
 
@@ -727,7 +740,7 @@ n_exp * terme(void) {
 }
 
 n_exp * termeBis(n_exp * fac) {
-	n_exp * res = NULL;
+	n_exp * res = fac;
 
 	affiche_balise_ouvrante("termeBis", trace_xml);
 
