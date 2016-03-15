@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE interps SYSTEM "interp3.dtd">
+
+<?xml-stylesheet type="text/xsl" href="interp3.xsl"?>
+
+<interps>
+
+  <interp size="3" number="1" seconds="0">
+
+    <op0 type="function">
+      <sym><![CDATA[Agathe]]></sym>
+      <v>0</v>
+    </op0>
+
+    <op0 type="function">
+      <sym><![CDATA[Charles]]></sym>
+      <v>2</v>
+    </op0>
+
+    <op0 type="function">
+      <sym><![CDATA[ChateauLetot]]></sym>
+      <v>0</v>
+    </op0>
+
+    <op0 type="function">
+      <sym><![CDATA[Majordome]]></sym>
+      <v>1</v>
+    </op0>
+
+    <op0 type="function">
+      <sym><![CDATA[c1]]></sym>
+      <v>0</v>
+    </op0>
+
+    <op0 type="function">
+      <sym><![CDATA[c2]]></sym>
+      <v>2</v>
+    </op0>
+
+    <op1 type="function">
+        <sym><![CDATA[f1]]></sym>
+        <head><i>0</i><i>1</i><i>2</i></head>
+        <row> <v>0</v><v>0</v><v>1</v></row>
+    </op1>
+
+    <op2 type="relation">
+        <sym><![CDATA[Habiter]]></sym>
+        <head>        <i>0</i><i>1</i><i>2</i></head>
+        <row><i>0</i> <v>1</v><v>0</v><v>0</v></row>
+        <row><i>1</i> <v>1</v><v>0</v><v>0</v></row>
+        <row><i>2</i> <v>1</v><v>0</v><v>0</v></row>
+    </op2>
+
+    <op2 type="relation">
+        <sym><![CDATA[Hair]]></sym>
+        <head>        <i>0</i><i>1</i><i>2</i></head>
+        <row><i>0</i> <v>0</v><v>0</v><v>1</v></row>
+        <row><i>1</i> <v>0</v><v>0</v><v>1</v></row>
+        <row><i>2</i> <v>1</v><v>0</v><v>0</v></row>
+    </op2>
+
+    <op2 type="relation">
+        <sym><![CDATA[MoinsRiche]]></sym>
+        <head>        <i>0</i><i>1</i><i>2</i></head>
+        <row><i>0</i> <v>0</v><v>0</v><v>0</v></row>
+        <row><i>1</i> <v>0</v><v>0</v><v>0</v></row>
+        <row><i>2</i> <v>1</v><v>0</v><v>0</v></row>
+    </op2>
+
+    <op2 type="relation">
+        <sym><![CDATA[Tuer]]></sym>
+        <head>        <i>0</i><i>1</i><i>2</i></head>
+        <row><i>0</i> <v>1</v><v>0</v><v>0</v></row>
+        <row><i>1</i> <v>0</v><v>0</v><v>0</v></row>
+        <row><i>2</i> <v>0</v><v>0</v><v>0</v></row>
+    </op2>
+  </interp>
+
+</interps>

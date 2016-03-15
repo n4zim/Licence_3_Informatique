@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE proofs SYSTEM "proof3.dtd">
+
+<?xml-stylesheet type="text/xsl" href="proof3.xsl"?>
+
+<proofs number_of_proofs="1">
+
+<heading><![CDATA[
+Prover9 (64) version 2009-11A, November 2009.
+Process 4567 was started by s13003684 on L-05402300A1-01,
+Tue Mar 15 15:43:21 2016
+The command was "/usr/local/p9m4-v05/bin/prover9".
+]]></heading>
+
+<proof number="1" length="8" max_count="10">
+
+<comments><![CDATA[
+% Proof 1 at 0.01 (+ 0.01) seconds.
+% Length of proof is 8.
+% Level of proof is 3.
+% Maximum clause weight is 4.000.
+% Given clauses 0.
+]]></comments>
+
+  <clause id="4" type="assumption">
+    <literal><![CDATA[
+      (all x (Hair(x,Agathe) & MoinsRiche(x,Agathe)))
+    ]]></literal>
+    <attribute><![CDATA[
+      label(non_clause)
+    ]]></attribute>
+    <justification jstring="[assumption].">
+      <j1 rule="assumption"/>
+    </justification>
+  </clause>
+
+  <clause id="7" type="assumption">
+    <literal><![CDATA[
+      (all x (MoinsRiche(x,Agathe) -> Hair(Majordome,x)))
+    ]]></literal>
+    <attribute><![CDATA[
+      label(non_clause)
+    ]]></attribute>
+    <justification jstring="[assumption].">
+      <j1 rule="assumption"/>
+    </justification>
+  </clause>
+
+  <clause id="9" type="assumption">
+    <literal><![CDATA[
+      (all x exists y -Hair(x,y))
+    ]]></literal>
+    <attribute><![CDATA[
+      label(non_clause)
+    ]]></attribute>
+    <justification jstring="[assumption].">
+      <j1 rule="assumption"/>
+    </justification>
+  </clause>
+
+  <clause id="19" type="clausify">
+    <literal><![CDATA[
+      MoinsRiche(x,Agathe)
+    ]]></literal>
+    <justification jstring="[clausify(4)].">
+      <j1 rule="clausify" parents="4"/>
+    </justification>
+  </clause>
+
+  <clause id="23" type="clausify">
+    <literal><![CDATA[
+      -MoinsRiche(x,Agathe)
+    ]]></literal>
+    <literal><![CDATA[
+      Hair(Majordome,x)
+    ]]></literal>
+    <justification jstring="[clausify(7)].">
+      <j1 rule="clausify" parents="7"/>
+    </justification>
+  </clause>
+
+  <clause id="24">
+    <literal><![CDATA[
+      Hair(Majordome,x)
+    ]]></literal>
+    <justification jstring="[copy(23),unit_del(a,19)].">
+      <j1 rule="copy" parents="23"/>
+      <j2 rule="unit_del" parents="19"/>
+    </justification>
+  </clause>
+
+  <clause id="25" type="clausify">
+    <literal><![CDATA[
+      -Hair(x,f1(x))
+    ]]></literal>
+    <justification jstring="[clausify(9)].">
+      <j1 rule="clausify" parents="9"/>
+    </justification>
+  </clause>
+
+  <clause id="26">
+    <literal><![CDATA[
+      $F
+    ]]></literal>
+    <justification jstring="[resolve(25,a,24,a)].">
+      <j1 rule="resolve" parents="25 24"/>
+    </justification>
+  </clause>
+
+</proof>
+
+</proofs>
