@@ -1,6 +1,8 @@
 #include <stdio.h>
+#include "dico.h"
 #include "syntabs.h"
 #include "util.h"
+
 
 void affiche_n_prog(n_prog *n);
 void affiche_l_instr(n_l_instr *n);
@@ -32,6 +34,10 @@ void affiche_appel(n_appel *n);
 
 int trace_abs = 1;
 
+int contexte = C_VARIABLE_GLOBALE;
+int adresseLocaleCourante = 0;
+int adresseArgumentCourant = 0;
+
 /*-------------------------------------------------------------------------*/
 
 void affiche_n_prog(n_prog *n)
@@ -42,6 +48,8 @@ void affiche_n_prog(n_prog *n)
   affiche_l_dec(n->variables);
   affiche_l_dec(n->fonctions); 
   affiche_balise_fermante(fct, trace_abs);
+
+  affiche_dico();
 }
 
 /*-------------------------------------------------------------------------*/
@@ -200,7 +208,6 @@ void affiche_l_exp(n_l_exp *n)
 
 void affiche_exp(n_exp *n)
 {
-
   if(n->type == varExp) affiche_varExp(n);
   else if(n->type == opExp) affiche_opExp(n);
   else if(n->type == intExp) affiche_intExp(n);
@@ -310,10 +317,23 @@ void affiche_foncDec(n_dec *n)
   char *fct = "foncDec";
   affiche_balise_ouvrante(fct, trace_abs);
   affiche_texte( n->nom, trace_abs );
-  affiche_l_dec(n->u.foncDec_.param);
-  affiche_l_dec(n->u.foncDec_.variables);
-  affiche_instr(n->u.foncDec_.corps);
-  affiche_balise_fermante(fct, trace_abs);
+
+  int existe = rechercheDeclarative(n->nom);
+
+  if(existe == -1)
+  {
+    ajouteIdentificateur(n->nom, contexte, T_FONCTION, adresseLocaleCourante, -1);
+    adresseLocaleCourante += 1;
+    entreeFonction();
+    
+
+    affiche_l_dec(n->u.foncDec_.param);
+    affiche_l_dec(n->u.foncDec_.variables);
+    affiche_instr(n->u.foncDec_.corps);
+    affiche_balise_fermante(fct, trace_abs);
+
+    sortieFonction();
+  }
 }
 
 /*-------------------------------------------------------------------------*/
@@ -321,6 +341,21 @@ void affiche_foncDec(n_dec *n)
 void affiche_varDec(n_dec *n)
 {
   affiche_element("varDec", n->nom, trace_abs);
+
+  int existe = rechercheDeclarative(n->nom);
+  if(existe == -1)
+  {
+    ajouteIdentificateur(n->nom, contexte, T_ENTIER, adresseLocaleCourante, -1);
+    adresseLocaleCourante += 1;
+  }
+  else
+  {
+    if(dico.tab[existe].classe != contexte)
+    {
+      ajouteIdentificateur(n->nom, contexte, T_ENTIER, adresseLocaleCourante, -1);
+      adresseLocaleCourante += 1;
+    }
+  }
 }
 
 /*-------------------------------------------------------------------------*/
@@ -330,6 +365,14 @@ void affiche_tabDec(n_dec *n)
   char texte[100]; // Max. 100 chars nom tab + taille
   sprintf(texte, "%s[%d]", n->nom, n->u.tabDec_.taille);
   affiche_element( "tabDec", texte, trace_abs );
+
+  int existe = rechercheDeclarative(n->nom);
+
+  if(existe == -1)
+  {
+    ajouteIdentificateur(n->nom, C_VARIABLE_GLOBALE, T_TABLEAU_ENTIER, adresseLocaleCourante, n->u.tabDec_.taille);
+    adresseLocaleCourante += n->u.tabDec_.taille;
+  }
 }
 
 /*-------------------------------------------------------------------------*/
