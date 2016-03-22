@@ -1,0 +1,68 @@
+Exo 1 :
+
+Assumptions :
+exists x assassin(x).
+all x assassin(x) -> voleur(x).
+exists x assassin(x) & -voleur(x).
+all x criminel(x) -> (assasin(x) | voleur(x)).
+
+exists x famille(x) & criminel(x).
+all x famille(x) -> voleur(x).
+
+Goals:
+all x famille(x) & -voleur(x).
+
+Mace4 :
+interpretation( 2, [number = 1,seconds = 0], [
+    function(c1, [0]),
+    function(c2, [0]),
+    function(c3, [0]),
+    function(f1(_), [1,1]),
+    function(f2(_), [0,0]),
+    function(f3(_), [0,0]),
+    function(f4(_), [1,1]),
+    function(f5(_), [0,0]),
+    relation(assasin(_), [1,1]),
+    relation(assassin(_), [1,0]),
+    relation(criminel(_), [1,1]),
+    relation(famille(_), [0,1]),
+    relation(voleur(_), [0,0])]).
+
+
+
+Exo 2 :
+
+Assumptions:
+all x dope(x) -> (gagner(x) | pris(x)).
+all x super(x) -> gagner(x).
+-super(x) -> gagner(x).
+
+Goals:
+dope(x).
+
+Mace4:
+interpretation( 2, [number = 1,seconds = 0], [
+    function(c1, [0]),
+    function(f1(_), [0,0]),
+    function(f2(_), [0,0]),
+    relation(dope(_), [0,0]),
+    relation(gagner(_), [1,0]),
+    relation(pris(_), [0,0]),
+    relation(super(_), [0,1])]).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
