@@ -21,7 +21,8 @@ void analyseur_syntaxique(void) {
 	initialise_suivants();
 	uniteCourante = yylex();
 	n_prog * pg = PG();
-	printf("La syntaxe gère un max. #CestCool #Pèse #YOLO\n");
+	printf("La syntaxe gère un max. #CestCool #Pèse #YOLO\n\n");
+	printf("Arbre abstrait : \n");
 	affiche_n_prog(pg);
 }
 
@@ -49,6 +50,7 @@ n_prog* PG() {
     else syntaxError(__func__);
     $$ = cree_n_prog(vars, funcs);
     affiche_balise_fermante(__func__, 1);
+  
     return $$;
 }
 
@@ -63,6 +65,7 @@ n_l_dec* ODV() {
     }
     if(!est_suivant(_optDecVariables_, uniteCourante)) syntaxError(__func__);
     affiche_balise_fermante(__func__, 1);
+  
     return $$;
 }
 
@@ -77,6 +80,7 @@ n_l_dec* LDV() {
         $$ = cree_n_l_dec(tete, queue);
     } else syntaxError(__func__);
     affiche_balise_fermante(__func__, 1);
+  
     return $$;
 }
 
@@ -95,6 +99,7 @@ n_l_dec* LDVB() {
     $$ = cree_n_l_dec(tete, queue);
     if(!est_suivant(_listeDecVariablesBis_, uniteCourante)) syntaxError(__func__);
     affiche_balise_fermante(__func__, 1);
+  
     return $$;
 }
 
@@ -114,6 +119,7 @@ n_dec* DV() {
     if(optTailleTableau <= 0) $$ = cree_n_dec_var(nomVar);
     	else $$ = cree_n_dec_tab(nomVar, optTailleTableau);
     affiche_balise_fermante(__func__, 1);
+  
     return $$;
 }
 
@@ -146,6 +152,7 @@ n_l_dec* LDF() {
     if(!est_suivant(_listeDecFonctions_, uniteCourante)) syntaxError(__func__);
     affiche_balise_fermante(__func__, 1);
     $$ = cree_n_l_dec(declarationFonction, listeDecFonctions);
+ 
   	return $$;
 }
 
@@ -168,6 +175,7 @@ n_dec* DF() {
         } else syntaxError(__func__);
     } else error(__func__, "Un identificateur de fonction était attendu");
     affiche_balise_fermante(__func__, 1);
+  
     return $$;
 }
 
@@ -181,6 +189,7 @@ n_l_dec* LP() {
             else error(__func__, "')' était attendu");
     } else error(__func__, "'(' était attendu");
     affiche_balise_fermante(__func__, 1);
+  
     return $$;
 }
 
@@ -190,6 +199,7 @@ n_l_dec* OLDV() {
     if(est_premier(_listeDecVariables_, uniteCourante)) $$ = LDV();
     if(!est_suivant(_optListeDecVariables_, uniteCourante)) syntaxError(__func__);
     affiche_balise_fermante(__func__, 1);
+  
     return $$;
 }
 
@@ -216,23 +226,24 @@ n_instr* I() {
     } else syntaxError(__func__);
     $$ = instruction;
     affiche_balise_fermante(__func__, 1);
+  
     return $$;
 }
 
 n_instr* IAFF() {
 	n_instr *$$ = NULL;
 	n_var *var = NULL;
-	n_exp *exp = NULL;
+	n_exp *expr = NULL;
 	affiche_balise_ouvrante(__func__, 1);
 	if(est_premier(_var_, uniteCourante)) {
 		var = VAR();
 		if(uniteCourante == EGAL) {
 			uniteCourante = yylex();
 			if(est_premier(_expression_, uniteCourante)) {
-				exp = EXP();
+				expr = EXP();
 				if(uniteCourante == POINT_VIRGULE) uniteCourante = yylex();
 					else error(__func__, "';' était attendu");
-				$$ = cree_n_instr_affect(var, exp);
+				$$ = cree_n_instr_affect(var, expr);
 			} else syntaxError(__func__);
 		} else error(__func__, "'=' était attendu");
 	} else syntaxError(__func__);
@@ -390,11 +401,10 @@ n_instr *IVIDE() {
 
 n_exp *EXP() {
 	n_exp *$$ = NULL;
-	n_exp *conjonction = NULL;
 	affiche_balise_ouvrante(__func__, 1);
 	if(est_premier(_conjonction_, uniteCourante)) {
-		conjonction = CONJ();
-		if(est_premier(_expressionBis_, uniteCourante)) $$ = EXPB(conjonction);
+		$$ = CONJ();
+		if(est_premier(_expressionBis_, uniteCourante)) $$ = EXPB($$);
 	} else syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
 	return $$;
@@ -417,15 +427,14 @@ n_exp *EXPB(n_exp *heritage) {
 	if(!est_suivant(_expressionBis_, uniteCourante)) syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
 	return $$;
-;}
+}
 
 n_exp *CONJ() {
 	n_exp *$$ = NULL;
-	n_exp *negation = NULL;
 	affiche_balise_ouvrante(__func__, 1);
 	if(est_premier(_negation_, uniteCourante)) {
-		negation = NEG();
-		if(est_premier(_conjonctionBis_, uniteCourante)) $$ = CONJB(negation);
+		$$ = NEG();
+		if(est_premier(_conjonctionBis_, uniteCourante)) $$ = CONJB($$);
 	} else syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
 	return $$;
@@ -440,7 +449,7 @@ n_exp *CONJB(n_exp *heritage) {
 		uniteCourante = yylex();
 		if(est_premier(_negation_, uniteCourante)) {
 			negation = NEG();
-			conjonctionBis = cree_n_exp_op(non, heritage, negation);
+			conjonctionBis = cree_n_exp_op(et, heritage, negation);
 			if(est_premier(_conjonctionBis_, uniteCourante)) conjonctionBis = CONJB(conjonctionBis);
 			$$ = conjonctionBis;
 		} else syntaxError(__func__);
@@ -453,28 +462,28 @@ n_exp *CONJB(n_exp *heritage) {
 n_exp *NEG() {
 	n_exp *$$ = NULL;
 	n_exp *comparaison = NULL;
+	int estNon = 0;
 	affiche_balise_ouvrante(__func__, 1);
 	if(uniteCourante == NON) {
+		estNon = 1;
 		uniteCourante = yylex();
 		if(est_premier(_comparaison_, uniteCourante)) comparaison = COMP();
 			else syntaxError(__func__);
-		$$ = cree_n_exp_op(non, comparaison, NULL);
 	} else if(est_premier(_comparaison_, uniteCourante)) {
-		 comparaison = COMP();
-		 $$ = comparaison;
-		}
-		else syntaxError(__func__);
+		comparaison = COMP();
+	} else syntaxError(__func__);
+	if(estNon == 1) $$ = cree_n_exp_op(non, comparaison, NULL);
+		else $$ = comparaison;
 	affiche_balise_fermante(__func__, 1);
 	return $$;
 }
 
 n_exp *COMP() {
 	n_exp *$$ = NULL;
-	n_exp *expArith = NULL;
 	affiche_balise_ouvrante(__func__, 1);
 	if(est_premier(_expression_, uniteCourante)) {
-		expArith = E();
-		if(est_premier(_comparaisonBis_, uniteCourante)) $$ = COMPB(expArith);
+		$$ = E();
+		if(est_premier(_comparaisonBis_, uniteCourante)) $$ = COMPB($$);
 	} else syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
 	return $$;
@@ -515,11 +524,10 @@ n_exp *COMPB(n_exp *heritage) {
 
 n_exp *E() {
 	n_exp *$$ = NULL;
-	n_exp *terme = NULL;
 	affiche_balise_ouvrante(__func__, 1);
 	if(est_premier(_terme_, uniteCourante)) {
-		terme = T();
-		if(est_premier(_expArithBis_, uniteCourante)) $$ = EB(terme);
+		$$ = T();
+		if(est_premier(_expArithBis_, uniteCourante)) $$ = EB($$);
 	} else syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
 	return $$;
@@ -553,11 +561,11 @@ n_exp *EB(n_exp *heritage) {
 
 n_exp *T() {
 	n_exp *$$ = NULL;
-	n_exp *facteur = NULL;
 	affiche_balise_ouvrante(__func__, 1);
 	if(est_premier(_facteur_, uniteCourante)) {
-		facteur = F();
-		if(est_premier(_termeBis_, uniteCourante)) $$ = TB(facteur);
+		$$ = F();
+		if(est_premier(_termeBis_, uniteCourante))
+			$$ = TB($$);
 	} else syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
 	return $$;
@@ -606,23 +614,22 @@ n_exp *F() {
 		entier = strdup(yytext);
 		uniteCourante = yylex();
 		$$ = cree_n_exp_entier(atoi(entier));
-		} else if(est_premier(_appelFct_, uniteCourante)) {
-			appelFct = APPF();
-			$$ = cree_n_exp_appel(appelFct);
-			} else if(est_premier(_var_, uniteCourante)) {
-				var = VAR();
-				$$ = cree_n_exp_var(var);
-				} else if(uniteCourante == LIRE) {
-					uniteCourante = yylex();
-					if(uniteCourante == PARENTHESE_OUVRANTE) {
-						uniteCourante = yylex();
-						if(uniteCourante == PARENTHESE_FERMANTE) {
-							uniteCourante = yylex();
-							$$ = cree_n_exp_lire();
-						}
-						else error(__func__, "')' était attendu");
-					} else error(__func__, "'(' était attendu");
-				} else syntaxError(__func__);
+	} else if(est_premier(_appelFct_, uniteCourante)) {
+		appelFct = APPF();
+		$$ = cree_n_exp_appel(appelFct);
+	} else if(est_premier(_var_, uniteCourante)) {
+		var = VAR();
+		$$ = cree_n_exp_var(var);
+	} else if(uniteCourante == LIRE) {
+		uniteCourante = yylex();
+		if(uniteCourante == PARENTHESE_OUVRANTE) {
+			uniteCourante = yylex();
+			if(uniteCourante == PARENTHESE_FERMANTE) {
+				uniteCourante = yylex();
+				$$ = cree_n_exp_lire();
+			} else error(__func__, "')' était attendu");
+		} else error(__func__, "'(' était attendu");
+	} else syntaxError(__func__);
 	affiche_balise_fermante(__func__, 1);
 	return $$;
 }
@@ -637,8 +644,7 @@ n_var *VAR() {
 		uniteCourante = yylex();
 		if(est_premier(_optIndice_, uniteCourante)) optIndice = OIND();
 		if(optIndice == NULL) $$ = cree_n_var_simple(nom);
-		else $$ = cree_n_var_indicee(nom, optIndice);
-			
+			else $$ = cree_n_var_indicee(nom, optIndice);
 	} else error(__func__, "Indice de variable était attendu");
 	affiche_balise_fermante(__func__, 1);
 	return $$;

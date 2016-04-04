@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "syntabs.h"
 #include "util.h"
+#include "dico.h"
 
 void affiche_n_prog(n_prog *n);
 void affiche_l_instr(n_l_instr *n);
@@ -32,6 +33,10 @@ void affiche_appel(n_appel *n);
 
 int trace_abs = 1;
 
+int courantVar = C_VARIABLE_GLOBALE;
+int courantAdrLoc = 0;
+int courantAdrArg = 0;
+
 /*-------------------------------------------------------------------------*/
 
 void affiche_n_prog(n_prog *n)
@@ -42,6 +47,9 @@ void affiche_n_prog(n_prog *n)
   affiche_l_dec(n->variables);
   affiche_l_dec(n->fonctions); 
   affiche_balise_fermante(fct, trace_abs);
+
+  printf("\nDictionnaire :\n");
+  affiche_dico();
 }
 
 /*-------------------------------------------------------------------------*/
@@ -157,6 +165,17 @@ void affiche_appel(n_appel *n)
   char *fct = "appel";
   affiche_balise_ouvrante(fct, trace_abs);
   affiche_texte( n->fonction, trace_abs);
+
+  int existant = rechercheExecutable(n->fonction);
+  int nbArgs = 0;
+
+  if(existant != -1) {
+    if(dico.tab[existant].type == T_FONCTION) {
+      n_l_exp *expr = NULL;
+      for(expr = n->args ; expr != NULL ; expr = expr->queue) nbArgs++;
+    }
+  }
+
   affiche_l_exp(n->args);
   affiche_balise_fermante(fct, trace_abs);
 }
@@ -198,9 +217,7 @@ void affiche_l_exp(n_l_exp *n)
 
 /*-------------------------------------------------------------------------*/
 
-void affiche_exp(n_exp *n)
-{
-
+void affiche_exp(n_exp *n) {
   if(n->type == varExp) affiche_varExp(n);
   else if(n->type == opExp) affiche_opExp(n);
   else if(n->type == intExp) affiche_intExp(n);

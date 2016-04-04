@@ -3,7 +3,7 @@ CC = gcc
 LIBS = -lm 
 CCFLAGS = -Wall -ggdb
 
-OBJ = util.o premiers.o suivants.o analyseur_syntaxique.o analyseur_lexical.o affiche_arbre_abstrait.o syntabs.o
+OBJ = util.o premiers.o suivants.o analyseur_syntaxique.o analyseur_lexical.o affiche_arbre_abstrait.o syntabs.o dico.o
 
 all: test_yylex
 
@@ -26,6 +26,9 @@ affiche_arbre_abstrait.o: affiche_arbre_abstrait.c
 	$(CC) $(CCFLAGS) -c $^
 
 syntabs.o: syntabs.c
+	$(CC) $(CCFLAGS) -c $^
+
+dico.o: dico.c
 	$(CC) $(CCFLAGS) -c $^
 
 .PHONY : clean
