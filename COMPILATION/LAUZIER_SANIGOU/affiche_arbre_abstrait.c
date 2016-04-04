@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "dico.h"
 #include "syntabs.h"
 #include "util.h"
@@ -32,7 +33,7 @@ void affiche_var_simple(n_var *n);
 void affiche_var_indicee(n_var *n);
 void affiche_appel(n_appel *n);
 
-int trace_abs = 1;
+int trace_abs = 0;
 
 int contexte = C_VARIABLE_GLOBALE;
 int adresseLocaleCourante = 0;
@@ -48,8 +49,6 @@ void affiche_n_prog(n_prog *n)
   affiche_l_dec(n->variables);
   affiche_l_dec(n->fonctions); 
   affiche_balise_fermante(fct, trace_abs);
-
-  affiche_dico();
 }
 
 /*-------------------------------------------------------------------------*/
@@ -165,6 +164,36 @@ void affiche_appel(n_appel *n)
   char *fct = "appel";
   affiche_balise_ouvrante(fct, trace_abs);
   affiche_texte( n->fonction, trace_abs);
+
+  int existe = rechercheExecutable(n->fonction);
+
+  if(existe != -1)
+  {
+    if(dico.tab[existe].type == T_FONCTION)
+    {
+      int nbArguments = 0;
+
+      n_l_exp* l = NULL;
+
+      for(l = n->args; l != NULL; l = l->queue){
+          nbArguments++;
+      }
+
+      if(dico.tab[existe].complement != nbArguments)
+      {
+        //Erreur nombre d'arguments
+      }
+    }
+    else
+    {
+      //n'est pas une fonction
+    }
+  }
+  else
+  {
+    //Fonction non déclarée
+  }
+
   affiche_l_exp(n->args);
   affiche_balise_fermante(fct, trace_abs);
 }
@@ -322,17 +351,34 @@ void affiche_foncDec(n_dec *n)
 
   if(existe == -1)
   {
-    ajouteIdentificateur(n->nom, contexte, T_FONCTION, adresseLocaleCourante, -1);
-    adresseLocaleCourante += 1;
+    int nbArguments = 0;
+
+    n_l_dec* l = NULL;
+
+    for(l = n->u.foncDec_.param; l != NULL; l = l->queue){
+      nbArguments++;
+    }
+
+    ajouteIdentificateur(n->nom, C_VARIABLE_GLOBALE, T_FONCTION, 0, nbArguments);
     entreeFonction();
-    
+
+    contexte = C_ARGUMENT;    
 
     affiche_l_dec(n->u.foncDec_.param);
+
+    contexte = C_VARIABLE_LOCALE;
+
     affiche_l_dec(n->u.foncDec_.variables);
     affiche_instr(n->u.foncDec_.corps);
+
     affiche_balise_fermante(fct, trace_abs);
 
+    affiche_dico();
     sortieFonction();
+  }
+  else
+  {
+    //Erreur déjà déclarée
   }
 }
 
@@ -342,19 +388,36 @@ void affiche_varDec(n_dec *n)
 {
   affiche_element("varDec", n->nom, trace_abs);
 
-  int existe = rechercheDeclarative(n->nom);
-  if(existe == -1)
+  int declare = rechercheDeclarative(n->nom);
+  if(declare == -1)
   {
-    ajouteIdentificateur(n->nom, contexte, T_ENTIER, adresseLocaleCourante, -1);
-    adresseLocaleCourante += 1;
+    int globale = rechercheExecutable(n->nom);
+    if(globale == -1)
+    {
+      int adresse = 0;
+      if(contexte == C_ARGUMENT)
+      {
+        adresse = adresseArgumentCourant;
+        adresseArgumentCourant = adresseArgumentCourant + 4;
+      }
+      else
+      {
+        adresse = adresseLocaleCourante;
+        adresseLocaleCourante = adresseLocaleCourante + 4;
+      }
+
+      ajouteIdentificateur(n->nom, contexte, T_ENTIER, adresse, -1);
+    }
+    else
+    {
+      printf("Erreur : la variable %s est déjà déclarée en globale\n", n->nom);
+      exit(1);
+    }
   }
   else
   {
-    if(dico.tab[existe].classe != contexte)
-    {
-      ajouteIdentificateur(n->nom, contexte, T_ENTIER, adresseLocaleCourante, -1);
-      adresseLocaleCourante += 1;
-    }
+    printf("Erreur : la variable %s est déjà déclarée\n", n->nom);
+    exit(1);
   }
 }
 
@@ -366,12 +429,25 @@ void affiche_tabDec(n_dec *n)
   sprintf(texte, "%s[%d]", n->nom, n->u.tabDec_.taille);
   affiche_element( "tabDec", texte, trace_abs );
 
-  int existe = rechercheDeclarative(n->nom);
-
-  if(existe == -1)
+  if(contexte == C_VARIABLE_GLOBALE)
   {
-    ajouteIdentificateur(n->nom, C_VARIABLE_GLOBALE, T_TABLEAU_ENTIER, adresseLocaleCourante, n->u.tabDec_.taille);
-    adresseLocaleCourante += n->u.tabDec_.taille;
+    int existe = rechercheDeclarative(n->nom);
+
+    if(existe == -1)
+    {
+      ajouteIdentificateur(n->nom, C_VARIABLE_GLOBALE, T_TABLEAU_ENTIER, adresseLocaleCourante, n->u.tabDec_.taille);
+      adresseLocaleCourante += (4*n->u.tabDec_.taille);
+    }
+    else
+    {
+      printf("Erreur : la variable %s est déjà déclarée\n", n->nom);
+      exit(1);
+    }
+  }
+  else
+  {
+    printf("Erreur : la variable %s doit être déclarée en globale\n", n->nom);
+    exit(1);
   }
 }
 
@@ -391,6 +467,21 @@ void affiche_var(n_var *n)
 void affiche_var_simple(n_var *n)
 {
   affiche_element("var_simple", n->nom, trace_abs);
+
+  int existe = rechercheExecutable(n->nom);
+  if(existe == -1)
+  {
+    printf("Erreur : la variable %s n'est pas déclarée\n", n->nom);
+    exit(1);
+  }
+  else
+  {
+    if(dico.tab[existe].type != T_ENTIER)
+    {
+      printf("Erreur : la variable %s est un entier\n", n->nom);
+    exit(1);
+    }
+  }
 }
 
 /*-------------------------------------------------------------------------*/
@@ -401,5 +492,20 @@ void affiche_var_indicee(n_var *n)
   affiche_element("var_base_tableau", n->nom, trace_abs);
   affiche_exp( n->u.indicee_.indice );
   affiche_balise_fermante(fct, trace_abs);
+
+  int existe = rechercheExecutable(n->nom);
+  if(existe == -1)
+  {
+    printf("Erreur : la variable %s n'est pas déclarée\n", n->nom);
+    exit(1);
+  }
+  else
+  {
+    if(dico.tab[existe].type != T_TABLEAU_ENTIER)
+    {
+      printf("Erreur : la variable %s doit être un entier\n", n->nom);
+    exit(1);
+    }
+  }
 }
 /*-------------------------------------------------------------------------*/
