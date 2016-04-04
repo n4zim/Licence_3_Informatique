@@ -1,0 +1,30 @@
+% Saved by Prover9-Mace4 Version 0.5, December 2007.
+
+set(ignore_option_dependencies). % GUI handles dependencies
+
+if(Prover9). % Options for Prover9
+  assign(max_seconds, 60).
+end_if.
+
+if(Mace4).   % Options for Mace4
+  assign(max_seconds, 60).
+end_if.
+
+formulas(assumptions).
+
+exists x Assassin(x).
+all x Assassin(x) -> Voleur(x).
+exists x Assassin(x) & -Voleur(x).
+all x Criminel(x) -> Assassin(x) | Voleur(x).
+
+exists x Famille(x) -> Criminel(x).
+all x Famille(x) -> Voleur(x).
+
+end_of_list.
+
+formulas(goals).
+
+all x Famille(x) & -Voleur(x).
+
+end_of_list.
+

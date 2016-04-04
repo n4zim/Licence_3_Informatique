@@ -1,0 +1,31 @@
+% Saved by Prover9-Mace4 Version 0.5, December 2007.
+
+set(ignore_option_dependencies). % GUI handles dependencies
+
+if(Prover9). % Options for Prover9
+  assign(max_seconds, 60).
+end_if.
+
+if(Mace4).   % Options for Mace4
+  assign(max_seconds, 60).
+end_if.
+
+formulas(assumptions).
+
+all x (Dope(x) -> (Gagner(x) & -Pris(x)) | (Pris(x) & -Gagner(x))).
+exists x (Super(x) -> Gagner(x)).
+-Super(L) & Gagner(L).
+
+% Affirmation de conclusion
+%all x ((-Super(x) & Gagner(x)) -> Dope(x)).
+all x (Gagner(x) -> (Super(x) | Dope(x))).
+%-Super(L) & Gagner(L) -> Dope(L).
+
+end_of_list.
+
+formulas(goals).
+
+Dope(L).
+
+end_of_list.
+
