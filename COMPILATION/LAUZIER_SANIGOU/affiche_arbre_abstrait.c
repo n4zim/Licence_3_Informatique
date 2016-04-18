@@ -17,7 +17,7 @@ void affiche_instr_appel(n_instr *n);
 void affiche_instr_retour(n_instr *n);
 void affiche_instr_ecrire(n_instr *n);
 void affiche_l_exp(n_l_exp *n);
-void affiche_exp(n_exp *n);
+int affiche_exp(n_exp *n);
 void affiche_varExp(n_exp *n);
 void affiche_opExp(n_exp *n);
 void affiche_intExp(n_exp *n);
@@ -33,11 +33,23 @@ void affiche_var_simple(n_var *n);
 void affiche_var_indicee(n_var *n);
 void affiche_appel(n_appel *n);
 
-int trace_abs = 1;
+int trace_abs = 0;
+int trace_dico = 0;
 
 int contexte = C_VARIABLE_GLOBALE;
 int adresseLocaleCourante = 0;
 int adresseArgumentCourant = 0;
+
+int num_registre = 0;
+int num_etiquette = 0;
+
+char * new_etiquette(const char * nom){
+  static char str[80];
+
+  sprintf(str, "%s%d", nom, num_etiquette++);
+
+  return str;
+}
 
 /*-------------------------------------------------------------------------*/
 
@@ -46,8 +58,12 @@ void affiche_n_prog(n_prog *n)
   char *fct = "prog";
   affiche_balise_ouvrante(fct, trace_abs);
 
+  printf("\t.data\n");
   affiche_l_dec(n->variables);
+
+  printf("\n\t.text\n");
   affiche_l_dec(n->fonctions); 
+
   affiche_balise_fermante(fct, trace_abs);
 }
 
@@ -89,11 +105,26 @@ void affiche_instr_si(n_instr *n)
   char *fct = "instr_si";
   affiche_balise_ouvrante(fct, trace_abs);
 
-  affiche_exp(n->u.si_.test);
-  affiche_instr(n->u.si_.alors);
-  if(n->u.si_.sinon){
+  const char * eti_si_end = new_etiquette("siend");
+  const char * eti_sinon = new_etiquette("sinon");
+
+  int test = affiche_exp(n->u.si_.test);
+  if(n->u.si_.sinon)
+  {
+    printf("beq  $t%d, $0, %s\n", test, eti_sinon);
+    affiche_instr(n->u.si_.alors);
+    printf("j\t%s\n", eti_si_end);
+    printf("%s:\n", eti_sinon);
     affiche_instr(n->u.si_.sinon);
   }
+  else
+  {
+    printf("beq  $t%d, $0, %s\n", test, eti_si_end);
+    affiche_instr(n->u.si_.alors);
+  }
+
+  printf("%s:\n", eti_si_end);
+
   affiche_balise_fermante(fct, trace_abs);
 }
 
@@ -104,8 +135,19 @@ void affiche_instr_tantque(n_instr *n)
   char *fct = "instr_tantque";
   affiche_balise_ouvrante(fct, trace_abs);
 
-  affiche_exp(n->u.tantque_.test);
+  int test = affiche_exp(n->u.tantque_.test);
+
+  const char * eti_tq = new_etiquette("tq");
+  const char * eti_tq_end = new_etiquette("tqend");
+
+  printf("%s:\n", eti_tq);
+  printf("beq  $t%d, $0, %s\n", test, eti_tq_end);
+
   affiche_instr(n->u.tantque_.faire);
+
+  printf("j\t%s\n", eti_tq);
+  printf("%s:\n", eti_tq_end);
+
   affiche_balise_fermante(fct, trace_abs);
 }
 
@@ -143,6 +185,10 @@ void affiche_instr_affect(n_instr *n)
 
   affiche_var(n->u.affecte_.var);
   affiche_exp(n->u.affecte_.exp);
+
+  printf("\tsw\t$t%d, %s\t\t#enregistre la variable\n", num_registre, n->u.affecte_.var->nom);
+  num_registre++;
+
   affiche_balise_fermante(fct, trace_abs);
 }
 
@@ -215,7 +261,16 @@ void affiche_instr_ecrire(n_instr *n)
 {
   char *fct = "instr_ecrire";
   affiche_balise_ouvrante(fct, trace_abs);
+
   affiche_exp(n->u.ecrire_.expression);
+
+  printf("\tli\t$v0, 1\n");
+  printf("\tmove\t$a0, $t%d\n", num_registre);
+  printf("\tsyscall\t\t\t# ecriture\n");
+  printf("\tli\t$a0, \'\\n\'\n");
+  printf("\tli\t$v0, 11\n");
+  printf("\tsyscall\t\t\t# ecrit caractère\n");
+
   affiche_balise_fermante(fct, trace_abs);
 }
 
@@ -235,13 +290,21 @@ void affiche_l_exp(n_l_exp *n)
 
 /*-------------------------------------------------------------------------*/
 
-void affiche_exp(n_exp *n)
+int affiche_exp(n_exp *n)
 {
-  if(n->type == varExp) affiche_varExp(n);
+  if(n->type == varExp){
+    affiche_varExp(n);
+    printf("\tlw\t$t%d, %s\t\t#lit variable dans $t%d\n",num_registre, n->u.var->nom, num_registre);
+  }
   else if(n->type == opExp) affiche_opExp(n);
-  else if(n->type == intExp) affiche_intExp(n);
+  else if(n->type == intExp){
+    affiche_intExp(n);
+    printf("\tli\t$t%d, %d\n", num_registre, n->u.entier);
+  }
   else if(n->type == appelExp) affiche_appelExp(n);
   else if(n->type == lireExp) affiche_lireExp(n);
+
+  return num_registre;
 }
 
 /*-------------------------------------------------------------------------*/
@@ -293,6 +356,11 @@ void affiche_lireExp(n_exp *n)
 {
   char *fct = "lireExp";
   affiche_balise_ouvrante(fct, trace_abs);
+
+  printf("\tli \t$v0, 5\n");
+  printf("\tsyscall\n");
+  printf("\tmove \t$t%d, \t$v0\n", num_registre);
+
   affiche_balise_fermante(fct, trace_abs);
 
 }
@@ -373,7 +441,9 @@ void affiche_foncDec(n_dec *n)
 
     affiche_balise_fermante(fct, trace_abs);
 
-    affiche_dico();
+    if(trace_dico)
+      affiche_dico();
+
     sortieFonction();
   }
   else
@@ -400,11 +470,17 @@ void affiche_varDec(n_dec *n)
         adresse = adresseArgumentCourant;
         adresseArgumentCourant = adresseArgumentCourant + 4;
       }
+      else if(contexte == C_VARIABLE_GLOBALE)
+      {
+        adresse = adresseLocaleCourante;
+        adresseLocaleCourante = adresseLocaleCourante + 4;
+      }
       else
       {
         adresse = adresseLocaleCourante;
         adresseLocaleCourante = adresseLocaleCourante + 4;
       }
+      printf("\t%s:\t.space\t4\n", n->nom);
 
       ajouteIdentificateur(n->nom, contexte, T_ENTIER, adresse, -1);
     }
@@ -435,6 +511,7 @@ void affiche_tabDec(n_dec *n)
 
     if(existe == -1)
     {
+      printf("\t%s:\t.space\t%d\n", n->nom, n->u.tabDec_.taille*4);
       ajouteIdentificateur(n->nom, C_VARIABLE_GLOBALE, T_TABLEAU_ENTIER, adresseLocaleCourante, n->u.tabDec_.taille);
       adresseLocaleCourante += (4*n->u.tabDec_.taille);
     }
