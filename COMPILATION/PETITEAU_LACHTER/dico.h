@@ -35,7 +35,7 @@ int rechercheDeclarative(char *identif);
 void affiche_dico(void);
 
 dico_ dico;
-extern int contexte;
-extern int adresseLocaleCourante;
-extern int adresseArgumentCourant;
+extern int courantVar;
+extern int courantAdrLoc;
+extern int courantAdrArg;
 #endif

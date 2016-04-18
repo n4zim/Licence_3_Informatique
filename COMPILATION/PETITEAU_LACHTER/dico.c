@@ -7,9 +7,9 @@
 
 void entreeFonction(void){
   dico.base = dico.sommet;
-  contexte = C_VARIABLE_LOCALE;
-  adresseLocaleCourante = 0;
-  adresseArgumentCourant = 0;
+  courantVar = C_VARIABLE_LOCALE;
+  courantAdrLoc = 0;
+  courantAdrArg = 0;
 }
 
 /*-------------------------------------------------------------------------*/
@@ -17,7 +17,7 @@ void entreeFonction(void){
 void sortieFonction(void){
   dico.sommet = dico.base;
   dico.base = 0;
-  contexte = C_VARIABLE_GLOBALE;  
+  courantVar = C_VARIABLE_GLOBALE;  
 }
 
 /*-------------------------------------------------------------------------*/
