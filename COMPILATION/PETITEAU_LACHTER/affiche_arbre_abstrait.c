@@ -32,7 +32,7 @@ void affiche_var_simple(n_var *n);
 void affiche_var_indicee(n_var *n);
 void affiche_appel(n_appel *n);
 
-int trace_abs = 1;
+int trace_abs = 0;
 
 int courantVar = C_VARIABLE_GLOBALE;
 int courantAdrLoc = 0;
@@ -47,7 +47,6 @@ void affiche_n_prog(n_prog *n) {
     affiche_l_dec(n->fonctions);
     affiche_balise_fermante(fct, trace_abs);
 
-    printf("\nDictionnaire :\n");
     affiche_dico();
 }
 
