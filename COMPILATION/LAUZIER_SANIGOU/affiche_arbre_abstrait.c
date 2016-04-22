@@ -52,6 +52,16 @@ char * new_etiquette(const char * nom){
   return strdup(str);
 }
 
+void empiler(const char * reg){
+  printf("\tsubi\t$sp,\t$sp,\t4\t#EMPILER\n");
+  printf("\tsw\t%s,\t0($sp)\n", reg);
+}
+
+void depiler(const char * reg){
+  printf("\tlw\t%s,\t0($sp)\t#DEPILER\n", reg);
+  printf("\taddi\t$sp,\t$sp,\t4\n");
+}
+
 /*-------------------------------------------------------------------------*/
 
 void affiche_n_prog(n_prog *n)
@@ -109,10 +119,12 @@ void affiche_instr_si(n_instr *n)
   const char * eti_si_end = new_etiquette("siend");
   const char * eti_sinon = new_etiquette("sinon");
 
-  int test = affiche_exp(n->u.si_.test);
+  affiche_exp(n->u.si_.test);
+  
   if(n->u.si_.sinon)
   {
-    printf("beq  $t%d, $0, %s\n", test, eti_sinon);
+    depiler("$t0");
+    printf("beq  $t0, $0, %s\t#SI (SINON)\n", eti_sinon);
     affiche_instr(n->u.si_.alors);
     printf("j\t%s\n", eti_si_end);
     printf("%s:\n", eti_sinon);
@@ -120,7 +132,8 @@ void affiche_instr_si(n_instr *n)
   }
   else
   {
-    printf("beq  $t%d, $0, %s\n", test, eti_si_end);
+    depiler("$t0");
+    printf("beq  $t0, $0, %s\n", eti_si_end);
     affiche_instr(n->u.si_.alors);
   }
 
@@ -136,13 +149,15 @@ void affiche_instr_tantque(n_instr *n)
   char *fct = "instr_tantque";
   affiche_balise_ouvrante(fct, trace_abs);
 
-  int test = affiche_exp(n->u.tantque_.test);
-
   const char * eti_tq = new_etiquette("tq");
-  const char * eti_tq_end = new_etiquette("tqend");
 
   printf("%s:\n", eti_tq);
-  printf("beq  $t%d, $0, %s\n", test, eti_tq_end);
+  affiche_exp(n->u.tantque_.test);
+
+  const char * eti_tq_end = new_etiquette("tqend");
+
+  depiler("$t0");
+  printf("beq  $t0, $0, %s\n", eti_tq_end);
 
   affiche_instr(n->u.tantque_.faire);
 
@@ -187,8 +202,11 @@ void affiche_instr_affect(n_instr *n)
   affiche_var(n->u.affecte_.var);
   affiche_exp(n->u.affecte_.exp);
 
-  printf("\tsw\t$t%d, %s\t\t#enregistre la variable\n", num_registre, n->u.affecte_.var->nom);
-  num_registre++;
+  //printf("\tsw\t$t%d, %s\t\t#enregistre la variable\n", num_registre, n->u.affecte_.var->nom);
+  //num_registre++;
+  depiler("$t1");
+  printf("\tsw\t$t1,\t%s\t#stocke la variable\n", n->u.affecte_.var->nom);
+
 
   affiche_balise_fermante(fct, trace_abs);
 }
@@ -265,8 +283,10 @@ void affiche_instr_ecrire(n_instr *n)
 
   affiche_exp(n->u.ecrire_.expression);
 
+  depiler("$a0");
+
   printf("\tli\t$v0, 1\n");
-  printf("\tmove\t$a0, $t%d\n", num_registre);
+  //printf("\tmove\t$a0, $t%d\n", num_registre);
   printf("\tsyscall\t\t\t# ecriture\n");
   printf("\tli\t$a0, \'\\n\'\n");
   printf("\tli\t$v0, 11\n");
@@ -293,19 +313,42 @@ void affiche_l_exp(n_l_exp *n)
 
 int affiche_exp(n_exp *n)
 {
+  int reg = 0;
   if(n->type == varExp){
     affiche_varExp(n);
-    printf("\tlw\t$t%d, %s\t\t#lit variable dans $t%d\n", num_registre, n->u.var->nom, num_registre);
+
+    char * nom = n->u.var->nom;
+    int i = rechercheExecutable(nom);
+
+    switch(dico.tab[i].classe)
+    {
+      case C_VARIABLE_GLOBALE:
+        printf("\tlw\t$t1,\t %s\t#Lit variable dans $t1\n", n->u.var->nom);
+        break;
+      case C_ARGUMENT:
+        printf("\tlw\t$t1,\t %d($fp)\t#Lit variable dans $t1\n", (adresseArgumentCourant - dico.tab[i].adresse));
+        break;
+      case C_VARIABLE_LOCALE:
+        printf("\tlw\t$t1,\t -%d($fp)\t#Lit variable dans $t1\n", (dico.tab[i].adresse + 8));
+        break;
+    }
+    //printf("\tlw\t$t%d, %s\t\t#lit variable dans $t%d\n", num_registre, n->u.var->nom, num_registre);
+    empiler("$t1");
+    reg = 1;
   }
   else if(n->type == opExp) affiche_opExp(n);
   else if(n->type == intExp){
     affiche_intExp(n);
-    printf("\tli\t$t%d, %d\n", num_registre, n->u.entier);
+    //printf("\tli\t$t%d, %d\n", num_registre, n->u.entier);
+    printf("\tli\t$t0,\t%d\t#ENTIER\n", n->u.entier);
+    empiler("$t0");
+    reg = 0;
   }
   else if(n->type == appelExp) affiche_appelExp(n);
   else if(n->type == lireExp) affiche_lireExp(n);
 
-  return num_registre;
+  //return num_registre;
+  return reg;
 }
 
 /*-------------------------------------------------------------------------*/
@@ -337,67 +380,100 @@ void affiche_opExp(n_exp *n)
   else if(n->u.opExp_.op == et) affiche_texte("et", trace_abs);
   else if(n->u.opExp_.op == non) affiche_texte("non", trace_abs);  
   
-  int reg_op1 = NULL;
-  int reg_op2 = NULL;
-
   if( n->u.opExp_.op1 != NULL ) {
-    reg_op1 = affiche_exp(n->u.opExp_.op1);
+    affiche_exp(n->u.opExp_.op1);
     //num_registre++;
   }
   
   if(n->u.opExp_.op == ou)
   {
     etiquette = new_etiquette("ou");
-    printf("\tli\t$t0,\t-1\t#OU\n");
-    printf("\tbeq\t$t%d,\t$t0,\t%s\n", reg_op1, etiquette);
-    printf("\tli\t$t0,\t0\n");
+
+    depiler("$t0");
+
+    printf("\tli\t$t2,\t0\t#OU\n");
+    printf("\tbne\t$t0,\t$t2,\t%s\n", etiquette);
+    printf("\tli\t$t2,\t-1\n");
   }
   else if(n->u.opExp_.op == et)
   {
     etiquette = new_etiquette("et");
-    printf("\tli\t$t0,\t0\t#ET\n");
-    printf("\tbeq\t$t%d,\t$t0,\t%s\n", reg_op1, etiquette);
-    printf("\tli\t$t0,\t0\n");
+
+    depiler("$t0");
+
+    printf("\tli\t$t2,\t0\t#ET\n");
+    printf("\tbeq\t$t0,\t$t2,\t%s\n", etiquette);
+    printf("\tli\t$t2,\t-1\n");
+  }
+  else if(n->u.opExp_.op == non)
+  {
+    etiquette = new_etiquette("non");
+
+    depiler("$t0");
+
+    printf("\tli\t$t2,\t0\t#NON\n");
+    printf("\tbne\t$t0,\t$t2,\t%s\n", etiquette);
+    printf("\tli\t$t2,\t-1\n");
+    printf("\t%s:\n", etiquette);
+    empiler("$t2");
   }
 
   if( n->u.opExp_.op2 != NULL ) {
-    reg_op2 = affiche_exp(n->u.opExp_.op2);
+    affiche_exp(n->u.opExp_.op2);
     //num_registre++;
   }
 
   if(n->u.opExp_.op == ou || n->u.opExp_.op == et)
   {
     printf("\t%s:\n", etiquette);
-    printf("\tmove\t$t%d,\t$t0\n", num_registre);
+    //printf("\tmove\t$t%d,\t$t0\n", num_registre);
+    empiler("$t2");
   }
 
 
-
-  //printf("1: %d | 2: %d | current : %d -------------------------\n", reg_op1, reg_op2, num_registre);
-
   if(n->u.opExp_.op == plus)
-    printf("\tadd\t$t%d,\t$t%d,\t$t%d\t#addition\n", num_registre, reg_op1, reg_op2);
+  {
+    depiler("$t1");
+    depiler("$t0");
+    printf("\tadd\t$t2,\t$t0,\t$t1\t#addition\n");
+    empiler("$t2");
+  }
   else if(n->u.opExp_.op == moins)
-    printf("\tsub\t$t%d,\t$t%d,\t$t%d\t#soustraction\n", num_registre, reg_op1, reg_op2);
+  {
+    depiler("$t1");
+    depiler("$t0");
+    printf("\tsub\t$t2,\t$t0,\t$t1\t#soustraction\n");
+    empiler("$t2");
+  }
   else if(n->u.opExp_.op == fois)
   {
-    printf("\tmult\t$t%d,\t$t%d\t#multiplication\n", reg_op1, reg_op2);
-    printf("\tmflo\t$t%d\t\t#récupère le résultat dans Lo\n", num_registre);
+    depiler("$t1");
+    depiler("$t0");
+    printf("\tmult\t$t0,\t$t1\t#multiplication\n");
+    printf("\tmflo\t$t2\t\t#récupère le résultat dans Lo\n");
+    empiler("$t2");
   }
   else if(n->u.opExp_.op == divise)
   {
-    printf("\tdiv\t$t%d,\t$t%d\t#division\n", reg_op1, reg_op2);
-    printf("\tmflo\t$t%d\t\t#récupère le résultat dans Lo\n", num_registre);
+    depiler("$t1");
+    depiler("$t0");
+    printf("\tdiv\t$t0,\t$t1\t#division\n");
+    printf("\tmflo\t$t2\t\t#récupère le résultat dans Lo\n");
+    empiler("$t2");
   }
   else if(n->u.opExp_.op == egal)
   {
     const char * egal_vrai = new_etiquette("egal");
 
-    printf("\tli\t$t0,\t-1\n");
-    printf("\tbeq\t$t%d,\t$t%d,\t%s\t#test égalité\n", reg_op1, reg_op2, egal_vrai);
-    printf("\tli\t$t0,\t0\n");
+    depiler("$t1");
+    depiler("$t0");
+
+    printf("\tli\t$t2,\t-1\n");
+    printf("\tbeq\t$t0,\t$t1,\t%s\t#test égalité\n", egal_vrai);
+    printf("\tli\t$t2,\t0\n");
     printf("\t%s:\n", egal_vrai);
-    printf("\tmove\t$t%d,\t$t0\n", num_registre);
+    //printf("\tmove\t$t%d,\t$t0\n", num_registre);
+    empiler("$t2");
   }
   else if(n->u.opExp_.op == diff)
   {
@@ -407,19 +483,19 @@ void affiche_opExp(n_exp *n)
   {
     const char * inf_vrai = new_etiquette("inf");
 
-    printf("\tli\t$t0,\t-1\n");
-    printf("\tblt\t$t%d,\t$t%d,\t%s\t#test inférieur\n", reg_op1, reg_op2, inf_vrai);
-    printf("\tli\t$t0,\t0\n");
+    depiler("$t1");
+    depiler("$t0");
+
+    printf("\tli\t$t2,\t-1\n");
+    printf("\tblt\t$t0,\t$t1,\t%s\t#test inférieur\n", inf_vrai);
+    printf("\tli\t$t2,\t0\n");
     printf("\t%s:\n", inf_vrai);
-    printf("\tmove\t$t%d,\t$t0\n", num_registre);
+    //printf("\tmove\t$t%d,\t$t0\n", num_registre);
+    empiler("$t2");
   }
   else if(n->u.opExp_.op == infeg)
   {
     //pas dans l'analyseur lexical
-  }
-  else if(n->u.opExp_.op == non)
-  {
-    
   }
 
   affiche_balise_fermante(fct, trace_abs);
@@ -440,9 +516,11 @@ void affiche_lireExp(n_exp *n)
   char *fct = "lireExp";
   affiche_balise_ouvrante(fct, trace_abs);
 
-  printf("\tli \t$v0, 5\n");
+  printf("\tli \t$v0, 5\t#LECTURE\n");
   printf("\tsyscall\n");
-  printf("\tmove \t$t%d, \t$v0\n", num_registre);
+  //printf("\tmove \t$t%d, \t$v0\n", num_registre);
+  empiler("$v0");
+
 
   affiche_balise_fermante(fct, trace_abs);
 
