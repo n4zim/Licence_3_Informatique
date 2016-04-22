@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "dico.h"
 #include "syntabs.h"
 #include "util.h"
@@ -40,7 +41,7 @@ int contexte = C_VARIABLE_GLOBALE;
 int adresseLocaleCourante = 0;
 int adresseArgumentCourant = 0;
 
-int num_registre = 0;
+int num_registre = 1;
 int num_etiquette = 0;
 
 char * new_etiquette(const char * nom){
@@ -48,7 +49,7 @@ char * new_etiquette(const char * nom){
 
   sprintf(str, "%s%d", nom, num_etiquette++);
 
-  return str;
+  return strdup(str);
 }
 
 /*-------------------------------------------------------------------------*/
@@ -294,7 +295,7 @@ int affiche_exp(n_exp *n)
 {
   if(n->type == varExp){
     affiche_varExp(n);
-    printf("\tlw\t$t%d, %s\t\t#lit variable dans $t%d\n",num_registre, n->u.var->nom, num_registre);
+    printf("\tlw\t$t%d, %s\t\t#lit variable dans $t%d\n", num_registre, n->u.var->nom, num_registre);
   }
   else if(n->type == opExp) affiche_opExp(n);
   else if(n->type == intExp){
@@ -317,6 +318,8 @@ void affiche_varExp(n_exp *n)
   affiche_balise_fermante(fct, trace_abs);
 }
 
+const char * etiquette = NULL;
+
 /*-------------------------------------------------------------------------*/
 void affiche_opExp(n_exp *n)
 {
@@ -333,12 +336,92 @@ void affiche_opExp(n_exp *n)
   else if(n->u.opExp_.op == ou) affiche_texte("ou", trace_abs);
   else if(n->u.opExp_.op == et) affiche_texte("et", trace_abs);
   else if(n->u.opExp_.op == non) affiche_texte("non", trace_abs);  
+  
+  int reg_op1 = NULL;
+  int reg_op2 = NULL;
+
   if( n->u.opExp_.op1 != NULL ) {
-    affiche_exp(n->u.opExp_.op1);
+    reg_op1 = affiche_exp(n->u.opExp_.op1);
+    //num_registre++;
   }
+  
+  if(n->u.opExp_.op == ou)
+  {
+    etiquette = new_etiquette("ou");
+    printf("\tli\t$t0,\t-1\t#OU\n");
+    printf("\tbeq\t$t%d,\t$t0,\t%s\n", reg_op1, etiquette);
+    printf("\tli\t$t0,\t0\n");
+  }
+  else if(n->u.opExp_.op == et)
+  {
+    etiquette = new_etiquette("et");
+    printf("\tli\t$t0,\t0\t#ET\n");
+    printf("\tbeq\t$t%d,\t$t0,\t%s\n", reg_op1, etiquette);
+    printf("\tli\t$t0,\t0\n");
+  }
+
   if( n->u.opExp_.op2 != NULL ) {
-    affiche_exp(n->u.opExp_.op2);
+    reg_op2 = affiche_exp(n->u.opExp_.op2);
+    //num_registre++;
   }
+
+  if(n->u.opExp_.op == ou || n->u.opExp_.op == et)
+  {
+    printf("\t%s:\n", etiquette);
+    printf("\tmove\t$t%d,\t$t0\n", num_registre);
+  }
+
+
+
+  //printf("1: %d | 2: %d | current : %d -------------------------\n", reg_op1, reg_op2, num_registre);
+
+  if(n->u.opExp_.op == plus)
+    printf("\tadd\t$t%d,\t$t%d,\t$t%d\t#addition\n", num_registre, reg_op1, reg_op2);
+  else if(n->u.opExp_.op == moins)
+    printf("\tsub\t$t%d,\t$t%d,\t$t%d\t#soustraction\n", num_registre, reg_op1, reg_op2);
+  else if(n->u.opExp_.op == fois)
+  {
+    printf("\tmult\t$t%d,\t$t%d\t#multiplication\n", reg_op1, reg_op2);
+    printf("\tmflo\t$t%d\t\t#récupère le résultat dans Lo\n", num_registre);
+  }
+  else if(n->u.opExp_.op == divise)
+  {
+    printf("\tdiv\t$t%d,\t$t%d\t#division\n", reg_op1, reg_op2);
+    printf("\tmflo\t$t%d\t\t#récupère le résultat dans Lo\n", num_registre);
+  }
+  else if(n->u.opExp_.op == egal)
+  {
+    const char * egal_vrai = new_etiquette("egal");
+
+    printf("\tli\t$t0,\t-1\n");
+    printf("\tbeq\t$t%d,\t$t%d,\t%s\t#test égalité\n", reg_op1, reg_op2, egal_vrai);
+    printf("\tli\t$t0,\t0\n");
+    printf("\t%s:\n", egal_vrai);
+    printf("\tmove\t$t%d,\t$t0\n", num_registre);
+  }
+  else if(n->u.opExp_.op == diff)
+  {
+    //Pas dans l'analyseur lexical
+  }
+  else if(n->u.opExp_.op == inf)
+  {
+    const char * inf_vrai = new_etiquette("inf");
+
+    printf("\tli\t$t0,\t-1\n");
+    printf("\tblt\t$t%d,\t$t%d,\t%s\t#test inférieur\n", reg_op1, reg_op2, inf_vrai);
+    printf("\tli\t$t0,\t0\n");
+    printf("\t%s:\n", inf_vrai);
+    printf("\tmove\t$t%d,\t$t0\n", num_registre);
+  }
+  else if(n->u.opExp_.op == infeg)
+  {
+    //pas dans l'analyseur lexical
+  }
+  else if(n->u.opExp_.op == non)
+  {
+    
+  }
+
   affiche_balise_fermante(fct, trace_abs);
 }
 

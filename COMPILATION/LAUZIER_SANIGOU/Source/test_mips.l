@@ -1,8 +1,8 @@
-entier $a[1], entier $b;
+entier $a, entier $b, entier $c;
 
 main()
 {
-	$a[0] = lire();
-	$b = $a[0] * $a[0];
+	$a = lire();
+	$b = $a +50 -10 *5;
 	ecrire( $b );
 }
