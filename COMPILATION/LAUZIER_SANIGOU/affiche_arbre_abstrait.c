@@ -62,6 +62,13 @@ void depiler(const char * reg){
   printf("\taddi\t$sp,\t$sp,\t4\n");
 }
 
+void mips_fin_func()
+{
+  depiler("$ra");
+  depiler("$fp");
+  printf("\tjr\t$ra\n");
+}
+
 /*-------------------------------------------------------------------------*/
 
 void affiche_n_prog(n_prog *n)
@@ -69,10 +76,16 @@ void affiche_n_prog(n_prog *n)
   char *fct = "prog";
   affiche_balise_ouvrante(fct, trace_abs);
 
-  printf("\t.data\n");
+  printf("\t\t.data\n");
   affiche_l_dec(n->variables);
 
   printf("\n\t.text\n");
+
+  printf("__start:\n");
+  printf("\tjal\tmain\n");
+  printf("\tli\t$v0,\t10\n");
+  printf("\tsyscall\t#stoppe l'execution du processus\n");
+
   affiche_l_dec(n->fonctions); 
 
   affiche_balise_fermante(fct, trace_abs);
@@ -124,16 +137,16 @@ void affiche_instr_si(n_instr *n)
   if(n->u.si_.sinon)
   {
     depiler("$t0");
-    printf("beq  $t0, $0, %s\t#SI (SINON)\n", eti_sinon);
+    printf("\tbeq  $t0, $0, %s\t#SI (SINON)\n", eti_sinon);
     affiche_instr(n->u.si_.alors);
-    printf("j\t%s\n", eti_si_end);
+    printf("\tj\t%s\n", eti_si_end);
     printf("%s:\n", eti_sinon);
     affiche_instr(n->u.si_.sinon);
   }
   else
   {
     depiler("$t0");
-    printf("beq  $t0, $0, %s\n", eti_si_end);
+    printf("\tbeq  $t0, $0, %s\n", eti_si_end);
     affiche_instr(n->u.si_.alors);
   }
 
@@ -157,11 +170,11 @@ void affiche_instr_tantque(n_instr *n)
   const char * eti_tq_end = new_etiquette("tqend");
 
   depiler("$t0");
-  printf("beq  $t0, $0, %s\n", eti_tq_end);
+  printf("\tbeq  $t0, $0, %s\n", eti_tq_end);
 
   affiche_instr(n->u.tantque_.faire);
 
-  printf("j\t%s\n", eti_tq);
+  printf("\tj\t%s\n", eti_tq);
   printf("%s:\n", eti_tq_end);
 
   affiche_balise_fermante(fct, trace_abs);
@@ -202,11 +215,40 @@ void affiche_instr_affect(n_instr *n)
   affiche_var(n->u.affecte_.var);
   affiche_exp(n->u.affecte_.exp);
 
-  //printf("\tsw\t$t%d, %s\t\t#enregistre la variable\n", num_registre, n->u.affecte_.var->nom);
-  //num_registre++;
-  depiler("$t1");
-  printf("\tsw\t$t1,\t%s\t#stocke la variable\n", n->u.affecte_.var->nom);
+  int i = rechercheExecutable(n->u.affecte_.var->nom);
 
+  if(n->u.affecte_.var->type == simple)
+  {
+    depiler("$t1");
+
+    switch(dico.tab[i].classe)
+    {
+      case C_VARIABLE_GLOBALE:
+        printf("\tsw\t$t1,\t%s\t#stocke la variable\n", n->u.affecte_.var->nom);
+        break;
+      case C_VARIABLE_LOCALE:
+        printf("\tsw\t$t1,\t-%d($fp)\t#stocke la variable\n", (dico.tab[i].adresse + 8));
+        break;
+    }
+  }
+  else
+  {
+    affiche_exp( n->u.affecte_.var->u.indicee_.indice );
+    
+    depiler("$t0"); //indice
+    printf("\tadd\t$t0,\t$t0,\t$t0\n");
+    printf("\tadd\t$t0,\t$t0,\t$t0\n");
+    depiler("$t1");
+
+    if(dico.tab[i].classe == C_VARIABLE_GLOBALE)
+    {
+      printf("\tsw\t$t1,\t%s($t0)\t\t#stocke variable\n", n->u.affecte_.var->nom);
+    }
+    else
+    {
+      //portée invalide (doit etre globale)
+    }
+  }
 
   affiche_balise_fermante(fct, trace_abs);
 }
@@ -231,13 +273,12 @@ void affiche_appel(n_appel *n)
   affiche_texte( n->fonction, trace_abs);
 
   int existe = rechercheExecutable(n->fonction);
+  int nbArguments = 0;
 
   if(existe != -1)
   {
     if(dico.tab[existe].type == T_FONCTION)
     {
-      int nbArguments = 0;
-
       n_l_exp* l = NULL;
 
       for(l = n->args; l != NULL; l = l->queue){
@@ -259,7 +300,17 @@ void affiche_appel(n_appel *n)
     //Fonction non déclarée
   }
 
+  printf("\tsubi\t$sp,\t$sp,\t4\t#allocation valeur de retour\n");
+
   affiche_l_exp(n->args);
+
+  printf("\tjal\t%s\n", n->fonction);
+
+  if(nbArguments > 0)
+    printf("\taddi\t$sp,\t$sp,\t%d\t#desallocation parametres\n", (nbArguments * 4));
+
+  printf("\taddi\t$sp,\t$sp\t4\t#valeur de retour ignoree\n");
+
   affiche_balise_fermante(fct, trace_abs);
 }
 
@@ -270,6 +321,12 @@ void affiche_instr_retour(n_instr *n)
   char *fct = "instr_retour";
   affiche_balise_ouvrante(fct, trace_abs);
   affiche_exp(n->u.retour_.expression);
+
+  depiler("$t0");
+  printf("\tsw\t$t0,\t%d($fp)\t\t#ecriture de la valeur de retour\n", (adresseArgumentCourant +4));
+
+  mips_fin_func();
+
   affiche_balise_fermante(fct, trace_abs);
 
 }
@@ -314,35 +371,13 @@ void affiche_l_exp(n_l_exp *n)
 int affiche_exp(n_exp *n)
 {
   int reg = 0;
-  if(n->type == varExp){
-    affiche_varExp(n);
-
-    char * nom = n->u.var->nom;
-    int i = rechercheExecutable(nom);
-
-    switch(dico.tab[i].classe)
-    {
-      case C_VARIABLE_GLOBALE:
-        printf("\tlw\t$t1,\t %s\t#Lit variable dans $t1\n", n->u.var->nom);
-        break;
-      case C_ARGUMENT:
-        printf("\tlw\t$t1,\t %d($fp)\t#Lit variable dans $t1\n", (adresseArgumentCourant - dico.tab[i].adresse));
-        break;
-      case C_VARIABLE_LOCALE:
-        printf("\tlw\t$t1,\t -%d($fp)\t#Lit variable dans $t1\n", (dico.tab[i].adresse + 8));
-        break;
-    }
-    //printf("\tlw\t$t%d, %s\t\t#lit variable dans $t%d\n", num_registre, n->u.var->nom, num_registre);
-    empiler("$t1");
-    reg = 1;
-  }
+  if(n->type == varExp) affiche_varExp(n);
   else if(n->type == opExp) affiche_opExp(n);
   else if(n->type == intExp){
     affiche_intExp(n);
     //printf("\tli\t$t%d, %d\n", num_registre, n->u.entier);
     printf("\tli\t$t0,\t%d\t#ENTIER\n", n->u.entier);
     empiler("$t0");
-    reg = 0;
   }
   else if(n->type == appelExp) affiche_appelExp(n);
   else if(n->type == lireExp) affiche_lireExp(n);
@@ -414,7 +449,7 @@ void affiche_opExp(n_exp *n)
     printf("\tli\t$t2,\t0\t#NON\n");
     printf("\tbne\t$t0,\t$t2,\t%s\n", etiquette);
     printf("\tli\t$t2,\t-1\n");
-    printf("\t%s:\n", etiquette);
+    printf("%s:\n", etiquette);
     empiler("$t2");
   }
 
@@ -425,7 +460,7 @@ void affiche_opExp(n_exp *n)
 
   if(n->u.opExp_.op == ou || n->u.opExp_.op == et)
   {
-    printf("\t%s:\n", etiquette);
+    printf("%s:\n", etiquette);
     //printf("\tmove\t$t%d,\t$t0\n", num_registre);
     empiler("$t2");
   }
@@ -471,7 +506,7 @@ void affiche_opExp(n_exp *n)
     printf("\tli\t$t2,\t-1\n");
     printf("\tbeq\t$t0,\t$t1,\t%s\t#test égalité\n", egal_vrai);
     printf("\tli\t$t2,\t0\n");
-    printf("\t%s:\n", egal_vrai);
+    printf("%s:\n", egal_vrai);
     //printf("\tmove\t$t%d,\t$t0\n", num_registre);
     empiler("$t2");
   }
@@ -489,7 +524,7 @@ void affiche_opExp(n_exp *n)
     printf("\tli\t$t2,\t-1\n");
     printf("\tblt\t$t0,\t$t1,\t%s\t#test inférieur\n", inf_vrai);
     printf("\tli\t$t2,\t0\n");
-    printf("\t%s:\n", inf_vrai);
+    printf("%s:\n", inf_vrai);
     //printf("\tmove\t$t%d,\t$t0\n", num_registre);
     empiler("$t2");
   }
@@ -576,6 +611,11 @@ void affiche_foncDec(n_dec *n)
   affiche_balise_ouvrante(fct, trace_abs);
   affiche_texte( n->nom, trace_abs );
 
+  printf("%s:\n", n->nom);
+  empiler("$fp");
+  printf("\tmove\t$fp,\t$sp\t\t#nouvelle valeur de $fp\n");
+  empiler("$ra");
+
   int existe = rechercheDeclarative(n->nom);
 
   if(existe == -1)
@@ -598,6 +638,10 @@ void affiche_foncDec(n_dec *n)
     contexte = C_VARIABLE_LOCALE;
 
     affiche_l_dec(n->u.foncDec_.variables);
+
+    if(adresseLocaleCourante != 0)
+      printf("\tsubi\t$sp,\t$sp,\t%d\t#allocation variables locales\n", adresseLocaleCourante);
+
     affiche_instr(n->u.foncDec_.corps);
 
     affiche_balise_fermante(fct, trace_abs);
@@ -606,6 +650,11 @@ void affiche_foncDec(n_dec *n)
       affiche_dico();
 
     sortieFonction();
+
+    if(adresseLocaleCourante > 0)
+      printf("\taddi\t$sp,\t$sp,\t%d\t#desallocation variables locales\n", adresseLocaleCourante);
+  
+    mips_fin_func();
   }
   else
   {
@@ -635,13 +684,13 @@ void affiche_varDec(n_dec *n)
       {
         adresse = adresseLocaleCourante;
         adresseLocaleCourante = adresseLocaleCourante + 4;
+        printf("\t%s:\t.space\t4\n", n->nom);
       }
       else
       {
         adresse = adresseLocaleCourante;
         adresseLocaleCourante = adresseLocaleCourante + 4;
       }
-      printf("\t%s:\t.space\t4\n", n->nom);
 
       ajouteIdentificateur(n->nom, contexte, T_ENTIER, adresse, -1);
     }
@@ -672,7 +721,7 @@ void affiche_tabDec(n_dec *n)
 
     if(existe == -1)
     {
-      printf("\t%s:\t.space\t%d\n", n->nom, n->u.tabDec_.taille*4);
+      printf("%s:\t.space\t%d\n", n->nom, n->u.tabDec_.taille*4);
       ajouteIdentificateur(n->nom, C_VARIABLE_GLOBALE, T_TABLEAU_ENTIER, adresseLocaleCourante, n->u.tabDec_.taille);
       adresseLocaleCourante += (4*n->u.tabDec_.taille);
     }
@@ -720,6 +769,26 @@ void affiche_var_simple(n_var *n)
     exit(1);
     }
   }
+
+  char * nom = n->nom;
+  int i = rechercheExecutable(nom);
+
+  switch(dico.tab[i].classe)
+  {
+    case C_VARIABLE_GLOBALE:
+      printf("\tlw\t$t1,\t%s\t\t#Lit variable dans $t1\n", n->nom);
+      empiler("$t1");
+      break;
+    case C_ARGUMENT:
+      printf("\tlw\t$t1,\t%d($fp)\t\t#Lit variable dans $t1\n", (adresseArgumentCourant - dico.tab[i].adresse));
+      empiler("$t1");
+      break;
+    case C_VARIABLE_LOCALE:
+      //printf("\tli\t$t0,\t0\n");
+      printf("\tlw\t$t1,\t-%d($fp)\t\t#Lit variable dans $t1\n", (dico.tab[i].adresse + 8));
+      empiler("$t1");
+      break;
+  }
 }
 
 /*-------------------------------------------------------------------------*/
@@ -728,7 +797,7 @@ void affiche_var_indicee(n_var *n)
   char *fct = "var_indicee";
   affiche_balise_ouvrante(fct, trace_abs);
   affiche_element("var_base_tableau", n->nom, trace_abs);
-  affiche_exp( n->u.indicee_.indice );
+  //affiche_exp( n->u.indicee_.indice );
   affiche_balise_fermante(fct, trace_abs);
 
   int existe = rechercheExecutable(n->nom);
@@ -745,5 +814,18 @@ void affiche_var_indicee(n_var *n)
     exit(1);
     }
   }
+
+  // depiler("$t0");
+  // printf("\tadd\t$t0,\t$t0,\t$t0\n");
+  // printf("\tadd\t$t0,\t$t0,\t$t0\n");
+
+  // if(dico.tab[existe].classe == C_VARIABLE_GLOBALE)
+  // {
+  //   printf("\tlw\t$t1,\t%s($t0)\t#lit variable dans $t1\n", n->nom);
+  // }
+  // else
+  // {
+  //   //Portée invalide (doit etre globale)
+  // }
 }
 /*-------------------------------------------------------------------------*/

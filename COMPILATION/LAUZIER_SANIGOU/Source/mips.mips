@@ -1,0 +1,490 @@
+		.data
+$tab:	.space	40
+
+	.text
+__start:
+	jal	main
+	li	$v0,	10
+	syscall	#stoppe l'execution du processus
+initialiser:
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$fp,	0($sp)
+	move	$fp,	$sp		#nouvelle valeur de $fp
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$ra,	0($sp)
+	li	$t0,	8	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	li	$t0,	0	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	lw	$t0,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	add	$t0,	$t0,	$t0
+	add	$t0,	$t0,	$t0
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	sw	$t1,	$tab($t0)		#stocke variable
+	li	$t0,	6	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	li	$t0,	1	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	lw	$t0,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	add	$t0,	$t0,	$t0
+	add	$t0,	$t0,	$t0
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	sw	$t1,	$tab($t0)		#stocke variable
+	li	$t0,	9	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	li	$t0,	2	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	lw	$t0,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	add	$t0,	$t0,	$t0
+	add	$t0,	$t0,	$t0
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	sw	$t1,	$tab($t0)		#stocke variable
+	li	$t0,	9	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	li	$t0,	3	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	lw	$t0,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	add	$t0,	$t0,	$t0
+	add	$t0,	$t0,	$t0
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	sw	$t1,	$tab($t0)		#stocke variable
+	li	$t0,	4	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	li	$t0,	4	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	lw	$t0,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	add	$t0,	$t0,	$t0
+	add	$t0,	$t0,	$t0
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	sw	$t1,	$tab($t0)		#stocke variable
+	li	$t0,	2	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	li	$t0,	5	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	lw	$t0,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	add	$t0,	$t0,	$t0
+	add	$t0,	$t0,	$t0
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	sw	$t1,	$tab($t0)		#stocke variable
+	li	$t0,	3	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	li	$t0,	6	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	lw	$t0,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	add	$t0,	$t0,	$t0
+	add	$t0,	$t0,	$t0
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	sw	$t1,	$tab($t0)		#stocke variable
+	li	$t0,	1	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	li	$t0,	7	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	lw	$t0,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	add	$t0,	$t0,	$t0
+	add	$t0,	$t0,	$t0
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	sw	$t1,	$tab($t0)		#stocke variable
+	li	$t0,	4	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	li	$t0,	8	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	lw	$t0,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	add	$t0,	$t0,	$t0
+	add	$t0,	$t0,	$t0
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	sw	$t1,	$tab($t0)		#stocke variable
+	li	$t0,	5	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	li	$t0,	9	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	lw	$t0,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	add	$t0,	$t0,	$t0
+	add	$t0,	$t0,	$t0
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	sw	$t1,	$tab($t0)		#stocke variable
+	lw	$ra,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	lw	$fp,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	jr	$ra
+afficher:
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$fp,	0($sp)
+	move	$fp,	$sp		#nouvelle valeur de $fp
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$ra,	0($sp)
+	subi	$sp,	$sp,	4	#allocation variables locales
+	lw	$t1,	-8($fp)		#Lit variable dans $t1
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t1,	0($sp)
+	li	$t0,	0	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	sw	$t1,	-8($fp)	#stocke la variable
+tq0:
+	lw	$t1,	-8($fp)		#Lit variable dans $t1
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t1,	0($sp)
+	lw	$t1,	4($fp)		#Lit variable dans $t1
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t1,	0($sp)
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	lw	$t0,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	li	$t2,	-1
+	blt	$t0,	$t1,	inf1	#test inférieur
+	li	$t2,	0
+inf1:
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t2,	0($sp)
+	lw	$t0,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	beq  $t0, $0, tqend2
+	lw	$a0,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	li	$v0, 1
+	syscall			# ecriture
+	li	$a0, '\n'
+	li	$v0, 11
+	syscall			# ecrit caractère
+	lw	$t1,	-8($fp)		#Lit variable dans $t1
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t1,	0($sp)
+	lw	$t1,	-8($fp)		#Lit variable dans $t1
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t1,	0($sp)
+	li	$t0,	1	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	lw	$t0,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	add	$t2,	$t0,	$t1	#addition
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t2,	0($sp)
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	sw	$t1,	-8($fp)	#stocke la variable
+	j	tq0
+tqend2:
+	li	$t0,	0	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	lw	$a0,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	li	$v0, 1
+	syscall			# ecriture
+	li	$a0, '\n'
+	li	$v0, 11
+	syscall			# ecrit caractère
+	addi	$sp,	$sp,	4	#desallocation variables locales
+	lw	$ra,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	lw	$fp,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	jr	$ra
+echanger:
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$fp,	0($sp)
+	move	$fp,	$sp		#nouvelle valeur de $fp
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$ra,	0($sp)
+	subi	$sp,	$sp,	4	#allocation variables locales
+	lw	$t1,	-8($fp)		#Lit variable dans $t1
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t1,	0($sp)
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	sw	$t1,	-8($fp)	#stocke la variable
+	lw	$t1,	4($fp)		#Lit variable dans $t1
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t1,	0($sp)
+	lw	$t0,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	add	$t0,	$t0,	$t0
+	add	$t0,	$t0,	$t0
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	sw	$t1,	$tab($t0)		#stocke variable
+	lw	$t1,	-8($fp)		#Lit variable dans $t1
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t1,	0($sp)
+	lw	$t1,	8($fp)		#Lit variable dans $t1
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t1,	0($sp)
+	lw	$t0,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	add	$t0,	$t0,	$t0
+	add	$t0,	$t0,	$t0
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	sw	$t1,	$tab($t0)		#stocke variable
+	addi	$sp,	$sp,	4	#desallocation variables locales
+	lw	$ra,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	lw	$fp,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	jr	$ra
+trier:
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$fp,	0($sp)
+	move	$fp,	$sp		#nouvelle valeur de $fp
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$ra,	0($sp)
+	subi	$sp,	$sp,	12	#allocation variables locales
+	lw	$t1,	-16($fp)		#Lit variable dans $t1
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t1,	0($sp)
+	lw	$t1,	4($fp)		#Lit variable dans $t1
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t1,	0($sp)
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	sw	$t1,	-16($fp)	#stocke la variable
+	lw	$t1,	-8($fp)		#Lit variable dans $t1
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t1,	0($sp)
+	li	$t0,	1	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	sw	$t1,	-8($fp)	#stocke la variable
+tq3:
+	lw	$t1,	-8($fp)		#Lit variable dans $t1
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t1,	0($sp)
+	li	$t0,	1	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	lw	$t0,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	li	$t2,	-1
+	beq	$t0,	$t1,	egal4	#test égalité
+	li	$t2,	0
+egal4:
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t2,	0($sp)
+	lw	$t0,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	beq  $t0, $0, tqend5
+	lw	$t1,	-8($fp)		#Lit variable dans $t1
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t1,	0($sp)
+	li	$t0,	0	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	sw	$t1,	-8($fp)	#stocke la variable
+	lw	$t1,	-12($fp)		#Lit variable dans $t1
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t1,	0($sp)
+	li	$t0,	0	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	sw	$t1,	-12($fp)	#stocke la variable
+tq6:
+	lw	$t1,	-12($fp)		#Lit variable dans $t1
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t1,	0($sp)
+	lw	$t1,	-16($fp)		#Lit variable dans $t1
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t1,	0($sp)
+	li	$t0,	1	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	lw	$t0,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	sub	$t2,	$t0,	$t1	#soustraction
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t2,	0($sp)
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	lw	$t0,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	li	$t2,	-1
+	blt	$t0,	$t1,	inf7	#test inférieur
+	li	$t2,	0
+inf7:
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t2,	0($sp)
+	lw	$t0,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	beq  $t0, $0, tqend8
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	lw	$t0,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	li	$t2,	-1
+	blt	$t0,	$t1,	inf11	#test inférieur
+	li	$t2,	0
+inf11:
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t2,	0($sp)
+	lw	$t0,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	beq  $t0, $0, siend9
+	subi	$sp,	$sp,	4	#allocation valeur de retour
+	lw	$t1,	-12($fp)		#Lit variable dans $t1
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t1,	0($sp)
+	lw	$t1,	-12($fp)		#Lit variable dans $t1
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t1,	0($sp)
+	li	$t0,	1	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	lw	$t0,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	add	$t2,	$t0,	$t1	#addition
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t2,	0($sp)
+	jal	echanger
+	addi	$sp,	$sp,	8	#desallocation parametres
+	addi	$sp,	$sp	4	#valeur de retour ignoree
+	lw	$t1,	-8($fp)		#Lit variable dans $t1
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t1,	0($sp)
+	li	$t0,	1	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	sw	$t1,	-8($fp)	#stocke la variable
+siend9:
+	lw	$t1,	-12($fp)		#Lit variable dans $t1
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t1,	0($sp)
+	lw	$t1,	-12($fp)		#Lit variable dans $t1
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t1,	0($sp)
+	li	$t0,	1	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	lw	$t0,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	add	$t2,	$t0,	$t1	#addition
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t2,	0($sp)
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	sw	$t1,	-12($fp)	#stocke la variable
+	j	tq6
+tqend8:
+	lw	$t1,	-16($fp)		#Lit variable dans $t1
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t1,	0($sp)
+	lw	$t1,	-16($fp)		#Lit variable dans $t1
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t1,	0($sp)
+	li	$t0,	1	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	lw	$t0,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	sub	$t2,	$t0,	$t1	#soustraction
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t2,	0($sp)
+	lw	$t1,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	sw	$t1,	-16($fp)	#stocke la variable
+	j	tq3
+tqend5:
+	addi	$sp,	$sp,	12	#desallocation variables locales
+	lw	$ra,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	lw	$fp,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	jr	$ra
+main:
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$fp,	0($sp)
+	move	$fp,	$sp		#nouvelle valeur de $fp
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$ra,	0($sp)
+	subi	$sp,	$sp,	4	#allocation valeur de retour
+	jal	initialiser
+	addi	$sp,	$sp	4	#valeur de retour ignoree
+	subi	$sp,	$sp,	4	#allocation valeur de retour
+	li	$t0,	10	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	jal	afficher
+	addi	$sp,	$sp,	4	#desallocation parametres
+	addi	$sp,	$sp	4	#valeur de retour ignoree
+	subi	$sp,	$sp,	4	#allocation valeur de retour
+	li	$t0,	10	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	jal	trier
+	addi	$sp,	$sp,	4	#desallocation parametres
+	addi	$sp,	$sp	4	#valeur de retour ignoree
+	subi	$sp,	$sp,	4	#allocation valeur de retour
+	li	$t0,	10	#ENTIER
+	subi	$sp,	$sp,	4	#EMPILER
+	sw	$t0,	0($sp)
+	jal	afficher
+	addi	$sp,	$sp,	4	#desallocation parametres
+	addi	$sp,	$sp	4	#valeur de retour ignoree
+	lw	$ra,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	lw	$fp,	0($sp)	#DEPILER
+	addi	$sp,	$sp,	4
+	jr	$ra
