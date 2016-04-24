@@ -33,7 +33,6 @@ void affiche_var_indicee(n_var *n);
 void affiche_appel(n_appel *n);
 
 int trace_abs = 0;
-
 int courantVar = C_VARIABLE_GLOBALE;
 int courantAdrLoc = 0;
 int courantAdrArg = 0;
@@ -43,11 +42,11 @@ int courantAdrArg = 0;
 void affiche_n_prog(n_prog *n) {
     char *fct = "prog";
     affiche_balise_ouvrante(fct, trace_abs);
+
     affiche_l_dec(n->variables);
+
     affiche_l_dec(n->fonctions);
     affiche_balise_fermante(fct, trace_abs);
-
-    affiche_dico();
 }
 
 /*-------------------------------------------------------------------------*/
@@ -316,7 +315,7 @@ void affiche_foncDec(n_dec *n) {
         affiche_instr(n->u.foncDec_.corps);
         affiche_balise_fermante(fct, trace_abs);
 
-        affiche_dico();
+        //affiche_dico();
 
         sortieFonction();
     } else {

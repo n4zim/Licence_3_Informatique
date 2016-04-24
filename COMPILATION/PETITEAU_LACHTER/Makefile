@@ -3,7 +3,7 @@ CC = gcc
 LIBS = -lm 
 CCFLAGS = -Wall -ggdb
 
-OBJ = util.o premiers.o suivants.o analyseur_syntaxique.o analyseur_lexical.o affiche_arbre_abstrait.o syntabs.o dico.o
+OBJ = util.o premiers.o suivants.o analyseur_syntaxique.o analyseur_lexical.o syntabs.o dico.o parcours_mips.o
 
 all: test_yylex
 
@@ -22,10 +22,10 @@ premiers.o: premiers.c
 suivants.o: suivants.c
 	$(CC) $(CCFLAGS) -c $^
 
-affiche_arbre_abstrait.o: affiche_arbre_abstrait.c
+syntabs.o: syntabs.c
 	$(CC) $(CCFLAGS) -c $^
 
-syntabs.o: syntabs.c
+parcours_mips.o: parcours_mips.c
 	$(CC) $(CCFLAGS) -c $^
 
 dico.o: dico.c

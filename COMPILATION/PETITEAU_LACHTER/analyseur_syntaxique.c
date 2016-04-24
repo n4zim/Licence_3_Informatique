@@ -5,6 +5,7 @@
 #include "affiche_arbre_abstrait.h"
 #include "analyseur_lexical.h"
 #include "symboles.h"
+#include "parcours_mips.h"
 #include "util.h"
 #include "premiers.h"
 #include "suivants.h"
@@ -22,8 +23,8 @@ void analyseur_syntaxique(void) {
 	uniteCourante = yylex();
 	n_prog * pg = PG();
 	printf("La syntaxe gère un max. #CestCool #Pèse #YOLO\n\n");
-	printf("Arbre abstrait : \n");
-	affiche_n_prog(pg);
+	//printf("Arbre abstrait : \n");
+	parcours_n_prog(pg);
 }
 
 void error(const char * f, const char * s) {
