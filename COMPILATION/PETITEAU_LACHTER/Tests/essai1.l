@@ -1,24 +1,10 @@
-entier $c;
-
-initialiser()
-{
-}
-
-afficher( entier $n )
-{
-
-}
-
-incrementer( )
-{
-
-}
+entier $tab[3];
 
 main()
 {
-    initialiser();
-    incrementer();
-    afficher($c);
+   $tab[0] = 8;
+   $tab[2] = 5;
+   ecrire($tab[0]);
 }
 
   

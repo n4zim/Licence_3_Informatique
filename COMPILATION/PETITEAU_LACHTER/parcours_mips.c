@@ -170,8 +170,9 @@ void parcours_instr_pour(n_instr *n)                /* MODIFIE POUR EVAL */
 
 void parcours_instr_affect(n_instr *n) {
 
-    parcours_var(n->u.affecte_.var);
     parcours_exp(n->u.affecte_.exp);
+    parcours_var(n->u.affecte_.var);
+    
 
     n_var* var = n->u.affecte_.var;
 
@@ -192,7 +193,7 @@ void parcours_instr_affect(n_instr *n) {
                 exit(1);
         }
     } else {
-        parcours_exp(var->u.indicee_.indice);
+        //parcours_exp(var->u.indicee_.indice);
 
         depile("$t0");
 
@@ -331,7 +332,7 @@ void parcours_varExp(n_exp *n) {
         }
         empile("$t1");
     } else {
-        parcours_exp(n->u.var->u.indicee_.indice);
+        //parcours_exp(n->u.var->u.indicee_.indice);
 
         depile("$t0");
 
@@ -604,7 +605,7 @@ void parcours_tabDec(n_dec *n) {
 
 void parcours_var(n_var *n) {
     if(n->type == simple) parcours_var_simple(n);
-        else if(n->type == indicee) parcours_var_indicee(n);
+    else if(n->type == indicee) parcours_var_indicee(n);
 }
 
 /*-------------------------------------------------------------------------*/
