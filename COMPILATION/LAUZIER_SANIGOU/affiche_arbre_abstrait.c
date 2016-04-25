@@ -29,9 +29,9 @@ void affiche_dec(n_dec *n);
 void affiche_foncDec(n_dec *n);
 void affiche_varDec(n_dec *n);
 void affiche_tabDec(n_dec *n);
-void affiche_var(n_var *n);
-void affiche_var_simple(n_var *n);
-void affiche_var_indicee(n_var *n);
+void affiche_var(n_var *n, int isRead);
+void affiche_var_simple(n_var *n,int isRead);
+void affiche_var_indicee(n_var *n, int isRead);
 void affiche_appel(n_appel *n);
 
 int trace_abs = 0;
@@ -212,7 +212,7 @@ void affiche_instr_affect(n_instr *n)
   affiche_balise_ouvrante(fct, trace_abs);
 
 
-  affiche_var(n->u.affecte_.var);
+  affiche_var(n->u.affecte_.var, 0);
   affiche_exp(n->u.affecte_.exp);
 
   int i = rechercheExecutable(n->u.affecte_.var->nom);
@@ -233,7 +233,7 @@ void affiche_instr_affect(n_instr *n)
   }
   else
   {
-    affiche_exp( n->u.affecte_.var->u.indicee_.indice );
+    //affiche_exp( n->u.affecte_.var->u.indicee_.indice ); //test bordel
     
     depiler("$t0"); //indice
     printf("\tadd\t$t0,\t$t0,\t$t0\n");
@@ -392,7 +392,7 @@ void affiche_varExp(n_exp *n)
 {
   char *fct = "varExp";
   affiche_balise_ouvrante(fct, trace_abs);
-  affiche_var(n->u.var);
+  affiche_var(n->u.var, 1);
   affiche_balise_fermante(fct, trace_abs);
 }
 
@@ -740,18 +740,18 @@ void affiche_tabDec(n_dec *n)
 
 /*-------------------------------------------------------------------------*/
 
-void affiche_var(n_var *n)
+void affiche_var(n_var *n, int isRead)
 {
   if(n->type == simple) {
-    affiche_var_simple(n);
+    affiche_var_simple(n, isRead);
   }
   else if(n->type == indicee) {
-    affiche_var_indicee(n);
+    affiche_var_indicee(n, isRead);
   }
 }
 
 /*-------------------------------------------------------------------------*/
-void affiche_var_simple(n_var *n)
+void affiche_var_simple(n_var *n, int isRead)
 {
   affiche_element("var_simple", n->nom, trace_abs);
 
@@ -773,6 +773,9 @@ void affiche_var_simple(n_var *n)
   char * nom = n->nom;
   int i = rechercheExecutable(nom);
 
+  if(!isRead)
+    return;
+
   switch(dico.tab[i].classe)
   {
     case C_VARIABLE_GLOBALE:
@@ -792,12 +795,12 @@ void affiche_var_simple(n_var *n)
 }
 
 /*-------------------------------------------------------------------------*/
-void affiche_var_indicee(n_var *n)
+void affiche_var_indicee(n_var *n, int isRead)
 {
   char *fct = "var_indicee";
   affiche_balise_ouvrante(fct, trace_abs);
   affiche_element("var_base_tableau", n->nom, trace_abs);
-  //affiche_exp( n->u.indicee_.indice );
+  affiche_exp( n->u.indicee_.indice ); //test bordel
   affiche_balise_fermante(fct, trace_abs);
 
   int existe = rechercheExecutable(n->nom);
@@ -814,6 +817,9 @@ void affiche_var_indicee(n_var *n)
     exit(1);
     }
   }
+
+  if(!isRead)
+    return;
 
   // depiler("$t0");
   // printf("\tadd\t$t0,\t$t0,\t$t0\n");
