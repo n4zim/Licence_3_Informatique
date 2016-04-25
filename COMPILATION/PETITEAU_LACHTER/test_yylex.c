@@ -12,6 +12,11 @@ int main(int argc, char **argv) {
     //char nom[100];
     //char valeur[100];
 
+    if(argc <= 1) {
+        fprintf(stderr, "Il manque un argument : le programme doit connaitre le fichier à analyser (./test_yylex Tests/[...])\n");
+        exit(1);
+    }
+
     yyin = fopen(argv[1], "r");
     if(yyin == NULL){
         fprintf(stderr, "Impossible d'ouvrir le fichier %s\n", argv[1]);
