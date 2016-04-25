@@ -30,7 +30,7 @@ void parcours_tabDec(n_dec *n);
 void parcours_var(n_var *n);
 void parcours_var_simple(n_var *n);
 void parcours_var_indicee(n_var *n);
-void parcours_appel(n_appel *n);
+void parcours_appel(n_appel *n, int);
 
 int courantVar = C_VARIABLE_GLOBALE;
 int courantAdrLoc = 0;
@@ -38,12 +38,12 @@ int courantAdrArg = 0;
 static int courantLabel = 0;
 
 
-void pop_reg(const char* r) {
+void depile(const char* r) {
     printf("\tlw %s, 0($sp)\n", r);
     printf("\taddi $sp, $sp, 4\n");
 }
 
-void stack_reg(const char* r) {
+void empile(const char* r) {
     printf("\tsubi $sp, $sp, 4\n");
     printf("\tsw %s, 0($sp)\n", r);
 }
@@ -57,7 +57,10 @@ void parcours_n_prog(n_prog *n) {
     parcours_l_dec(n->variables);
 
     printf("\n.text\n");
-    //printf("\n__start:\n\tjal main\n\tli $v0, 10\n\tsyscall\n");
+    printf("\n__start:\n");
+    printf("\tjal main\n");
+    printf("\tli $v0, 10\n");
+    printf("\tsyscall\n");
 
     parcours_l_dec(n->fonctions);   
 }
@@ -99,34 +102,68 @@ void parcours_instr(n_instr *n) {
 /*-------------------------------------------------------------------------*/
 
 void parcours_instr_si(n_instr *n) {
+    int sinon = courantLabel;
+    courantLabel++;
+    int finSi = courantLabel;
+    courantLabel++;
+
     parcours_exp(n->u.si_.test);
+
+    depile("$t0");
+
+    if(n->u.si_.sinon) printf("\tbeq $t0, $zero, e%d\n", sinon);
+    else printf("\tbeq $t0, $zero, e%d\n", finSi);
+
     parcours_instr(n->u.si_.alors);
-    if(n->u.si_.sinon) parcours_instr(n->u.si_.sinon);    
+
+    if(n->u.si_.sinon) {
+        printf("\tj e%d\n", finSi);
+        printf("\ne%d:\n", sinon);
+
+        parcours_instr(n->u.si_.sinon);
+    }
+
+    printf("\ne%d:\n", finSi);
 }
 
 /*-------------------------------------------------------------------------*/
 
 void parcours_instr_tantque(n_instr *n) {
+    int debutTq = courantLabel;
+    courantLabel++;
+    int finTq = courantLabel;
+    courantLabel++;
+
+    printf("\ne%d:\n", debutTq);
+
     parcours_exp(n->u.tantque_.test);
+
+    depile("$t0");
+    printf("\tbeq $t0, $zero, e%d\n", finTq);
+
     parcours_instr(n->u.tantque_.faire);
+
+    printf("\tj e%d\n", debutTq);
+    printf("\ne%d:\n", finTq);
+
 }
 
 /*-------------------------------------------------------------------------*/
 
 void parcours_instr_faire(n_instr *n)          /* MODIFIE POUR EVAL */
 {                                             /* MODIFIE POUR EVAL */
-parcours_instr(n->u.faire_.faire);          /* MODIFIE POUR EVAL */
-parcours_exp(n->u.faire_.test);             /* MODIFIE POUR EVAL */
+    parcours_instr(n->u.faire_.faire);          /* MODIFIE POUR EVAL */
+    parcours_exp(n->u.faire_.test);             /* MODIFIE POUR EVAL */
 }                                             /* MODIFIE POUR EVAL */
 
 /*-------------------------------------------------------------------------*/
 
 void parcours_instr_pour(n_instr *n)                /* MODIFIE POUR EVAL */
 {                                                  /* MODIFIE POUR EVAL */
-parcours_instr(n->u.pour_.init);                 /* MODIFIE POUR EVAL */
-parcours_exp(n->u.pour_.test);                   /* MODIFIE POUR EVAL */
-parcours_instr(n->u.pour_.faire);                /* MODIFIE POUR EVAL */
-parcours_instr(n->u.pour_.incr);                 /* MODIFIE POUR EVAL */
+    parcours_instr(n->u.pour_.init);                 /* MODIFIE POUR EVAL */
+    parcours_exp(n->u.pour_.test);                   /* MODIFIE POUR EVAL */
+    parcours_instr(n->u.pour_.faire);                /* MODIFIE POUR EVAL */
+    parcours_instr(n->u.pour_.incr);                 /* MODIFIE POUR EVAL */
 }                                                  /* MODIFIE POUR EVAL */
 
 /*-------------------------------------------------------------------------*/
@@ -136,15 +173,13 @@ void parcours_instr_affect(n_instr *n) {
     parcours_var(n->u.affecte_.var);
     parcours_exp(n->u.affecte_.exp);
 
-    printf("\n\n");
-
     n_var* var = n->u.affecte_.var;
 
     int i = rechercheExecutable(var->nom);
     if(i == -1) exit(1);
 
     if(var->type == simple) {
-        pop_reg("$t1");
+        depile("$t1");
 
         switch(dico.tab[i].classe){
             case C_VARIABLE_GLOBALE:
@@ -159,12 +194,12 @@ void parcours_instr_affect(n_instr *n) {
     } else {
         parcours_exp(var->u.indicee_.indice);
 
-        pop_reg("$t0");
+        depile("$t0");
 
         printf("\tadd $t0, $t0, $t0\n");
         printf("\tadd $t0, $t0, $t0\n");
 
-        pop_reg("$t1");
+        depile("$t1");
 
         switch(dico.tab[i].classe){
             case C_VARIABLE_GLOBALE:
@@ -180,37 +215,58 @@ void parcours_instr_affect(n_instr *n) {
 
 void parcours_instr_appel(n_instr *n) {
 
-    parcours_appel(n->u.appel);
+    parcours_appel(n->u.appel, 0);
     
 }
 /*-------------------------------------------------------------------------*/
 
-void parcours_appel(n_appel *n) {
+void parcours_appel(n_appel *n, int estExp) {
     int existe = rechercheExecutable(n->fonction);
     if(existe != -1) {
         if(dico.tab[existe].type == T_FONCTION) {
+            printf("\tsubi $sp, $sp, 4\n");
+
             int nbArgs = 0;
+
             n_l_exp* l = NULL;
-            for(l = n->args;l != NULL;l = l->queue) nbArgs++;
-            if(dico.tab[existe].complement != nbArgs) {
-                printf("\n--> /!\\ Erreur sur le nombre d'arguments\n");
+
+            for(l = n->args;l != NULL;l = l->queue) {
+                nbArgs++;
+                parcours_exp(l->tete);
             }
+
+            if(dico.tab[existe].complement != nbArgs) printf("\n--> /!\\ Erreur sur le nombre d'arguments\n");
+
+            printf("\tjal %s\n", n->fonction);
+
+            if(nbArgs > 0) printf("\taddi $sp, $sp, %d\n", nbArgs*4);
+
+            if(!estExp) printf("\taddi $sp, $sp, 4\n");
+
         } else {
             printf("\n--> /!\\ %s n'est pas une fonction\n", n->fonction);
         }
     } else {
         printf("\n--> /!\\ Fonction non déclarée\n");
     }
-    parcours_l_exp(n->args);
+    //parcours_l_exp(n->args);
     
 }
 
 /*-------------------------------------------------------------------------*/
 
 void parcours_instr_retour(n_instr *n) {
-
     parcours_exp(n->u.retour_.expression);
-    
+
+    depile("$t0");
+    printf("\tsw $t0, %d($fp)\n", courantAdrArg+4);
+
+    if(courantAdrLoc != 0) printf("\taddi $sp, $sp, %d\n", courantAdrLoc);
+
+    depile("$ra");
+    depile("$fp");
+
+    printf("\tjr $ra\n");
 }
 
 /*-------------------------------------------------------------------------*/
@@ -218,14 +274,12 @@ void parcours_instr_retour(n_instr *n) {
 void parcours_instr_ecrire(n_instr *n) {
     parcours_exp(n->u.ecrire_.expression);
 
-    printf("\n\n");
-
-    pop_reg("$a0");
+    depile("$a0");
 
     printf("\tli $v0, 1\n");
     printf("\tsyscall\n");
 
-    printf("\tli, $v0, '\\n'\n");
+    printf("\tli, $a0, '\\n'\n");
     printf("\tli $v0, 11\n");
     printf("\tsyscall\n");
 }
@@ -262,7 +316,6 @@ void parcours_varExp(n_exp *n) {
     if(i==-1) exit(1);
     
     if(n->u.var->type == simple) {
-        printf("\n\n");
         switch(dico.tab[i].classe){
             case C_VARIABLE_GLOBALE:
                 printf("\tlw $t1, %s\n", nom);
@@ -276,13 +329,11 @@ void parcours_varExp(n_exp *n) {
             default:
                 exit(1);
         }
-        stack_reg("$t1");
+        empile("$t1");
     } else {
         parcours_exp(n->u.var->u.indicee_.indice);
 
-        printf("\n\n");
-
-        pop_reg("$t0");
+        depile("$t0");
 
         printf("\tadd $t0, $t0, $t0\n");
         printf("\tadd $t0, $t0, $t0\n");
@@ -295,7 +346,7 @@ void parcours_varExp(n_exp *n) {
                 exit(1);
         }
 
-        stack_reg("$t1");
+        empile("$t1");
     } 
 }
 
@@ -306,108 +357,105 @@ void parcours_opExp(n_exp *n) {
     if( n->u.opExp_.op1 != NULL ) parcours_exp(n->u.opExp_.op1);
     if( n->u.opExp_.op2 != NULL ) parcours_exp(n->u.opExp_.op2);
 
-    printf("\n\n");
-
     switch(n->u.opExp_.op){
         case inf:
-            courantLabel++;
-
-            pop_reg("$t1");
-            pop_reg("$t0");
+            depile("$t1");
+            depile("$t0");
 
             printf("\tli $t2, -1\n");
             printf("\tblt $t0, $t1, e%d\n", courantLabel);
             printf("\tli $t2, 0\n");
 
-            printf("e%d:\n",courantLabel);
+            printf("\ne%d:\n",courantLabel);
 
-            stack_reg("$t2");
+            empile("$t2");
+
+            courantLabel++;
             break;
 
         case fois:
-            pop_reg("$t1");
-            pop_reg("$t0");
+            depile("$t1");
+            depile("$t0");
 
             printf("\tmult $t0, $t1\n");
             printf("\tmflo $t2\n");
 
-            stack_reg("$t2");
+            empile("$t2");
             break;
 
         case divise:
-            pop_reg("$t1");
-            pop_reg("$t0");
+            depile("$t1");
+            depile("$t0");
 
             printf("\tdiv $t0, $t1\n");
             printf("\tmflo $t2\n");
 
-            stack_reg("$t2");
+            empile("$t2");
             break;
 
         case plus:
-            pop_reg("$t1");
-            pop_reg("$t0");
+            depile("$t1");
+            depile("$t0");
 
             printf("\tadd $t2, $t0, $t1\n");
 
-            stack_reg("$t2");
+            empile("$t2");
             break;
 
         case moins:
-            pop_reg("$t1");
-            pop_reg("$t0");
+            depile("$t1");
+            depile("$t0");
 
             printf("\tsub $t2, $t0, $t1\n");
 
-            stack_reg("$t2");
+            empile("$t2");
             break;
 
         case et:
-            pop_reg("$t1");
-            pop_reg("$t0");
+            depile("$t1");
+            depile("$t0");
 
             printf("\tand $t2, $t0, $t1\n");
 
-            stack_reg("$t2");
+            empile("$t2");
             break;
 
         case ou:
-            pop_reg("$t1");
-            pop_reg("$t0");
+            depile("$t1");
+            depile("$t0");
 
             printf("\tor $t2, $t0, $t1\n");
 
-            stack_reg("$t2");
+            empile("$t2");
             break;
 
         case egal:
-            courantLabel++;
-
-            pop_reg("$t1");
-            pop_reg("$t0");
+            depile("$t1");
+            depile("$t0");
 
             printf("\tli $t2, -1\n");
             printf("\tbeq $t0, $t1, e%d\n", courantLabel);
             printf("\tli $t2, 0\n");
-            printf("e%d:\n",courantLabel);
-            stack_reg("$t2");
+            printf("\ne%d:\n",courantLabel);
+            empile("$t2");
+            courantLabel++;
             break;
 
         case non:
-            pop_reg("$t0");
+            depile("$t0");
 
             printf("\tli $t1, -1\n");
             printf("\txor $t2, $t0, $t1\n");
 
-            stack_reg("$t2");
+            empile("$t2");
             break;
 
         case negatif:
-            pop_reg("$t0");
+            depile("$t0");
 
             printf("\tsub $t2, $zero, $t0\n");
 
-            stack_reg("$t2");
+            empile("$t2");
             break;
 
         default:
@@ -420,7 +468,7 @@ void parcours_opExp(n_exp *n) {
 
 void parcours_intExp(n_exp *n) {
     printf("\tli $t0, %d\n", n->u.entier);
-    stack_reg("$t0");
+    empile("$t0");
 }
 
 /*-------------------------------------------------------------------------*/
@@ -428,13 +476,13 @@ void parcours_lireExp(n_exp *n) {
     printf("\tli $v0, 5\n");
     printf("\tsyscall\n");
     
-    stack_reg("$v0");
+    empile("$v0");
 }
 
 /*-------------------------------------------------------------------------*/
 
 void parcours_appelExp(n_exp *n) {
-    parcours_appel(n->u.appel);
+    parcours_appel(n->u.appel, 1);
     
 }
 
@@ -454,8 +502,8 @@ void parcours_l_dec(n_l_dec *n) {
 void parcours_dec(n_dec *n) {
     if(n){
         if(n->type == foncDec) parcours_foncDec(n);
-            else if(n->type == varDec) parcours_varDec(n);
-            else if(n->type == tabDec) parcours_tabDec(n);
+        else if(n->type == varDec) parcours_varDec(n);
+        else if(n->type == tabDec) parcours_tabDec(n);
     }
 }
 
@@ -471,6 +519,11 @@ void parcours_foncDec(n_dec *n) {
         for(l = n->u.foncDec_.param;l != NULL;l = l->queue) nbArgs++;
         ajouteIdentificateur(n->nom, C_VARIABLE_GLOBALE, T_FONCTION, 0, nbArgs);
 
+        printf("\n%s:\n", n->nom);
+        empile("$fp");
+        printf("\tmove $fp, $sp\n");
+        empile("$ra");
+
         entreeFonction();
 
         courantVar = C_ARGUMENT;
@@ -478,12 +531,16 @@ void parcours_foncDec(n_dec *n) {
         courantVar = C_VARIABLE_LOCALE;
         parcours_l_dec(n->u.foncDec_.variables);
 
-        parcours_instr(n->u.foncDec_.corps);
-        
+        if(courantAdrLoc!=0) printf("\tsubi $sp, $sp, %d\n", courantAdrLoc);
 
-        //parcours_dico();
+        parcours_instr(n->u.foncDec_.corps);
 
         sortieFonction();
+
+        if(courantAdrLoc!=0) printf("\taddi $sp, $sp, %d\n", courantAdrLoc);
+        depile("$ra");
+        depile("$fp");
+        printf("\tjr $ra\n");
     } else {
         printf("\n--> /!\\ Fonction déjà déclarée\n");
     }
@@ -493,10 +550,13 @@ void parcours_foncDec(n_dec *n) {
 
 void parcours_varDec(n_dec *n) {
     int declare = rechercheDeclarative(n->nom);
+
     if(declare == -1) {
         int globale = rechercheExecutable(n->nom);
+
         if(globale == -1) {
             int adresse = 0;
+
             if(courantVar == C_ARGUMENT) {
                 adresse = courantAdrArg;
                 courantAdrArg = courantAdrArg + 4;
@@ -504,7 +564,11 @@ void parcours_varDec(n_dec *n) {
                 adresse = courantAdrLoc;
                 courantAdrLoc = courantAdrLoc + 4;
             }
+
             ajouteIdentificateur(n->nom, courantVar, T_ENTIER, adresse, -1);
+
+            if(courantVar==C_VARIABLE_GLOBALE) printf("%s: .space 4\n", n->nom);
+
         } else {
             printf("Erreur : la variable %s est déjà déclarée en globale\n", n->nom);
             exit(1);
@@ -513,22 +577,19 @@ void parcours_varDec(n_dec *n) {
         printf("Erreur : la variable %s est déjà déclarée\n", n->nom);
         exit(1);
     }
-
-    if(courantVar==C_VARIABLE_GLOBALE) printf("%s:\t.space\t4\n", n->nom);
 }
 
 /*-------------------------------------------------------------------------*/
 
 void parcours_tabDec(n_dec *n) {
-    char texte[100]; // Max. 100 chars nom tab + taille
-    sprintf(texte, "%s[%d]", n->nom, n->u.tabDec_.taille);
     if(courantVar == C_VARIABLE_GLOBALE) {
         int existe = rechercheDeclarative(n->nom);
 
         if(existe == -1) {
-            ajouteIdentificateur(n->nom, C_VARIABLE_GLOBALE, T_TABLEAU_ENTIER,
-                courantAdrLoc, n->u.tabDec_.taille);
+            ajouteIdentificateur(n->nom, C_VARIABLE_GLOBALE, T_TABLEAU_ENTIER, courantAdrLoc, n->u.tabDec_.taille);
             courantAdrLoc += (4*n->u.tabDec_.taille);
+
+            printf("%s: .space %d\n", n->nom, 4*n->u.tabDec_.taille);
         } else {
             printf("Erreur : la variable %s est déjà déclarée\n", n->nom);
             exit(1);
