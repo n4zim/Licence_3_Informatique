@@ -16,7 +16,7 @@ int nb_ligne;
 int trace_xml = 0;
 
 void syntaxError(void) {
-	printf ("Erreur de Syntaxe : Ligne %d \n", nb_ligne);
+	printf ("Erreur de Syntaxe : Ligne %d caractère %s\n", nb_ligne, yytext);
 	exit(-1);
 }
 
@@ -298,7 +298,23 @@ n_instr * instructionAffect(void) {
 		}
 		else { 	syntaxError(); }
 	}
-	else { 	syntaxError(); 	}	
+	else {
+		if(uniteCourante == INCR)
+		{
+			affiche_element("symbole", "INCR", trace_xml);
+			uniteCourante = yylex();
+			
+			if(uniteCourante == POINT_VIRGULE) {
+				affiche_element("symbole", "POINT_VIRGULE", trace_xml);
+				uniteCourante = yylex();
+
+				res = cree_n_instr_affect_incr(var1);
+			}
+			else { 	syntaxError(); }
+		}
+		else
+	 		syntaxError(); 	
+	}	
 
 	affiche_balise_fermante("instructionAffect", trace_xml);
 
@@ -717,6 +733,17 @@ n_exp * expArithBis(n_exp * ter) {
 		n_exp * op2 = terme();
 
 		res = cree_n_exp_op(op, ter, op2);
+
+		res = expArithBis(res);
+	}
+
+	if(uniteCourante == INCR) {
+		affiche_element("symbole", "INCR", trace_xml);
+		uniteCourante = yylex();
+
+		operation op = incr;
+
+		res = cree_n_exp_op(op, ter, NULL);
 
 		res = expArithBis(res);
 	}

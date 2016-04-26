@@ -33,6 +33,7 @@ void affiche_var(n_var *n, int isRead);
 void affiche_var_simple(n_var *n,int isRead);
 void affiche_var_indicee(n_var *n, int isRead);
 void affiche_appel(n_appel *n);
+void affiche_instr_affect_incr(n_instr *n);
 
 int trace_abs = 0;
 int trace_dico = 0;
@@ -109,6 +110,7 @@ void affiche_instr(n_instr *n)
   if(n){
     if(n->type == blocInst) affiche_l_instr(n->u.liste);
     else if(n->type == affecteInst) affiche_instr_affect(n);
+    else if(n->type == affecteIncrInst) affiche_instr_affect_incr(n);
     else if(n->type == siInst) affiche_instr_si(n);
     else if(n->type == tantqueInst) affiche_instr_tantque(n);
     else if(n->type == faireInst) affiche_instr_faire(n);
@@ -244,6 +246,45 @@ void affiche_instr_affect(n_instr *n)
     {
       //portée invalide (doit etre globale)
     }
+  }
+
+  affiche_balise_fermante(fct, trace_abs);
+}
+
+/*-------------------------------------------------------------------------*/
+
+void affiche_instr_affect_incr(n_instr *n)
+{
+  char *fct = "instr_affect_incr";
+  affiche_balise_ouvrante(fct, trace_abs);
+
+  affiche_var(n->u.affecte_.var, 0);
+
+  int i = rechercheExecutable(n->u.affecte_.var->nom);
+
+  if(n->u.affecte_.var->type == simple)
+  {
+    switch(dico.tab[i].classe)
+    {
+      case C_VARIABLE_GLOBALE:
+        printf("\tlw\t$t1,\t%s\t\t#Lit variable dans $t1\n", n->u.affecte_.var->nom);
+        empiler("$t1");
+        depiler("$t1");
+        printf("\tadd\t$t2,\t$t1,\t1\t#incr ++\n");
+        printf("\tsw\t$t2,\t%s\t#stocke la variable\n", n->u.affecte_.var->nom);
+        break;
+      case C_VARIABLE_LOCALE:
+        printf("\tlw\t$t1,\t-%d($fp)\t\t#Lit variable dans $t1\n", (dico.tab[i].adresse + 8));
+        empiler("$t1");
+        depiler("$t1");
+        printf("\tadd\t$t2,\t$t1,\t1\t#incr ++\n");
+        printf("\tsw\t$t2,\t-%d($fp)\t#stocke la variable\n", (dico.tab[i].adresse + 8));
+        break;
+    }
+  }
+  else
+  {
+    printf("mips\n");
   }
 
   affiche_balise_fermante(fct, trace_abs);
@@ -403,7 +444,8 @@ void affiche_opExp(n_exp *n)
   else if(n->u.opExp_.op == infeg) affiche_texte("infeg", trace_abs);
   else if(n->u.opExp_.op == ou) affiche_texte("ou", trace_abs);
   else if(n->u.opExp_.op == et) affiche_texte("et", trace_abs);
-  else if(n->u.opExp_.op == non) affiche_texte("non", trace_abs);  
+  else if(n->u.opExp_.op == non) affiche_texte("non", trace_abs); 
+  else if(n->u.opExp_.op == incr) affiche_texte("incr", trace_abs); 
   
   if( n->u.opExp_.op1 != NULL ) {
     affiche_exp(n->u.opExp_.op1);
@@ -440,6 +482,37 @@ void affiche_opExp(n_exp *n)
     printf("\tli\t$t2,\t-1\n");
     printf("%s:\n", etiquette);
     empiler("$t2");
+  }
+  else if(n->u.opExp_.op == incr)
+  {
+    n_var * variable = n->u.opExp_.op1->u.var;
+
+    int i = rechercheExecutable(variable->nom);
+
+    if(variable->type == simple)
+    {
+      switch(dico.tab[i].classe)
+      {
+        case C_VARIABLE_GLOBALE:
+          printf("\tlw\t$t4,\t%s\t\t#Lit variable dans $t1\n", variable->nom);
+          empiler("$t4");
+          depiler("$t4");
+          printf("\tadd\t$t5,\t$t4,\t1\t#incr ++\n");
+          printf("\tsw\t$t5,\t%s\t#stocke la variable\n", variable->nom);
+          break;
+        case C_VARIABLE_LOCALE:
+          printf("\tlw\t$t4,\t-%d($fp)\t\t#Lit variable dans $t1\n", (dico.tab[i].adresse + 8));
+          empiler("$t4");
+          depiler("$t4");
+          printf("\tadd\t$5,\t$t4,\t1\t#incr ++\n");
+          printf("\tsw\t$t5,\t-%d($fp)\t#stocke la variable\n", (dico.tab[i].adresse + 8));
+          break;
+      }
+    }
+    else
+    {
+      printf("mips\n");
+    }
   }
 
   if( n->u.opExp_.op2 != NULL ) {
@@ -771,7 +844,7 @@ void affiche_var_simple(n_var *n, int isRead)
       empiler("$t1");
       break;
     case C_VARIABLE_LOCALE:
-      printf("\tlw\t$t1,\t-%d($fp)\t\t#Lit variable dans $t1 plop\n", (dico.tab[i].adresse + 8));
+      printf("\tlw\t$t1,\t-%d($fp)\t\t#Lit variable dans $t1\n", (dico.tab[i].adresse + 8));
       empiler("$t1");
       break;
   }

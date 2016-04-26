@@ -24,6 +24,7 @@ char *tableMotsClefs[] = {
 	"tantque",
 	"faire",
 	"sinon",
+	"++",
 };
 
 int codeMotClefs[] = { 
@@ -35,6 +36,7 @@ int codeMotClefs[] = {
 	TANTQUE,
 	FAIRE,
 	SINON,
+	INCR,
 };
 
 char yytext[YYTEXT_MAX];
@@ -108,7 +110,16 @@ int yylex(void)
 	if(c == ';')  return 1;
 
 	//Opérateurs
-	if(c == '+')  return 2;
+	if(c == '+'){
+		c = lireCar();
+		if(c == '+')
+			return 33;
+		else
+		{
+			delireCar();
+			return 2;
+		}
+	}
 	if(c == '-')  return 3;
 	if(c == '*')  return 4;
 	if(c == '/')  return 5;
@@ -164,7 +175,6 @@ int yylex(void)
 	if(strcmp(yytext,"retour") == 0) return 23;
 	if(strcmp(yytext,"lire") == 0)  return 24;
 	if(strcmp(yytext,"ecrire") == 0)  return 25;
-
 
 	if(yytext[0] == '$') return 26;
 

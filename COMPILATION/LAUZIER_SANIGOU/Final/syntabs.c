@@ -151,6 +151,14 @@ n_instr *cree_n_instr_affect(n_var *var, n_exp *exp)
   return n;
 }
 
+n_instr *cree_n_instr_affect_incr(n_var *var)
+{
+  n_instr *n = malloc(sizeof(n_instr));
+  n->type = affecteIncrInst;
+  n->u.affecte_.var = var;
+  return n;
+}
+
 n_l_instr *cree_n_l_instr(n_instr *tete, n_l_instr *queue)
 {
   n_l_instr *n = malloc(sizeof(n_l_instr));

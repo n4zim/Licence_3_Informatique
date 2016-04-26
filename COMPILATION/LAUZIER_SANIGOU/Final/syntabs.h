@@ -39,7 +39,7 @@ n_dec *cree_n_dec_fonc(char *nom, n_l_dec *param, n_l_dec *variables, n_instr *c
 /* ATTENTION : negatif => - unaire, comme dans -5
                non => négation logique
    Le opérateurs unaires ont op2 = NULL par convention */     
-typedef enum {plus, moins, fois, divise, modulo, egal, diff, inf, sup, infeg, supeg, ou, et, non, negatif} operation; 
+typedef enum {incr, plus, moins, fois, divise, modulo, egal, diff, inf, sup, infeg, supeg, ou, et, non, negatif} operation; 
 
 struct n_exp_ {
   enum{varExp, opExp, intExp, appelExp, lireExp, incrExp} type;
@@ -62,7 +62,7 @@ n_exp *cree_n_exp_incr(n_var *var);
 /*-------------------------------------------------------------------------*/
 
 struct n_instr_ {
-  enum {incrInst, affecteInst, siInst, faireInst, tantqueInst, appelInst, retourInst, ecrireInst, videInst, blocInst, pourInst } type;  /* MODIFIE POUR EVAL*/
+  enum {affecteIncrInst, incrInst, affecteInst, siInst, faireInst, tantqueInst, appelInst, retourInst, ecrireInst, videInst, blocInst, pourInst } type;  /* MODIFIE POUR EVAL*/
   union{
     n_exp *incr;
     struct{n_var *var; n_exp *exp;} affecte_;    
@@ -89,6 +89,8 @@ n_instr *cree_n_instr_appel(n_appel *appel);
 n_instr *cree_n_instr_retour(n_exp *expression);
 n_instr *cree_n_instr_ecrire(n_exp *expression);
 n_instr *cree_n_instr_vide(void);
+
+n_instr *cree_n_instr_affect_incr(n_var *var);
 
 /*-------------------------------------------------------------------------*/
 struct n_appel_{

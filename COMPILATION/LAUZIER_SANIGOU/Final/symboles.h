@@ -80,6 +80,7 @@
 #define NOMBRE 28 //
 #define FIN 29 //
 #define VIRGULE 30 //
-#define SUPERIEUR 32 // 
+#define SUPERIEUR 32 //
+#define INCR 33
 
 
