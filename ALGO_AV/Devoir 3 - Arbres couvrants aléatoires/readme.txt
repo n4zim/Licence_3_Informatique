@@ -1,6 +1,5 @@
-Nous avons implémenter deux algorithmes : 
-    - Aldous Broder 
-    - Parcours aléatoires 
-    
-Pour les lancers, il faut affecter à la variable "Algo" le chiffre 1 pour Aldous Broder et le chiffre 2 pour le parcours aléatoires dans le Main(). 
+Sont implémentés ici deux algorithmes de l'énoncé : "Aldous Broder" et "Parcours aléatoires"
 
+Pour les lancers, il faut affecter la variable "Algo" dans Main() :
+* au chiffre 1 pour Aldous Broder
+* au chiffre 2 pour le parcours aléatoire. 
